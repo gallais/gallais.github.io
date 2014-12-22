@@ -16,94 +16,107 @@ data Tag = NULL | ID Name | CLASS Name
  deriving Show
 
 data Structure =
-    DIV Tag Structure
+    DIV Tag [Structure]
   | H   Int [Content]
-  | P   Tag Structure
-  | UL      [Content]
+  | P   Tag [Structure]
+  | UL      [[Content]]
   | TXT     [Content]
  deriving Show
 
 data Content =
-    I            [Content]
+    BR
+  | I            [Content]
   | B            [Content]
   | U            [Content]
   | TT           [Content]
   | SPAN     Tag [Content]
+  | CENTER       [Content]
   | FOOTNOTE     [Content]
   | URL      Url [Content]
+  | IMG      Url
   | RAW     String
  deriving Show
 
-sandwichedBy :: Stream s m Char => ParsecT s u m a -> String -> ParsecT s u m a
-sandwichedBy p str = between (string $ '[' : str ++ "]") (string $ "[/" ++ str ++ "]") p
-
-sandwichedWithTagsBy :: Stream s m Char => ParsecT s u m a -> String -> ParsecT s u m (Tag, a)
-sandwichedWithTagsBy p str = do
-  _    <- string $ '[' : str
-  arg  <- tag
-  rest <- p
-  _    <- string $ "[/" ++ str ++ "]"
-  return (arg, rest)
-
 url :: Stream s m Char => ParsecT s u m (Url, [Content])
 url = do
-  link <- between (char '=') (char ']') $ many (try $ noneOf "]")
-  rest <- many content
+  link <- between (char '=') (char ']') $ many1 (try $ noneOf "]")
+  rest <- contents
   _    <- string "[/url]"
   return (Url link, rest)
 
 name :: Stream s m Char => ParsecT s u m Name
 name = Name <$> many alphaNum
 
-tag :: Stream s m Char => ParsecT s u m Tag
-tag =
-  choice
-    [ ID         <$> between (string "id=") (char ']') name
-    , CLASS      <$> between (string "=")   (char ']') name
-    , const NULL <$> string "]"
-    ]
 
 withTags :: Stream s m Char => ParsecT s u m a -> ParsecT s u m (Tag, a)
 withTags p = (,) <$> tag <*> p
+  where
+    tag :: Stream s m Char => ParsecT s u m Tag
+    tag = choice
+      [ ID         <$> between (string "id=") (char ']') name
+      , CLASS      <$> between (string "=")   (char ']') name
+      , const NULL <$> string "]"
+      ]
 
-list :: Stream s m Char => ParsecT s u m [Content]
-list = many $ content `sandwichedBy` "li"
+structures :: Stream s m Char => ParsecT s u m [Structure]
+structures = many1 structure
+
+ul :: Stream s m Char => ParsecT s u m [[Content]]
+ul =
+  (do
+    _      <- char '['
+    switch <- choice $ fmap string [ "li" , "/ul" ]
+    case switch of
+      "li"  -> (:) <$> (finishWith "[/li]" contents) <*> ul
+      "/ul" -> pure [] <* char ']'
+  ) <|> newline *> fmap ([RAW "\n"]:) ul
 
 structure :: Stream s m Char => ParsecT s u m Structure
 structure =
-  choice $ fmap try
-     [ uncurry DIV <$> structure    `sandwichedWithTagsBy` "div"
-     , H 3         <$> many content `sandwichedBy`    "h3"
-     , H 4         <$> many content `sandwichedBy`    "h4"
-     , uncurry P   <$> structure    `sandwichedWithTagsBy` "p"
-     , UL          <$> list    `sandwichedBy`    "ul"
-     , TXT         <$> many content
-     , newline     *> structure
-     ]
+  (do
+    switch <- choice $ fmap (try . string . ('[':))
+              [ "div" , "h" , "p" , "ul" ]
+    case tail switch of
+      "div" -> uncurry DIV <$> withTags structures <* string "[/div]"
+      "h"   -> H           <$> (read . (: []) <$> digit) <*> finishWith "[/h]" contents
+      "p"   -> uncurry P   <$> withTags structures <* string "[/p]"
+      "ul"  -> UL          <$> (char ']' *> ul)
+  ) <|> TXT <$> contents
 
 contents :: Stream s m Char => ParsecT s u m [Content]
-contents = many content
+contents = many1 content
 
 finishWith :: Stream s m Char => String -> ParsecT s u m a -> ParsecT s u m a
 finishWith str = between (char ']') (string str)
+
+escapedRaw :: Stream s m Char => ParsecT s u m Char
+escapedRaw =
+      try (pure '[' <$> string "\\[")
+  <|> char '\\'
+  <|> noneOf "["
 
 content :: Stream s m Char => ParsecT s u m Content
 content =
   (do
     switch <- choice $ fmap (try . string . ('[':))
-              [ "i" , "b" , "tt" , "url" , "footnote" , "span" ]
+              [ "br" , "img" , "i" , "b" , "tt" , "url" , "center"
+              , "footnote" , "span" ]
     case tail switch of
+      "br"       -> pure BR      <$> char ']'
+      "img"      -> IMG          <$> finishWith "[/img]"      (Url <$> many1 (try $ noneOf "["))
       "i"        -> I            <$> finishWith "[/i]"        contents
       "b"        -> B            <$> finishWith "[/b]"        contents
       "u"        -> U            <$> finishWith "[/u]"        contents
       "tt"       -> TT           <$> finishWith "[/tt]"       contents
+      "center"   -> CENTER       <$> finishWith "[/center]"   contents
       "footnote" -> FOOTNOTE     <$> finishWith "[/footnote]" contents
       "url"      -> uncurry URL  <$> url
       "span"     -> uncurry SPAN <$> withTags contents <* string "[/span]"
-  ) <|> RAW  <$> many1 (try $ noneOf "[")
+  ) <|> RAW  <$> many1 escapedRaw
 
-blogPost :: Stream s m Char => ParsecT s u m [Content]
-blogPost = content `manyTill` eof
+
+blogPost :: Stream s m Char => ParsecT s u m [Structure]
+blogPost = structure `manyTill` eof
 
 main :: FilePath -> IO ()
 main fp = do
