@@ -3,12 +3,12 @@
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE ViewPatterns      #-}
 
-module BBCodeTokenizer where
+module Text.BBCode.Tokenizer where
 
 import Data.Tuple
 import Data.List
-import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
 
 import Control.Monad
 
@@ -36,9 +36,9 @@ keywords =
       closable tok tex = [ (OPENTOK  tok, '[' `T.cons` tex `T.snoc` ']')
                          , (CLOSETOK tok, "[/" `T.append` tex `T.snoc` ']') ]
   in
-  (BR, "[br]")
+  (BR, "[br]") : (OPENTOK URL, "[url=") : (CLOSETOK URL, "[/url]")
   :  concatMap (uncurry taggable)
-       [ (P, "p"), (H, "h"), (DIV, "div"), (SPAN, "span"), (URL, "url") ]
+       [ (P, "p"), (H, "h"), (DIV, "div"), (SPAN, "span") ]
   ++ concatMap (uncurry closable)
        [ (UL, "ul"), (LI, "li"), (U, "u"), (I, "i"), (B, "b"), (TT , "tt"), (IMG, "img")
        , (CENTER, "center"), (FOOTNOTE, "footnote") ]
@@ -62,16 +62,16 @@ rawOrKeyword ogkeys = go T.empty ogkeys
             (\ tok -> return (tok, t))
             (lookup T.empty $ fmap swap matchedRest)
 
-tokenize :: Text -> Maybe (Token, Text)
-tokenize = rawOrKeyword keywords
+tokenizer :: Text -> Maybe (Token, Text)
+tokenizer = rawOrKeyword keywords
 
-tokenizer :: Text -> [Token]
-tokenizer = collapseRaws . unfoldr tokenize
+tokenize :: Text -> [Token]
+tokenize = collapseRAWs . unfoldr tokenizer
 
-collapseRaws :: [Token] -> [Token]
-collapseRaws (RAW x : RAW y : xs) = collapseRaws $ RAW (x `T.append` y) : xs
-collapseRaws []     = []
-collapseRaws (x:xs) = x : collapseRaws xs
+collapseRAWs :: [Token] -> [Token]
+collapseRAWs (RAW x : RAW y : xs) = collapseRAWs $ RAW (x `T.append` y) : xs
+collapseRAWs []     = []
+collapseRAWs (x:xs) = x : collapseRAWs xs
 
 updatePosToken :: SourcePos -> Token -> SourcePos
 updatePosToken sp = updatePosString sp . T.unpack . getText

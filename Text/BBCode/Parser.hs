@@ -4,18 +4,17 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE FlexibleContexts  #-}
 
-module BBCodeParser where
+module Text.BBCode.Parser where
 
 import Control.Applicative hiding (many, (<|>))
 import Control.Monad
 
 import Data.Char
-import Data.Text (Text)
-import qualified Data.Text    as T
-import qualified Data.Text.IO as TIO
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy    as T
 
-import           BBCodeTokenizer (Token)
-import qualified BBCodeTokenizer as Tok
+import           Text.BBCode.Tokenizer (Token)
+import qualified Text.BBCode.Tokenizer as Tok
 
 import Text.Parsec
 
@@ -136,7 +135,5 @@ structure =
 blogPost :: Stream s m Token => ParsecT s u m [Structure]
 blogPost = structure `manyTill` eof
 
-main :: FilePath -> IO ()
-main fp = do
-  input <- TIO.readFile fp
-  print $ parse blogPost "" $ Tok.tokenizer input
+parseBBCode :: Text -> Either ParseError [Structure]
+parseBBCode = parse blogPost "" . Tok.tokenize
