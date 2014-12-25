@@ -2,7 +2,10 @@
 
 import Data.Monoid
 import Publications
+import Text.BBCode.PrettyPrinter
 import Hakyll
+
+import qualified Data.Text.Lazy as T
 
 main :: IO ()
 main = hakyll $ do
@@ -22,21 +25,20 @@ main = hakyll $ do
         route   idRoute
         compile compressCssCompiler
 
-    match (fromList ["fun.html", "contact.html"]) $ do
-        route   $ setExtension "html"
-        compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/default.html" defaultContext
-            >>= relativizeUrls
+    match "blog/*.txt" $ do
+        route $ setExtension "html"
+        compile $ fmap (fmap T.unpack) bbcodeCompiler
+          >>= loadAndApplyTemplate "templates/default.html" defaultContext
 
     create ["publis.html"] $ do
         route idRoute
         compile $
           return Item { itemIdentifier = fromFilePath "publis.html"
-                      , itemBody       = publications }
+                      , itemBody       = T.unpack publications }
           >>= loadAndApplyTemplate "templates/default.html" defaultContext
           >>= relativizeUrls
 
-    match "index.html" $ do
+    match (fromList ["index.html" , "contact.html"]) $ do
         route idRoute
         compile $
           getResourceBody
