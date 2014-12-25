@@ -132,7 +132,7 @@ workshops =
 
 conferences :: [Publi]
 conferences =
-  [ Publi { authors   = [rthiemann, gallais]
+  [ Publi { authors   = [rthiemann, gallais, jnagele]
           , title     = "On the Formalization of Termination Techniques Based on Multiset Orderings"
           , date      = yearOnly 2012
           , venue     = Venue { name = "RTA", www = Just "http://rta2012.trs.cm.is.nagoya-u.ac.jp/" }
