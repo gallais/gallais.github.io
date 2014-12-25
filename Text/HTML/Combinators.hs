@@ -4,8 +4,7 @@
 module Text.HTML.Combinators where
 
 import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy          as T
-import qualified Data.Text.Lazy.Encoding as TE
+import qualified Data.Text.Lazy as T
 
 sandwichedWith :: Text -> Text -> Text
 str `sandwichedWith` bread = T.concat [ tag "" , str , tag "/" ]
@@ -16,6 +15,9 @@ a_ href name =
   T.concat [ "<a href=\"" , href , "\">"
            , name
            , "</a>" ]
+
+br_ :: Text
+br_ = "<br />"
 
 b_ :: Text -> Text
 b_ str = str `sandwichedWith` "b"
@@ -30,7 +32,11 @@ tt_:: Text -> Text
 tt_ str = str `sandwichedWith` "tt"
 
 ul_ :: [Text] -> Text
-ul_ strs = T.intercalate "\n" (fmap li_ strs) `sandwichedWith` "ul"
+ul_ = ulWith_ ""
+
+ulWith_ :: Text -> [Text] -> Text
+ulWith_ sep strs =
+  T.intercalate (sep `T.snoc` '\n') (fmap li_ strs) `sandwichedWith` "ul"
 
 li_ :: Text -> Text
 li_ str = str `sandwichedWith` "li"

@@ -25,7 +25,7 @@ ppList :: (a -> Text) -> [a] -> Text
 ppList pp = T.concat . fmap pp
 
 ppContent :: Content -> Text
-ppContent BR            = "<br />"
+ppContent BR              = br_
 ppContent (RAW      txt)  = txt
 ppContent (I        txts) = i_                $ ppList ppContent txts
 ppContent (B        txts) = b_                $ ppList ppContent txts
