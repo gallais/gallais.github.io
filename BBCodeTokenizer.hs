@@ -17,7 +17,7 @@ import Text.Parsec.Pos
 
 data OpClable =
   P | H | DIV | SPAN | URL |
-  UL | U | I | B | TT | IMG | CENTER | FOOTNOTE
+  UL | LI | U | I | B | TT | IMG | CENTER | FOOTNOTE
   deriving (Eq, Show)
 
 data Token =
@@ -40,7 +40,7 @@ keywords =
   :  concatMap (uncurry taggable)
        [ (P, "p"), (H, "h"), (DIV, "div"), (SPAN, "span"), (URL, "url") ]
   ++ concatMap (uncurry closable)
-       [ (UL, "ul"), (U, "u"), (I, "i"), (B, "b"), (TT , "tt"), (IMG, "img")
+       [ (UL, "ul"), (LI, "li"), (U, "u"), (I, "i"), (B, "b"), (TT , "tt"), (IMG, "img")
        , (CENTER, "center"), (FOOTNOTE, "footnote") ]
 
 rawOrKeyword :: Keywords -> Text -> Maybe (Token, Text)
