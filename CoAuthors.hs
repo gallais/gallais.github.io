@@ -1,24 +1,26 @@
-{-# LANGUAGE QuasiQuotes       #-}
+{-# OPTIONS  -Wall             #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
 module CoAuthors where
 
-import Text.Whiskers
+import Text.HTML.Combinators
+import Data.Text.Lazy (Text)
+import qualified Data.Text.Lazy as T
 
-type URL = Maybe String
+type URL = Maybe Text
 
-urlToString :: String -> URL -> String
-urlToString name Nothing    = name
-urlToString name (Just url) = [whiskers| <a href="{{ url }}">{{ name }}</a> |]
+urlToText :: Text -> URL -> Text
+urlToText name = maybe name (flip a_ name)
 
 data Person =
-  Person { firstname :: String
-         , surname   :: String
+  Person { firstname :: Text
+         , surname   :: Text
          , website   :: URL }
 
-personToString :: Person -> String
-personToString Person{..} = urlToString name website
-  where name = (head firstname : ". " ++ surname)
+personToText :: Person -> Text
+personToText Person{..} = urlToText name website
+  where name = (T.head firstname `T.cons` ". " `T.append` surname)
 
 cmcbride :: Person
 cmcbride =
@@ -30,6 +32,12 @@ gallais :: Person
 gallais =
   Person { firstname = "Guillaume"
          , surname   = "Allais"
+         , website   = Nothing }
+
+jnagele :: Person
+jnagele =
+  Person { firstname = "Julian"
+         , surname   = "Nagele"
          , website   = Nothing }
 
 pboutillier :: Person
@@ -44,3 +52,8 @@ rthiemann =
          , surname   = "Thiemann"
          , website   = Just "http://cl-informatik.uibk.ac.at/users/thiemann/" }
 
+ybertot :: Person
+ybertot =
+  Person { firstname = "Yves"
+         , surname   = "Bertot"
+         , website   = Just "http://www-sop.inria.fr/members/Yves.Bertot" }

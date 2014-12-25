@@ -1,65 +1,69 @@
-{-# LANGUAGE QuasiQuotes       #-}
+{-# OPTIONS  -Wall             #-}
 {-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Publications where
 
-import Data.List
-import Text.Whiskers
+import Text.HTML.Combinators
+
+import Data.Text.Lazy (Text, intercalate)
+import qualified Data.Text.Lazy as T
+
 import CoAuthors
 
 data Venue =
-  Venue { name :: String
+  Venue { name :: Text
         , www  :: URL }
 
-venueToString :: Venue -> String
-venueToString v = urlToString (name v) (www v)
+venueToText :: Venue -> Text
+venueToText v = urlToText (name v) (www v)
 
 data Kind = Pdf | Slides | Github | Agda | Blog
 
-kindToString :: Kind -> String
-kindToString Pdf    = "pdf"
-kindToString Slides = "slides"
-kindToString Github = "github"
-kindToString Agda   = "agda"
-kindToString Blog   = "blog"
+kindToText :: Kind -> Text
+kindToText Pdf    = "pdf"
+kindToText Slides = "slides"
+kindToText Github = "github"
+kindToText Agda   = "agda"
+kindToText Blog   = "blog"
 
 data Resource =
   Resource { kind :: Kind
-           , link :: String }
+           , link :: Text }
 
-pdf :: String -> Resource
+pdf :: Text -> Resource
 pdf url = Resource { kind = Pdf, link = url }
 
-slides :: String -> Resource
+slides :: Text -> Resource
 slides url = Resource { kind = Slides, link = url }
 
-github :: String -> Resource
+github :: Text -> Resource
 github url = Resource { kind = Github, link = url }
 
-agda :: String -> Resource
+agda :: Text -> Resource
 agda url = Resource { kind = Agda, link = url }
 
-blog :: String -> Resource
+blog :: Text -> Resource
 blog url = Resource { kind = Blog, link = url }
 
-resourceToString :: Resource -> String
-resourceToString res = urlToString (kindToString $ kind res) (Just $ link res)
+resourceToText :: Resource -> Text
+resourceToText res = urlToText (kindToText $ kind res) (Just $ link res)
 
-resourcesToString :: [Resource] -> String
-resourcesToString [] = ""
-resourcesToString rs = [whiskers| <span class="docs">[{{ docs }}]</span> |]
-  where docs = intercalate "|" $ fmap resourceToString rs
+resourcesToText :: [Resource] -> Text
+resourcesToText [] = ""
+resourcesToText rs = span_ " class=\"docs\"" $ "[ " `T.append` docs `T.append` " ]"
+  where docs = intercalate " | " $ fmap resourceToText rs
 
 data Date =
   Date { day   :: Maybe Int
        , month :: Maybe Int
        , year  :: Int }
 
-dateToString :: Date -> String
-dateToString d = go (day d) ++ go (month d) ++ show (year d)
+dateToText :: Date -> Text
+dateToText d = go (day d) `T.append` go (month d) `T.append` T.pack (show (year d))
   where
     go Nothing  = ""
-    go (Just i) = (if i < 10 then "0" else "") ++ show i ++ " "
+    go (Just i) = (if i < 10 then "0" else "") `T.append` T.pack (show i) `T.append` " "
 
 yearOnly :: Int -> Date
 yearOnly y =
@@ -69,44 +73,45 @@ yearOnly y =
 
 data Publi =
   Publi { authors   :: [Person]
-        , title     :: String
+        , title     :: Text
         , date      :: Date
         , venue     :: Venue
         , resources :: [Resource] }
 
-publiToText :: Publi -> String
+publiToText :: Publi -> Text
 publiToText Publi{..} =
-  [whiskers|
-    <b>{{ title }}</b> {{ docs }}
-    <br /> {{ bys }} <span class="docs">{{ conf }}, {{ time }}</span>
-  |]
+  T.concat
+    [ b_ title , docs , br_ , bys
+    , span_ " class=\"docs\"" $ T.concat [ conf , ", " , time ] ]
   where
-    docs = resourcesToString resources
-    bys  = intercalate ", " $ fmap personToString authors
-    conf = venueToString venue
-    time = dateToString date
+    docs = resourcesToText resources
+    bys  = intercalate ", " $ fmap personToText authors
+    conf = venueToText venue
+    time = dateToText date
 
 data Sort =
-    Conference
+    Journal
+  | Conference
   | Workshop
   | TechReport
   | Talk
 
-sortToString :: Sort -> String
-sortToString Conference = "Conference papers"
-sortToString Workshop   = "Workshop papers"
-sortToString TechReport = "Technical reports"
-sortToString Talk       = "Talks"
+sortToText :: Sort -> Text
+sortToText Journal    = "Journal papers"
+sortToText Conference = "Conference papers"
+sortToText Workshop   = "Workshops"
+sortToText TechReport = "Technical reports"
+sortToText Talk       = "Talks"
 
 data Publis =
   Publis { sort   :: Sort
          , publis :: [Publi] }
 
-publisToText :: Publis -> String
-publisToText Publis{..} = [whiskers| <h3>{{ h3 }}</h3> <ul><li> {{ lis }} </li></ul> |]
+publisToText :: Publis -> Text
+publisToText Publis{..} = T.concat [ h_ 3 h3 , ulWith_ "<hr />" lis ]
   where
-    h3  = sortToString sort
-    lis = intercalate "</li><hr />\n<li>" $ fmap publiToText publis
+    h3  = sortToText sort
+    lis = fmap publiToText publis
 
 workshops :: [Publi]
 workshops =
@@ -127,11 +132,21 @@ workshops =
 
 conferences :: [Publi]
 conferences =
-  [ Publi { authors   = [gallais, rthiemann]
+  [ Publi { authors   = [rthiemann, gallais]
           , title     = "On the Formalization of Termination Techniques Based on Multiset Orderings"
           , date      = yearOnly 2012
           , venue     = Venue { name = "RTA", www = Just "http://rta2012.trs.cm.is.nagoya-u.ac.jp/" }
           , resources = [ pdf "pdf/rta2012.pdf" ]
+          }
+  ]
+
+journals :: [Publi]
+journals =
+  [ Publi { authors   = [ybertot, gallais]
+          , title     = "Views of PI: Definition and computation"
+          , date      = Date Nothing (Just 10) 2014
+          , venue     = Venue { name = "Journal of Formalized Reasoning", www = Just "http://jfr.unibo.it/" }
+          , resources = [ pdf "http://jfr.unibo.it/article/view/4343" ]
           }
   ]
 
@@ -171,14 +186,15 @@ reports =
 
 allPublis :: [Publis]
 allPublis =
-  [ Publis { sort = Conference, publis = conferences }
+  [ Publis { sort = Journal   , publis = journals }
+  , Publis { sort = Conference, publis = conferences }
   , Publis { sort = Workshop  , publis = workshops   }
   , Publis { sort = Talk      , publis = talks       }
   , Publis { sort = TechReport, publis = reports     }
   ]
 
-publications :: String
-publications = concatMap publisToText allPublis
+publications :: Text
+publications = T.concat $ fmap publisToText allPublis
 
 
 
