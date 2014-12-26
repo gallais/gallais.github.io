@@ -32,6 +32,7 @@ main = hakyll $ do
         route   $ setExtension "html"
         compile $ fmap (fmap T.unpack) bbcodeCompiler
           >>= loadAndApplyTemplate "templates/default.html" defaultContext
+          >>= relativizeUrls
 
     forM allTags $ \ key ->
       create [ fromFilePath $ "blog." ++ T.unpack key ++ ".html" ] $ do
