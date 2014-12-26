@@ -6,6 +6,8 @@ module BlogList where
 import Data.Time
 import qualified Data.List as L
 import Data.Text.Lazy as T
+
+import Text.RSS.Syntax
 import Text.HTML.Combinators
 
 data BlogPost =
@@ -76,13 +78,13 @@ blogPosts =
     haskell               = "haskell"
     λcalculus             = "lambda calculus"
     lazyness              = "lazyness"
-    linearLogic           = "linear logic"
+--    linearLogic           = "linear logic"
     normalization         = "normalization"
     phantomTypes          = "phantom types"
     physics               = "physics"
-    reflection            = "reflection"
+--    reflection            = "reflection"
     soundness             = "soundness"
-    tactics               = "tactics"
+--    tactics               = "tactics"
     typeSafety            = "type safety"
     universe              = "universe"
 
@@ -121,3 +123,23 @@ blogIndex key = T.concat
           [ a_ (T.concat [ "blog/", T.pack $ source bp, ".html" ]) $ name bp
           , span_ " class=\"date\"" $ T.pack $ date $ pubDate bp ]
 
+postRSS :: BlogPost -> String -> RSSItem
+postRSS bp txt =
+  let url = L.concat [ "http://www.gallais.org/blog/", source bp , ".html" ]
+      css = "<head> \
+            \<link rel=\"stylesheet\" type=\"text/css\" \
+            \      href=\"http://www.gallais.org/css/main.css\" />\
+            \</head>" in
+  RSSItem { rssItemTitle       = Just $ T.unpack $ name bp
+          , rssItemLink        = Just url
+          , rssItemDescription = Just $ css ++ txt
+          , rssItemAuthor      = Nothing
+          , rssItemCategories  = []
+          , rssItemComments    = Nothing
+          , rssItemEnclosure   = Nothing
+          , rssItemGuid        = Just $ RSSGuid (Just True) [] url
+          , rssItemPubDate     = Just $ formatTime defaultTimeLocale rfc822DateFormat $ pubDate bp
+          , rssItemSource      = Nothing
+          , rssItemAttrs       = []
+          , rssItemOther       = []
+          }
