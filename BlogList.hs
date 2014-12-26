@@ -98,7 +98,8 @@ allTagsWithMultiplicity = flip fmap allTags $ \ k ->
 
 blogIndex :: Maybe Text -> Text
 blogIndex key = T.concat
-  [ h_ 3 $ "Blog posts" `T.append` titleExt key
+  [ span_ " style=\"float:right\"" $ a_ "/rss.xml" $ img_ "/img/rss.png"
+  , h_ 3 $ "Blog posts" `T.append` titleExt key
   , ul_  $ fmap post $ collectPosts key blogPosts
   , h_ 3 "Tags cloud"
   , T.intercalate " " multiplicities

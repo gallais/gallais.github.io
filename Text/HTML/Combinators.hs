@@ -59,7 +59,7 @@ li_ :: Text -> Text
 li_ str = str `sandwichedWith` "li"
 
 img_ :: Text -> Text
-img_ str = str `sandwichedWith` "img"
+img_ str = T.concat [ "<img src=\"" , str , "\" />" ]
 
 center_ :: Text -> Text
 center_ str = str `sandwichedWith` "center"

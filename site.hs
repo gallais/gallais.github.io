@@ -5,6 +5,7 @@ import Control.Monad
 import Publications
 import BlogList
 import Text.BBCode.PrettyPrinter
+import Text.HTML.Combinators
 import Text.RSS.Syntax
 import Text.Feed.Constructor
 import Text.Feed.Export
@@ -43,10 +44,11 @@ main = hakyll $ do
         route   idRoute
         compile compressCssCompiler
 
+    let rssIcon = span_ " style=\"float:right\"" $ a_ "/rss.xml" $ img_ "/img/rss.png"
     forM blogPosts $ \ post ->
       create [ fromFilePath $ "blog/" ++ source post ++ ".txt" ] $ do
         route   $ setExtension "html"
-        compile $ fmap (fmap T.unpack) bbcodeCompiler
+        compile $ fmap (fmap $ T.unpack . T.append rssIcon) bbcodeCompiler
           >>= saveSnapshot "content"
           >>= loadAndApplyTemplate "templates/default.html" defaultContext
           >>= relativizeUrls
