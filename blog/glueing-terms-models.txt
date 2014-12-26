@@ -1,0 +1,175 @@
+[div=bdocs][ul]
+[li][url=http://patch-tag.com/r/gallais/agda/snapshot/current/content/raw/src/nbe/gluedmodel.agda]Raw Agda[/url][/li]
+[li][url=/code/GlueingModel/gluedmodel.html]Colored Agda[/url][/li]
+[/ul][/div]
+[pid=chapo]Today I want to talk about something I came up with when
+working on questions connected to the material presented in our
+[url=/pdf/icfp13.pdf]ICFP submission[/url] but we did not get the
+opportunity to discuss in the paper. The claim is that glueing
+terms to the structure of a model allows the reader to get a good
+intuition of the way the calculus works by making explicit what used
+to be hidden [i]under the hood[/i].[/p]
+
+[p]I learned about the glueing technique whilst reading about
+models of the simply-typed SK combinatorial calculus
+[footnote]Intuitionistic model constructions and normalization
+proofs by Thierry Coquand and Peter Dybjer
+([url=http://www.citeulike.org/user/gallais/article/8927583]citeulike[/url])[/footnote]. Glueing is described as a tool to
+circumvent the mismatch between the really restrictive structure of
+SK terms and the rather liberal (naïve) model: if one is able to
+evaluate SK terms in the model, it is however impossible to extract
+normal forms from the semantical objects without applying some kind of lambda to SK encoding procedure! Glueing syntactical terms
+to their semantical counterparts is precisely what is required by
+the procedure to be able to reify partial applications of S and K.[/p]
+
+[p]Glueing resurfaced later on in my own experimentations when
+defining a model for a weak-head normalization by evaluation
+[footnote][url=http://patch-tag.com/r/gallais/agda/snapshot/current/content/raw/src/nbe/stlc/whnf/model.agda]Raw Agda[/url] development on patch-tag.[/footnote].
+Indeed, the need to be able to throw away unnecessary computations
+(e.g. the argument part of a stuck application should not be
+reduced) is easily met by enriching the model with syntactical
+artefacts corresponding to [i]source terms[/i] for the semantical
+objects. A pleasant side-effet of the added structure is the
+simplification of the formulation and proofs of correctness
+properties in Type Theory.[/p]
+
+[h3]The setting[/h]
+
+[p]But in this blog post I would like to argue that there is more
+to it than merely solving these kind of problems: glueing can be
+used to obtain a well-structured model highlighting some nice
+properties of the calculus. The setting for this example is the
+definition of a normalization function for the simply-typed lambda
+calculus which does not require a glueing to be defined. Types are
+either the base, uninterpreted, type or arrow types:[/p]
+
+[p=code]σ, τ : ty ∷= ♭ | σ `→ τ[/p]
+
+[p]Our well-typed terms using de Bruijn indices are boring so we
+will have a look at the definition of normal forms instead. By
+definition, only stuck expressions (a variable followed by a spine
+of arguments in normal form) of the base type can be regarded as
+normal forms. The equational theory will accordingly include eta
+rules.[/p]
+
+[p=code]  data _⊢ne_ (Γ : Con ty) : ty → Set where
+    `v   : (pr : σ ∈ Γ)                     → Γ ⊢ne σ
+    _`$_ : (f : Γ ⊢ne σ `→ τ) (x : Γ ⊢nf σ) → Γ ⊢ne τ
+
+  data _⊢nf_ (Γ : Con ty) : ty → Set where
+    `↑_ : (t : Γ ⊢ne ♭)     → Γ ⊢nf ♭
+    `λ_ : (b : Γ ∙ σ ⊢nf τ) → Γ ⊢nf σ `→ τ[/p]
+
+[p]All these notions obviously come with the expected weakening
+operations.[/p]
+
+[h3]Model definition - where the glueing happens[/h]
+
+[p]The model is defined in terms of reduction-free elements: the
+interpretation of a term is either a neutral form which will just
+grow when being eliminated or it is a normal form together with
+an element of the [i]acting[/i] model explaining what its behaviour
+is.[/p]
+
+[p=code]  _⊩_ : ∀ (Γ : Con ty) (σ : ty) → Set
+  Γ ⊩ σ =   Γ ⊢ne σ
+          ⊎ Γ ⊢nf σ × Γ ⊩⋆ σ[/p]
+
+[p]The acting model is the part of the model doing all the heavy
+lifting when [i]computational[/i] reductions are required. It has
+a Kripke flavour in the sense that it refers to the full model in
+any possible future context extension. Quite unsurprisingly, a
+term of base type has no computational content (it can only be
+a neutral) and elements of function type are interpreted as
+functions on semantical objects.[/p]
+
+[p=code]  _⊩⋆_ : ∀ (Γ : Con ty) (σ : ty) → Set
+  Γ ⊩⋆ ♭      = ⊤
+  Γ ⊩⋆ σ `→ τ = ∀ {Δ} (inc : Γ ⊆ Δ) → Δ ⊩ σ → Δ ⊩ τ[/p]
+
+[p]These definitions are easily extended to contexts by recursion
+and give rise to semantical environments [tt]Δ ⊩ε Γ[/tt]. A natural
+notion of weakening can be made formal.[/p]
+
+[h3]The (not so) trivial quoting function[/h]
+
+[p]Because of the way the model is defined, there is little to no
+mystery that proving that each element has an image in the model
+amounts to proving the existence of a procedure turning terms into
+their cut-free equivalents.[/p]
+
+[p]Even if the definitions of quote and unquote are straightforward,
+they are rather unusual: unlike their more traditional analogues, they
+confine the uses of eta-expansion at reification time. This has to be
+compared to the motto [i]eta-expansion both at the syntactical and
+semantical level[/i] usually associated with the (un)quote functions.
+Additionally, this syntactic work is performed in a standalone
+function [tt]eta[_]_[/tt]
+[footnote]It should be noted that the traditional eta-expansion trick
+([tt]↑[ σ ] ↓[ σ ] t[/tt]) consisting of drowning the neutral term
+in the model and refying it back immediately after is precisely
+equal to applying [tt]eta[ σ ][/tt] to [tt]t[/tt].[/footnote] which
+is model agnostic.[/p]
+
+[p=code]eta[_]_ : ∀ {Γ} σ (T : Γ ⊢ne σ) → Γ ⊢nf σ
+eta[ ♭      ] t = `↑ t
+eta[ σ `→ τ ] t = `λ eta[ τ ] (wk-ne inc t `$ var)
+  where inc = step (same _)
+        var = eta[ σ ] `v here![/p]
+
+[p]This way of organizing extraction of normal forms from the model
+brings us closer to a staged reduction process which deals
+with computations (beta, delta, iota) first and then reorganizes
+the cut-free forms using extra rules (eta, nu [footnote]A set of
+rules reorganizing stuck recursive functions we introduce in our
+[url=/pdf/icfp13.pdf]ICFP submission[/url] (This is starting to
+sound like an advertisement campaign... ¬_¬).[/footnote]) than your
+average normalization by evaluation formalization.[/p]
+
+[h3]Evaluation function[/h]
+
+[p]By combining weakening for semantical environments and unquote,
+we can define a diagonal environment [tt]Γ ⊩ε Γ[/tt] for every
+[tt]Γ[/tt]. In order to be able to extract normal forms from
+simple terms, it is thus enough to define an evaluation function.[/p]
+
+[p=code]eval : (t : Γ ⊢ σ) (ρ : Δ ⊩ε Γ) → Δ ⊩ σ[/p]
+
+[p][tt]eval[/tt] is defined by induction on the structure of the term
+[tt]t[/tt]. In the variable case, a simple lookup in the semantical
+environment produces the well-typed value needed. The application
+case combines the induction hypotheses using [tt]_$$_[/tt], a
+function defined by case analysis on the function: if the function
+is stuck, the application also is whereas if it is live, the action
+model will compute further using the argument.[/p]
+
+[p=code]_$$_ : (F : Γ ⊩ σ `→ τ) (X : Γ ⊩ σ) → Γ ⊩ τ
+inj₁ f       $$ X = inj₁ (f `$ ↑[ _ ] X)
+inj₂ (f , F) $$ X = F (⊆-refl _) X[/p]
+
+[p]The lambda abstraction case is defined in two steps: first the
+object [tt]B[/tt] in the acting model can be generated by applying
+the induction hypothesis for the body of the lambda in an extended
+(and weakened) environment. And then the normal form is generated
+by quoting the object obtained when applying [tt]B[/tt] to the
+variable bound by the head lambda.[/p]
+[p=code]eval (`λ t) ρ = inj₂ (`λ ↑B , B)
+  where B  : _ ⊩⋆ _ `→ _
+        B  = λ inc X → eval t (wk-⊩ε _ inc ρ , X)
+        ↑B = ↑[ _ ] B (step (⊆-refl _)) (↓[ _ ] `v here!)[/p]
+
+[p]Now we can just tie the knot and combine the diagonal environment
+with the evaluation function and quote in order to obtain a
+normalization procedure.[/p]
+
+[p=code]norm[_]_ : ∀ {Γ} σ (t : Γ ⊢ σ) → Γ ⊢nf σ
+norm[ σ ] t = ↑[ σ ] eval t (⊩ε-refl _)[/p]
+
+[h3]Conclusions[/h]
+
+[p]We recalled that glueing can help us give more structure to our
+models thus circumventing limitations of the naïve ones. But, more
+importantly, we have also shown that this technique can produce new
+insights on already well understood constructions by e.g. making it
+possible to isolate different stages of the normalization process:
+computation and standardization in our case.[/p]

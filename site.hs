@@ -1,7 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Data.Monoid
+import Control.Monad
 import Publications
+import BlogList
 import Text.BBCode.PrettyPrinter
 import Hakyll
 
@@ -25,16 +27,31 @@ main = hakyll $ do
         route   idRoute
         compile compressCssCompiler
 
-    match "blog/*.txt" $ do
-        route $ setExtension "html"
+    forM blogPosts $ \ post ->
+      create [ fromFilePath $ "blog/" ++ source post ++ ".txt" ] $ do
+        route   $ setExtension "html"
         compile $ fmap (fmap T.unpack) bbcodeCompiler
           >>= loadAndApplyTemplate "templates/default.html" defaultContext
+
+    forM allTags $ \ key ->
+      create [ fromFilePath $ "blog." ++ T.unpack key ++ ".html" ] $ do
+        route idRoute
+        compile $
+          makeItem (T.unpack $ blogIndex $ Just key)
+          >>= loadAndApplyTemplate "templates/default.html" defaultContext
+          >>= relativizeUrls
+
+    create ["blog.html"] $ do
+        route idRoute
+        compile $
+          makeItem (T.unpack $ blogIndex Nothing)
+          >>= loadAndApplyTemplate "templates/default.html" defaultContext
+          >>= relativizeUrls
 
     create ["publis.html"] $ do
         route idRoute
         compile $
-          return Item { itemIdentifier = fromFilePath "publis.html"
-                      , itemBody       = T.unpack publications }
+          makeItem (T.unpack publications)
           >>= loadAndApplyTemplate "templates/default.html" defaultContext
           >>= relativizeUrls
 
