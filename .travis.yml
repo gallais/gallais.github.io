@@ -5,6 +5,11 @@ branches:
 ghc:
   - 7.6
 before_install:
+  - ls .git/refs/heads/
+  - git remote show origin
+  - git branch -a
+  - git fetch
+  - git branch -a 
   - cd src/
 install:
   - cabal install --only-dependencies
@@ -12,7 +17,7 @@ install:
 script:
   - ./site build
 after_script:
-  - git fetch && git checkout origin/master
+  - git fetch && git checkout -B master origin/master
   - mv _site/* ../ && rmdir _site && cd ..
   - git config user.name "travis-worker"
   - git config user.email "travis@gallais.org"
