@@ -11,15 +11,15 @@ install:
 script:
   - ghc --make site.hs
 after_script:
-  - git checkout master
+  - git fetch && git checkout master
   - ./site build && mv _site/* ../ && rmdir _site && cd ..
   - git config user.name "travis-worker"
   - git config user.email "travis@gallais.org"
   - git add *.html *.xml blog/*
   - git commit -m "Uploading snapshot $(date '+%m/%d/%y %H:%M')"
-  - git push --force https://${GH_TOKEN}@github.com/gallais/gallais.github.io.git master
+  - git push --force https://${GH_TOKEN}@github.com/gallais/gallais.github.io.git master | grep -v "http"
 notifications:
   email: false
 env:
   global:
-    secure: CTK9sm7s/y0FlVQ7N0jSCrxCGpsf5enS0L2igYWJV8pmQerqbfeqoGCkWQP13tJG5yQMvCqee+eactBJriBqYFJ1F12zisRmSLCTZhIFNb7mlcVMeDMQxh4iySjnXVzx8CpnMcRrqFRIHQGtlgTdNKgCGKOJUxHXl5ALeuJOsC4=
+    secure: "OsAe/R8H8GI+ofFPhFa4Ig9xceXSZcJP01+7UAWQRD+mCf8XM0qXqV3qWkHR4yST7X0t+V2MMZMZJjdaWU2op8Z9HNJz6nNmSShVkXC0TnQRD4NRna+OBmJufc1mZKDqgJJck2HIXqb6nXc8RVHKrhwUJBuoDN0QFEOMSCVnNrU="
