@@ -1,19 +1,21 @@
 language: haskell
+branches:
+  only:
+    - source
 ghc:
   - 7.6
 before_install:
-  - git checkout master
   - cd src/
 install:
   - cabal install --only-dependencies
 script:
   - ghc --make site.hs
 after_script:
+  - git checkout master
   - ./site build && mv _site/* ../ && rmdir _site && cd ..
-  - git status
   - git config user.name "travis-worker"
   - git config user.email "travis@gallais.org"
-  - git add *.html blog/*
+  - git add *.html *.xml blog/*
   - git commit -m "Uploading snapshot $(date '+%m/%d/%y %H:%M')"
   - git push --force https://${GH_TOKEN}@github.com/gallais/gallais.github.io.git master
 notifications:
