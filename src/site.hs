@@ -29,21 +29,6 @@ blogRSS = do
 
 main :: IO ()
 main = hakyll $ do
-    match "img/*" $ do
-        route   idRoute
-        compile copyFileCompiler
-
-    match "pdf/*" $ do
-        route   idRoute
-        compile copyFileCompiler
-
-    match "css/*.ttf" $ do
-        route   idRoute
-        compile copyFileCompiler
-
-    match "css/*.css" $ do
-        route   idRoute
-        compile compressCssCompiler
 
     let rssIcon = span_ " style=\"float:right\"" $ a_ "/rss.xml" $ img_ "/img/rss.png"
     forM blogPosts $ \ post ->
