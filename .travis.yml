@@ -23,5 +23,5 @@ notifications:
   email: false
 env:
   global:
-    secure: "M+QcCJuavA0DKz5QL4bEYT1B4npHndUio3Gu+1MqjJSE8t4MOxKmHNpEFjjT+yr5YmB2XURH3LR43eDnlMZNomT9NlZiSETZwFB9L2YfehKTDcRuBQ8XcnVqZgsuUXCl0qKmkwHTXcmlGOyZlg4x
+    secure: "WnJsNJ3xgwuIY6MFfvHvg+fU/m5EB1W6mwAOpLgH3FEzQeKTXVpabQfqkL+kNzHdhN5+muY4/wX+7CpBQMxa4PLuyOVJ7FLxETY03PSEFlS6XwkpN3Ewhq3vOTVVasNSrI5RiLFyuJIbUu0OahJHGQMuCaAMTwARJItc2t7ZsCI="
 
