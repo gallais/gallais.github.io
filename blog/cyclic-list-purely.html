@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>cyclic-list-purely</title>
+    <link rel="stylesheet" type="text/css" href="../css/main.css" />
+  </head>
+  <body>
+    <div id="header">
+      <div class="flat_list">
+      <ul>
+        <li><a href="../index.html">home</a></li>
+        <li>||</li>
+        <li><a href="../publis.html">publications</a></li>
+        <li>||</li>
+        <li><a href="../blog.html">blog</a></li>
+        <li>||</li>
+        <li><a href="../contact.html">contact</a></li>
+      </ul>
+      </div>
+    </div>
+    <div id="container">
+
+      <span style="float:right"><a href="../rss.xml"><img src="../img/rss.png" /></a></span><div class="bdocs"><ul><li><a href="https://github.com/gallais/potpourri/blob/master/haskell/cyclic/CyclicList.hs">Haskell code</a></li>
+<li><a href="http://www.citeulike.org/user/gallais/article/1244296">Fegaras & Sheard</a></li>
+<li><a href="http://www.citeulike.org/user/gallais/article/8246712">Ghani et al.</a></li></ul></div>
+
+
+<p id="chapo">In the paper
+<a href="http://www.citeulike.org/user/gallais/article/1244296">
+<i>Representing Cyclic Structures as Nested Datatypes</i></a>,
+the authors dismiss quite quickly the idea of encoding cyclic lists
+by using a function space to represent the loop in favour of
+(type-level) de Bruijn levels. I wanted to see how far one can go
+with the more extensional approach whilst retaining good properties
+(canonical forms, productivity, etc.). It turns out that the answer
+is: "quite far, really".</p>
+
+
+
+<p>The setup is pretty simple: we want to represent cyclic lists in
+a purely functional language. A naïve solution would be to turn to
+codata and use streams built using a fixpoint in Haskell. However,
+representing the cycle with a material artefact will allow us to
+analyze it (is it finite?), display it as a string by writing the
+fixpoint down explicitly, make serialization trivial or transform
+it by mapping a function, permuting the elements, or adding /
+removing some of them from the cycle.</p>
+
+
+
+<h3>Fegaras and Sheard's solution</h3>
+
+
+
+<p>Cyclic lists are represented using a mixed-variant datatype. On
+top of the expected <tt>CNil</tt> and <tt>Cons</tt> shared with usual
+lists, a <tt>CRec</tt> constructor is provided. It declares a pointer
+which may be used later on to represent that very node. It should be
+noted that <tt>CRec</tt> is <tt>Cons</tt>-like in order to guarantee
+that all cycles are productive.</p>
+
+
+
+<p class="code">data CList a = CNil
+             | Cons a (CList a)
+             | CRec a (CList a -> CList a)</p>
+
+
+
+<p>This definition exploits the function space of the host language
+to handle the pointer declaration in a sort of Higher Order
+Abstract Syntax fashion. It makes giving a semantics for it in terms
+of streams quite easy: one just needs to feed the function stored in
+<tt>CRec</tt> with the list itself.</p>
+
+
+
+<p class="code">toStream :: CList a -> [a]
+toStream CNil          = []
+toStream (Cons x xs)   = x : toStream xs
+toStream xs@(CRec x r) = x : toStream (r xs)</p>
+
+
+
+<h3>The limitations of this representation</h3>
+
+
+
+<p>Now, this representation has multiple problems. They are pointed
+out in Ghani et al. to justify their favouring of a more intensional
+approach to cycle representation. Most of them relate to the fact
+that it does not put enough restrictions on the ways one may use
+the variable provided by the <tt>CRec</tt> constructor. As a
+consequence, the encoding lacks canonicity.</p>
+
+
+
+<h3>There is no guarantee on the way pointers are used (if at all)</h3>
+
+
+
+<p>Given that the cycle is represented using a function space, it
+is hard to detect whether the variable has been used at all, or if
+it has been used whether it was in a proper way or not. So far
+nothing prevents a list from pretending to be cyclic by introducing
+a pointer it will never use:</p>
+
+
+
+<p class="code">finite = Cons 1 $ CRec 2 $ const CNil</p>
+
+
+
+<p>Or introduce multiple pointers only one of which is meant to be
+declared whilst the other ones are <tt>CRec</tt> cells misused as
+<tt>Cons</tt> ones. This leads to the possibility of different
+representations of the same object:</p>
+
+
+
+<p class="code">fourTwos = Cons 4 $ CRec 2 id
+arghTwos = CRec 4 $ const $ CRec 2 id</p>
+
+
+
+<p>Last but not least, these lists can also fail at being cyclic
+because a list transformer has been used improperly in the body
+of the cycle without being rejected by the typechecker:</p>
+
+
+
+<p class="code">nats = CRec 0 $ cmap (+1)</p>
+
+
+
+<h3>Useful functions cannot be written without unfolding the
+cycle</h3>
+
+
+
+<p>But there is more! Even if one is willing to excuse these
+imperfections, it is hard to define basic functions without
+unwinding the cycle. It is for instance impossible to map a
+function across a list without unfoding it. Indeed, using a
+<tt>CRec</tt> constructor in the last case would provide us
+with a <tt>CList b</tt> element but <tt>r</tt> expects a
+<tt>CList a</tt> one.</p>
+
+
+
+<p class="code">cmap :: (a -> b) -> CList a -> CList b
+cmap f CNil          = CNil
+cmap f (Cons x xs)   = Cons (f x) $ cmap f xs
+<span class="bad">cmap f xs@(CRec x r) = Cons (f x) $ cmap f (r xs)</span></p>
+
+
+
+<p>At that point, the picture we have drawn is pretty grim and we
+can understand why one may want to ditch the extensional approach
+altogether. But it turns out that there is a solution to all of our
+problems: the type system!</p>
+
+
+
+<h3>Calling the type system to the rescue.</h3>
+
+
+
+<p>A few days before being confronted with this issue, I had read
+the very interesting <a href="https://tel.github.io/2014/07/15/mutable_algorithms_in_immutable_languages_part_3/">account of the ST monad by Joseph Abrahamson</a>
+explaining how the implementation used rank 2 polymorphism to avoid
+references escaping their environment. It was only natural to recycle
+that knowledge in our case to avoid all the API abuses evoked in the
+previous section. The new <tt>CList</tt> type constructor takes two
+arguments; the first one is the type of the elements it contains
+whilst the second one is a phantom type used to enforce that the
+constructor are only ever used in the way they were meant to.</p>
+
+
+
+<p class="code">data CList a b where
+  CNil :: CList a Closed
+  Cons :: a -> CList a b -> CList a b
+  CRec :: a -> (forall b. CList a b -> CList a b) -> CList a Closed</p>
+
+
+
+<p><tt>CRec</tt>'s argument has to be polymorphic in the phantom
+type which means that it may not use <tt>CRec</tt> or <tt>CNil</tt>
+both of which fix the phantom type to <tt>Closed</tt>. In effect,
+it has to be a finite number of <tt>Cons</tt> followed by the
+variable provided. In other words, an element of type
+<tt>CList a Closed</tt> describes precisely a potentially cyclic
+list <a id="reftop1" href="#refbot1">[1]</a>. Hence the following type alias:</p>
+
+
+
+<p class="code">data Closed = Closed
+type List a = CList a Closed</p>
+
+
+
+<p>All the broken examples are now rightfully rejected by the type
+system which detects that we are trying to conflate types which are
+incompatible when we declare a pointer but forget to use it, when we
+declare multiple ones, etc. That is already a nice change but we
+are still facing a major challenge: writing functions such as
+<tt>map</tt> without unfolding the cycle. This is what Ghani et al.
+write on that topic:</p>
+
+
+
+<p class="quote"> "Although cycles are explicit in this representation,
+almost all functions manipulating cyclic structures will need to
+unwind the cycles (based on the intuition that Rec means fix). The
+reason is that, although, we can recognize cycles as structures of
+the form Rec f, the argument f is a function and we cannot analyze
+functions well".</p>
+
+
+
+<p>This was absolutely true in the situation they were facing. But
+by exploiting the type system, we have managed to root out an
+awful lot of unwanted constructs. To the point that we now know
+for sure that there is <i>at most one</i> <tt>CRec</tt> constructor
+in a <tt>List a</tt>. This implies in particular that we can detect
+where the pointer declared by a <tt>CRec</tt> is used. Indeed, if
+<tt>xs</tt> is equal to <tt>CRec x f</tt> then we know for sure that
+<tt>f xs</tt> will contain a <tt>CRec</tt> and that it will be the
+head constructor of <tt>xs</tt> showing up where the pointer was
+used.</p>
+
+
+
+<p>This means that we can actually build a <tt>cfold</tt> function
+which will not unwind the cycle unless we want it to. Let's start
+by writing down the most general type for it. The two first arguments
+corresponds to the usual <tt>Cons</tt> and <tt>CNil</tt> cases with
+the right phantom types sprinkled where necessary. The third one
+is the one dealing with cycles and it mimics really closely the type
+of <tt>CRec</tt>. The whole thing is implemented in terms of an
+auxiliary function.</p>
+
+
+
+<p class="code">cfold :: forall a (b :: * -> *).
+         (forall ph. a -> b ph -> b ph) ->
+         b Closed ->
+         (a -> (forall ph. b ph -> b ph) -> b Closed) ->
+         List a -> b Closed
+cfold c n r = goCRec</p>
+
+
+
+<p>This auxiliary function unfolds the list argument applying the
+appropriate combinator to the constructor's arguments and the
+the induction hypothesis. As its name <tt>goCRec</tt> suggests, it
+traverses the <tt>CRec</tt> constructor before handing over the rest
+of the work to <tt>stopCRec</tt>.</p>
+
+
+
+<p class="code">goCRec :: forall ph. CList a ph -> b ph
+goCRec CNil          = n
+goCRec (Cons x xs)   = c x $ goCRec xs
+goCRec xs@(CRec x p) = r x $ stopCRec (p xs)</p>
+
+
+
+<p><tt>stopCRec</tt> is similarly structurally working its way
+through the list except that it posesses an induction hypothesis
+<tt>ih</tt> obtained earlier on by <tt>goCRec</tt>. When faced with
+a <tt>CRec</tt>, we know for sure that we have just followed the
+pointer back to where it was declared. As a consequence, we return
+the induction hypothesis rather than unfolding the cycle yet
+another time.</p>
+
+
+
+<p class="code">stopCRec :: CList a Closed -> forall ph. b ph -> b ph
+stopCRec (Cons x xs) ih = c x $ stopCRec xs ih
+stopCRec (CRec _ _)  ih = ih</p>
+
+
+
+<p>Now that we have this induction principle, it is really easy to
+define a <tt>cmap</tt> which outputs a list with a structure
+identical to the one we started with.</p>
+
+
+
+<p class="code">cmap :: forall a b. (a -> b) -> List a -> List b
+cmap f = cfold (Cons . f) CNil (CRec . f)</p>
+
+
+
+<p>And indeed, <tt>cmap (+1) $ CRec 1 (Cons 2)</tt> evaluates down to
+<tt>CRec 2 (Cons 3)</tt> rather than the detestable
+<tt>Cons 2 (Cons 3 (Cons 2 (...)))</tt> the naïve solution used to
+produce.</p>
+
+
+
+<p>It is also possible to instantiate this very generic scheme down
+to ones with simpler types. One such instance is the induction
+principle where the return type does not depend on the phantom
+type:</p>
+
+
+
+<p class="code">cfoldRec :: forall a b. (a -> b -> b) -> b ->
+            (a -> (b -> b) -> b) -> List a -> b</p>
+
+
+
+<p>An elegant use case of this <tt>cfoldRec</tt> is the definition
+of the <tt>Show</tt> instance for <tt>List a</tt> which allows us
+to display a finite string representing the cyclic structure in its
+entirety. When we encounter the pointer declaration, we output
+"rec X. " and keep showing the rest of the list but when the pointer
+is used, we simply output "X" and stop.</p>
+
+
+
+<p class="code">instance Show a => Show (List a) where
+  show = cfoldRec (\ x -> (++) (show x ++ " : ")) "[]"
+                  (\ x ih -> "rec X. " ++ show x ++ " : " ++ ih "X")</p>
+
+
+
+<p>And, as we expected, <tt>show $ CRec 1 (Cons 2)</tt> now reduces
+to the finite string <tt>"rec X. 1 : 2 : X"</tt>. It is also possible
+to recover a <tt>fold</tt>-style function unwinding the cycle by
+tying the knot in the third argument: the induction hypothesis
+will just be the whole subcomputation itself!</p>
+
+
+
+<p class="code">cfold' :: forall a b. (a -> b -> b) -> b -> List a -> b
+cfold' c n = cfoldRec c n r
+  where r :: a -> (b -> b) -> b
+        <span class="bad">r a ih</span> = c a (ih $ <span class="bad">r a ih</span>)</p>
+
+
+
+<p>This is precisely what we want to do when defining the semantics
+of these cyclic lists in terms of streams. Hence the really concise
+definition:</p>
+
+
+
+<p class="code">toStream :: List a -> [ a ]
+toStream = cfold' (:) []</p>
+
+
+
+<p>There are still plenty of functions to implement on this
+representation some of which may raise interesting questions:
+<tt>czip</tt> will surely involve computing a least common
+multiple. And it will enable us to define an <i>extensional</i>
+equality on these cyclic structures. Exciting perspectives.</p>
+
+
+
+<h3>Conclusion</h3>
+
+
+
+<p>GADTs combined with higher rank polymorphism allowed us to bake
+in invariants which were sufficient for us to write more useful
+functions than the rather untyped approach led us to believe was
+possible. The type of <tt>cfold</tt> lets us decide at any time
+whether we want to unwind the cycle or not.</p>
+
+
+
+<p>However, this approach is limited to cases in which it only
+makes sense to have <i>one</i> cycle. This is not true anymore
+when we consider datastructures which are not linear: a cyclic
+tree may have different cycle in different branches, some of
+which may be nested. It is then necessary to fall back to a
+setup managing syntax with binding.</p>
+
+
+<h3>Footnotes</h3><a id="refbot1" href="#reftop1">[1]</a> We consider here that we only work in the inductive
+fragment of the language. It is obviously impossible to enforce in
+Haskell.
+
+      <hr style="border:0px" />
+      <span style="float: right">Last update: 2014 11 30</span>
+    </div>
+    <div id="footer" class="flat_list">
+    </div>
+    <div id="constructivism"><a href="../links.html"><img src="../img/constructivism.png" alt="fun" /></a></div>
+  </body>
+</html>

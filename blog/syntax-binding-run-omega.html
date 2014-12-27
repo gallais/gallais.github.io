@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>syntax-binding-run-omega</title>
+    <link rel="stylesheet" type="text/css" href="../css/main.css" />
+  </head>
+  <body>
+    <div id="header">
+      <div class="flat_list">
+      <ul>
+        <li><a href="../index.html">home</a></li>
+        <li>||</li>
+        <li><a href="../publis.html">publications</a></li>
+        <li>||</li>
+        <li><a href="../blog.html">blog</a></li>
+        <li>||</li>
+        <li><a href="../contact.html">contact</a></li>
+      </ul>
+      </div>
+    </div>
+    <div id="container">
+
+      <span style="float:right"><a href="../rss.xml"><img src="../img/rss.png" /></a></span><div class="bdocs">
+<ul><li><a href="http://patch-tag.com/r/gallais/agda/snapshot/current/content/raw/src/generic/unindexed.agda">Raw Agda</a></li>
+<li><a href="code/SyntaxWithBinding/unindexed.html">Colored Agda</a></li></ul></div>
+
+
+
+<p id="chapo">Generic programming has proven useful to define automatically operations
+acting on datatypes <i>à la</i> deriving in Haskell. However usual presentations
+do not allow the user to highlight some constructors as binding variables in the
+context. For every language with binders defined in such a universe, it is therefore
+necessary to define manually substitution and to prove its properties.
+
+<br />In this blog post, we strive to define a universe for syntaxes with binding
+for which substitution can be defined generically.</p>
+
+
+
+<p>Operations such as maps, induction principles, equality tests, etc. acting on
+inductive datatypes can be defined generically over datatypes inhabiting a universe.
+Altenkirch and McBride <a id="reftop1" href="#refbot1">[1]</a> have shown how
+dependently-typed systems can accomodate these mechanisms as a set of libraries
+rather than e.g. a pre-processor.</p>
+
+
+
+<h3>The universe</h3>
+
+
+
+<p>Our set of description constructors is basically identical to the one of McBride
+in his paper on ornaments <a id="reftop2" href="#refbot2">[2]</a>
+except for an extra constructor which allows us to introduce a new variable. It
+comes with a decoding function which, for this is the non dependent case, can be
+defined separately. We will however present each constructor together with its
+semantics given by the decoding function <tt>⟦_⟧</tt> in the pure tradition of
+Induction-Recursion <a id="reftop3" href="#refbot3">[3]</a>. This decoding function defines an endofunctor on <tt>List V → Set</tt>.</p>
+
+
+
+<p class="code">data Desc : Set₁ where
+⟦_⟧ : ∀ {V} → Desc → (R : List V → Set) → List V → Set</p>
+
+
+
+<p>Sigma types can either be used in a non-dependent fashion in order to store
+elements of a set inside the structure of the datatype e.g. when defining lists;
+or to give the user a set (indexed by <tt>A</tt> of different constructors she may
+use.</p>
+
+
+
+<p class="code">`σ[_]_ : (A : Set) → (da : (a : A) → Desc) → Desc
+⟦ `σ[ A ] d ⟧ R Γ = Σ A (λ a → ⟦ d a ⟧ R Γ)</p>
+
+
+
+<p>Recursive positions are the variable positions in the functor and are therefore
+interpreted by <tt>R</tt> which will be the fixpoint itself when tying the knot.
+They correspond to e.g. the tail of the list in the description of the <tt>_∷_</tt>
+constructor.</p>
+
+
+
+<p class="code">`r_ : (d : Desc) → Desc
+⟦ `r d ⟧ R Γ = R Γ × ⟦ d ⟧ R Γ</p>
+
+
+
+<p>Units are used to state that a description is finished. In the indexed case,
+they will be tagged with an index restricting the type of the branch they belong
+to.</p>
+
+
+
+<p class="code">`1 : Desc
+⟦ `1 ⟧ R Γ = ⊤</p>
+
+
+
+<p>Binders expect the user to provide an identifier for the bound variable and
+then keep going through the reste of the definition with an extended context.
+In this post, we never use informative identifiers but we can easily imagine
+taking advantage of a set with decidable equality to alleviate the burden of
+calling a variable by providing a proof that it belongs to an environment.</p>
+
+
+
+<p class="code">`λ_ : (d : Desc) → Desc
+⟦ `λ d ⟧ R Γ = Σ _ (λ v → ⟦ d ⟧ R (v ∷ Γ))</p>
+
+
+
+<p>So far so good but... we have no way to actually use a variable! Sure, we can
+declare as many new ones as we fancy and have the joy of seeing them floating
+around in the context, but we might want to actually do something with them at
+some point.</p>
+
+
+
+<h4>What is a variable?</h4>
+
+
+
+<p>In our universe with binders, we want to have a substitution operation
+generically defined on all the datatypes using binding. In other words, a
+variable's only purpose is to be substituted by a "proper" term. In a sense,
+a variable is just a placeholder for a "real" term, an excuse for an inhabitant
+which has not been crafted yet.
+<br />This is the reason why variables are treated separately: a whole subterm and
+a variable should be on an equal footing. This ascertainment induces us to enrich
+the meaning endofunctor with a position for variables right before building its
+fixpoint.</p>
+
+
+
+<p class="code">L⟦_⟧ : ∀ {V} → Desc → (R : List V → Set) → List V → Set
+L⟦ d ⟧ R Γ = Σ _ (λ v → v ∈ Γ) ⊎ ⟦ d ⟧ R Γ
+
+data `μ {V} (d : Desc) (Γ : List V) : Set where
+  `⟨_⟩ : (t : L⟦ d ⟧ (`μ d) Γ) → `μ d Γ</p>
+
+
+
+<p>Obviously Agda does not complain about our definition: the described functors
+are strictly positive by construction and accordingly have a fixpoint.</p>
+
+
+
+<h3>Defining substitution</h3>
+
+
+
+<p>We call substitution for <tt>d</tt> from <tt>Γ</tt> to <tt>Δ</tt>, a function
+which provides for each variable in <tt>Γ</tt> a term of type <tt>`μ d</tt>
+using variables taken in <tt>Δ</tt>.</p>
+
+
+
+<p class="code">subst[_] : ∀ {V} → Desc → List V → List V → Set
+subst[ d ] Γ Δ = ∀ v → v ∈ Γ → `μ d Δ</p>
+
+
+
+<p>As one would expect from the name of this function, given a substitution for
+<tt>d</tt> from <tt>Γ</tt> to <tt>Δ</tt> and a term in <tt>`μ d</tt> with free
+variables ranging in <tt>Γ</tt>, one can build a term in <tt>`μ d</tt> only using
+variables in <tt>Δ</tt>. The whole process corresponds to applying this substitution
+and is defined by two mutually defined functions.
+<br />A term is either a variable, in which case we can just apply the substitution,
+or it is an inhabitant of the functor applied to the fixpoint and we rely on the
+helper function to propagate calls to the substitution on recursive positions.</p>
+
+
+
+<p class="code">mutual
+  _∶_⇇_ : ∀ {V} {Γ Δ : List V} d (t : `μ d Γ)
+    (ρ : subst[ d ] Γ Δ) → `μ d Δ
+  d ∶ `⟨ inj₁ (v , pr) ⟩ ⇇ ρ = ρ v pr
+  d ∶ `⟨ inj₂ t        ⟩ ⇇ ρ = `⟨ inj₂ (map⟦ d ⟧ t ρ) ⟩</p>
+
+
+
+<p>The helper function is quite straightforward to define except for the case
+where we go under a binder. In this case, we extend the substitution with the
+identity on the first variable and weaken the terms corresponding to the other
+ones. The careful reader will notice the generalization applied to the type of
+the recursive positions to ensure that the definition goes through. In practice,
+all direct calls to <tt>map⟦_⟧</tt> will be such that <tt>d = e</tt>.</p>
+
+
+
+<p class="code">  map⟦_⟧ : ∀ {V} d {e} {Γ Δ : List V} (t : ⟦ d ⟧ (`μ e) Γ)
+    (ρ : subst[ e ] Γ Δ) → ⟦ d ⟧ (`μ e) Δ
+  map⟦ `σ[ A ] d ⟧ (a , t) ρ = a         , map⟦ d a ⟧ t ρ
+  map⟦ `r d      ⟧ (r , t) ρ = _ ∶ r ⇇ ρ , map⟦ d ⟧ t ρ
+  map⟦ `1        ⟧ t       ρ = t
+  map⟦ `λ d      ⟧ (v , t) ρ = v , map⟦ d ⟧ t ρ'
+    where ρ' = λ { .v z      → `⟨ inj₁ (v , z) ⟩ ;
+                    w (s pr) → weaken _ _ (ρ w pr) }</p>
+
+
+
+<p>Given an easy proof relying on weakening that the identity substitution exists,
+it is rather easy to define what's named β reduction in the lambda calculus.</p>
+
+
+
+<p class="code">βred : ∀ {V} d {Γ v} → `μ d (v ∷ Γ) → `μ d Γ → `μ d Γ
+βred d {Γ} {v} t u = d ∶ t ⇇ ρ
+  where ρ = λ { .v z      → u ;
+                 w (s pr) → subst-id d Γ w pr }</p>
+
+
+
+<h3>Examples</h3>
+
+
+
+<p>When building examples, we introduce enumerations of labels corresponding to
+the different constructors of the language. We hope the definitions of the various
+<tt>Desc</tt> functors to be easier to understand this way.
+<br />Let's start with a very simple language: the untyped lambda calculus. Its
+grammar has two components: one can introduce a lambda abstraction (label
+<tt>lam</tt>) which binds a variable and contains a subterm (a recursive position
+<tt>`r</tt>) or an applications (label <tt>app</tt>) which contains two subterms.
+The set of lambda terms with variables in <tt>Γ</tt> is then given by <tt>`μ</tt>.
+The set of closed terms is therefore <tt>lc []</tt></p>
+
+
+
+<p class="code">lc-grammar : Desc
+lc-grammar =
+  `σ[ lc-labl ] λ { lam → `λ `r `1 ;
+                    app → `r `r `1 }
+
+lc : ∀ (Γ : List ⊤) → Set
+lc Γ = `μ lc-grammar Γ</p>
+
+
+
+<p>Using Andjelkovic and Gundry's pattern synonyms <a id="reftop4" href="#refbot4">[4]</a>, we can recover a nice syntax closer to the one we are
+used to. Our lambdas, variables and applications will desugar to the somewhat
+horrendous codes describing elements of the fixpoint of <tt>lc-grammar</tt>.
+We can, for instance, define the well-known looping function <tt>:Ω</tt>.</p>
+
+
+
+<p class="code">:δ :Ω : lc []
+:δ = :λ :v z :$ :v z
+:Ω = :δ :$ :δ</p>
+
+
+
+<p>We can now define a function <tt>fire : lc [] → Maybe (lc [])</tt> which explores
+a (closed) term looking for a redex and returns either nothing if the term is in
+weak-head normal form or just the term after having fired the first redex encountered.
+Iterating <tt>fire</tt> on a term gives rise to an <tt>execute</tt> function
+which produces a <tt>CoList</tt> of successive reducts.</p>
+
+
+
+<p>As one would expect, running <tt>:Ω</tt> yields an infinitely long <tt>CoList</tt>
+of <tt>:Ω</tt>s.</p>
+
+
+
+<p class="code">lemma : execute :Ω ≣ repeat :Ω
+lemma = ∷ ♯ lemma</p>
+
+
+
+<h3>What's next?</h3>
+
+
+
+<p>I cooked up the <a href="http://patch-tag.com/r/gallais/agda/snapshot/current/content/raw/src/generic/indexed.agda">indexed version</a>
+with which it is possible to get sexy well-typed terms for the simply-typed lambda
+calculus such as <tt>`K</tt>. But that is another story.</p>
+
+
+
+<p class="code">`K : ∀ {Γ σ τ} → Γ ⊢ σ `→ τ `→ σ
+`K = :λ :λ :v (s z)</p>
+
+<h3>Footnotes</h3><a id="refbot1" href="#reftop1">[1]</a> <a href="http://www.citeulike.org/user/gallais/article/6926730">
+Generic Programming within Dependently Typed Programming</a><br /><a id="refbot2" href="#reftop2">[2]</a> Ornamental algebras, algebraic ornaments
+(<a href="https://personal.cis.strath.ac.uk/conor.mcbride/pub/OAAO/Ornament.pdf">pdf</a>)<br /><a id="refbot3" href="#reftop3">[3]</a> Cf. e.g. Peter Dybjer's <a href="http://www.cse.chalmers.se/~peterd/papers/inductive.html">
+work</a>.<br /><a id="refbot4" href="#reftop4">[4]</a> 
+<a href="http://code.google.com/p/agda/issues/detail?id=495">Feature request</a>
+on agda's bug tracker.
+
+      <hr style="border:0px" />
+      <span style="float: right">Last update: 2014 11 30</span>
+    </div>
+    <div id="footer" class="flat_list">
+    </div>
+    <div id="constructivism"><a href="../links.html"><img src="../img/constructivism.png" alt="fun" /></a></div>
+  </body>
+</html>
