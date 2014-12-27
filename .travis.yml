@@ -9,7 +9,7 @@ before_install:
   - cabal install Cabal
   - cd src/
 install:
-  - cabal install --only-dependencies --enable-tests --allow-newer
+  - cabal install --only-dependencies --enable-tests --allow-newer --force-reinstalls
 after_script:
   - cd .. && ./site build && mv _site/* .
   - git add -A *.html && git commit -m "" && git push
