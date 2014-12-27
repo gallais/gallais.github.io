@@ -4,6 +4,7 @@ import Data.Monoid
 import Control.Monad
 import Publications
 import BlogList
+import Links
 import Text.BBCode.PrettyPrinter
 import Text.HTML.Combinators
 import Text.RSS.Syntax
@@ -83,6 +84,13 @@ main = hakyll $ do
         route idRoute
         compile $
           getResourceBody
+          >>= loadAndApplyTemplate "templates/default.html" defaultContext
+          >>= relativizeUrls
+
+    create ["links.html"] $ do
+        route idRoute
+        compile $
+          makeItem (T.unpack links)
           >>= loadAndApplyTemplate "templates/default.html" defaultContext
           >>= relativizeUrls
 
