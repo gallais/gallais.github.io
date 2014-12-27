@@ -8,18 +8,20 @@ before_install:
   - cd src/
 install:
   - cabal install --only-dependencies
-script:
   - ghc --make site.hs
+script:
+  - ./site build
 after_script:
-  - git fetch && git checkout master
-  - ./site build && mv _site/* ../ && rmdir _site && cd ..
+  - git fetch && git checkout origin/master
+  - mv _site/* ../ && rmdir _site && cd ..
   - git config user.name "travis-worker"
   - git config user.email "travis@gallais.org"
   - git add *.html *.xml blog/*
   - git commit -m "Uploading snapshot $(date '+%m/%d/%y %H:%M')"
-  - git push --force https://${GH_TOKEN}@github.com/gallais/gallais.github.io.git master | grep -v "http"
+  - git push --force https://${GH_TOKEN}@github.com/gallais/gallais.github.io.git origin/master &>/dev/null
 notifications:
   email: false
 env:
   global:
-    secure: "OsAe/R8H8GI+ofFPhFa4Ig9xceXSZcJP01+7UAWQRD+mCf8XM0qXqV3qWkHR4yST7X0t+V2MMZMZJjdaWU2op8Z9HNJz6nNmSShVkXC0TnQRD4NRna+OBmJufc1mZKDqgJJck2HIXqb6nXc8RVHKrhwUJBuoDN0QFEOMSCVnNrU="
+    secure: "M+QcCJuavA0DKz5QL4bEYT1B4npHndUio3Gu+1MqjJSE8t4MOxKmHNpEFjjT+yr5YmB2XURH3LR43eDnlMZNomT9NlZiSETZwFB9L2YfehKTDcRuBQ8XcnVqZgsuUXCl0qKmkwHTXcmlGOyZlg4x
+
