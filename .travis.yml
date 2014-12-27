@@ -1,6 +1,6 @@
 language: haskell
 ghc: 7.8
-before_script: cd src/
+before_install: cd src/
 after_script:
   - cd .. && ./site build && mv _site/* .
   - git add -A *.html && git commit -m "" && git push
