@@ -4,8 +4,11 @@ ghc:
 before_install:
   - cd src/
 after_script:
-  - cd .. && ./site build && mv _site/* .
-  - git add -A *.html && git commit -m "" && git push
+  - ./site build && mv _site/* . && rmdir _site && cd ..
+after_success:
+  - git config user.name "travis-worker"
+  - git config user.email "travis@gallais.org"
+  - git add -A *.html && git commit -m "Upload!" && git push https://$GH_TOKEN@github.com/gallais/gallais.github.io
 notifications:
   email: false
 env:
