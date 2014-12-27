@@ -3,10 +3,11 @@ ghc:
   - 7.6
 before_install:
   - cd src/
+install:
+  - cabal install --only-dependencies
+  - ghc --make site.hs
 after_script:
-  - pwd
-  - ls
-  - cd src/ && ./site build && mv _site/* . && rmdir _site && cd ..
+  - ./site build && mv _site/* . && rmdir _site && cd ..
   - git config user.name "travis-worker"
   - git config user.email "travis@gallais.org"
   - git add -A *.html && git commit -m "Upload!" && git push https://$GH_TOKEN@github.com/gallais/gallais.github.io
