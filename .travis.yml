@@ -1,0 +1,11 @@
+language: haskell
+ghc: 7.8
+before_script: cd src/
+after_script:
+  - cd .. && ./site build && mv _site/* .
+  - git add -A *.html && git commit -m "" && git push
+notifications:
+  email: false
+env:
+  global:
+    secure: CTK9sm7s/y0FlVQ7N0jSCrxCGpsf5enS0L2igYWJV8pmQerqbfeqoGCkWQP13tJG5yQMvCqee+eactBJriBqYFJ1F12zisRmSLCTZhIFNb7mlcVMeDMQxh4iySjnXVzx8CpnMcRrqFRIHQGtlgTdNKgCGKOJUxHXl5ALeuJOsC4=
