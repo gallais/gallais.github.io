@@ -12,13 +12,13 @@ install:
 script:
   - ./site build
 after_script:
-  - mv _site/* $HOME/_site
+  - mv _site $HOME/
   - cd $HOME
-  - git config user.name "travis-worker"
-  - git config user.email "travis@gallais.org"
   - git clone --quiet --branch=master https://${GH_TOKEN}@github.com/gallais/gallais.github.io.git terrible-hack &>/dev/null
   - cp -R _site/* terrible-hack/
   - cd terrible-hack/
+  - git config user.name "travis-worker"
+  - git config user.email "travis@gallais.org"
   - git add *.html *.xml blog/*
   - git commit -m "Uploading snapshot $(date '+%m/%d/%y %H:%M')"
   - git push https://${GH_TOKEN}@github.com/gallais/gallais.github.io.git master &>/dev/null
