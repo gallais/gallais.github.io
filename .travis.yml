@@ -5,11 +5,6 @@ branches:
 ghc:
   - 7.6
 before_install:
-  - ls .git/refs/heads/
-  - git remote show origin
-  - git branch -a
-  - git fetch
-  - git branch -a 
   - cd src/
 install:
   - cabal install --only-dependencies
@@ -17,13 +12,16 @@ install:
 script:
   - ./site build
 after_script:
-  - git fetch && git checkout -B master origin/master
-  - mv _site/* ../ && rmdir _site && cd ..
+  - mv _site/* $HOME/_site
+  - cd $HOME
   - git config user.name "travis-worker"
   - git config user.email "travis@gallais.org"
+  - git clone --quiet --branch=master https://${GH_TOKEN}@github.com/gallais/gallais.github.io.git terrible-hack &>/dev/null
+  - cp -R _site/* terrible-hack/
+  - cd terrible-hack/
   - git add *.html *.xml blog/*
   - git commit -m "Uploading snapshot $(date '+%m/%d/%y %H:%M')"
-  - git push --force https://${GH_TOKEN}@github.com/gallais/gallais.github.io.git origin/master &>/dev/null
+  - git push https://${GH_TOKEN}@github.com/gallais/gallais.github.io.git master &>/dev/null
 notifications:
   email: false
 env:
