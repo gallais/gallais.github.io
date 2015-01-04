@@ -108,7 +108,7 @@ blogIndex key = T.concat
   where
     multiplicities =
       fmap (\ (k, i) ->
-        a_ (T.concat [ "blog." , k , ".html" ])
+        a_ (T.concat [ "/blog/blog." , k , ".html" ])
            (T.concat [ k , " (" , T.pack $ show i , ")" ]))
       $ L.filter ((> 1) . snd) allTagsWithMultiplicity
 

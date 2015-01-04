@@ -40,7 +40,7 @@ main = hakyll $ do
           >>= relativizeUrls
 
     forM allTags $ \ key ->
-      create [ fromFilePath $ "blog." ++ T.unpack key ++ ".html" ] $ do
+      create [ fromFilePath $ "blog/blog." ++ T.unpack key ++ ".html" ] $ do
         route idRoute
         compile $
           makeItem (T.unpack $ blogIndex $ Just key)
