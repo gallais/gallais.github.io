@@ -122,12 +122,12 @@ blogIndex key = T.concat
     post bp =
       let date = formatTime defaultTimeLocale (iso8601DateFormat Nothing) in
       T.concat
-          [ a_ (T.concat [ "blog/", T.pack $ source bp, ".html" ]) $ name bp
+          [ a_ (T.concat [ "/blog/", T.pack $ source bp, ".html" ]) $ name bp
           , span_ " class=\"date\"" $ T.pack $ date $ pubDate bp ]
 
 postRSS :: BlogPost -> String -> RSSItem
 postRSS bp txt =
-  let url = L.concat [ "http://www.gallais.org/blog/", source bp , ".html" ]
+  let url = L.concat [ "http://blog.gallais.org/", source bp , ".html" ]
       css = "<head> \
             \<link rel=\"stylesheet\" type=\"text/css\" \
             \      href=\"http://www.gallais.org/css/main.css\" />\
