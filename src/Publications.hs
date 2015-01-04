@@ -126,7 +126,7 @@ workshops =
           , date      = yearOnly 2011
           , venue     = Venue { name = "3rd Coq Workshop"
                               , www = Just "http://www.cs.ru.nl/~spitters/coqw.html" }
-          , resources = [ pdf "pdf/itp11.pdf", slides "itp11_slides.pdf" ]
+          , resources = [ pdf "pdf/itp11.pdf", slides "pdf/itp11_slides.pdf" ]
           }
   ]
 
