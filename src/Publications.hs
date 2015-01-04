@@ -169,7 +169,7 @@ talks =
           , date      = Date (Just 5) (Just 6) 2013
           , venue     = Venue { name = "MSP Away Day - University of Strathclyde", www = Nothing }
           , resources = [ pdf "pdf/awayday13.pdf"
-                        , blog "glueing-terms-model" ]
+                        , blog "blog/glueing-terms-models.html" ]
           }
   ]
 
