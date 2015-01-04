@@ -47,7 +47,7 @@ main = hakyll $ do
           >>= loadAndApplyTemplate "templates/default.html" defaultContext
           >>= relativizeUrls
 
-    create ["blog.html"] $ do
+    create ["blog/index.html"] $ do
         route idRoute
         compile $
           makeItem (T.unpack $ blogIndex Nothing)
