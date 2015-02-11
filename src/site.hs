@@ -2,7 +2,7 @@
 
 import Data.Monoid
 import Control.Monad
-import Publications
+import Publications (publications)
 import BlogList
 import Links
 import Text.BBCode.PrettyPrinter
@@ -34,7 +34,7 @@ main = hakyll $ do
     forM blogPosts $ \ post ->
       create [ fromFilePath $ "blog/" ++ source post ++ ".txt" ] $ do
         route   $ setExtension "html"
-        compile $ fmap (fmap $ T.unpack . T.append rssIcon) bbcodeCompiler
+        compile $ fmap (fmap $ T.unpack . ((rssIcon <> h_ 1 (name post)) <>)) bbcodeCompiler
           >>= saveSnapshot "content"
           >>= loadAndApplyTemplate "templates/default.html" defaultContext
           >>= relativizeUrls
