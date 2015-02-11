@@ -29,7 +29,12 @@ blogPosts =
 --             , pubDate  = mkDay $ fromGregorian 2014 12 26
 --             , keywords = [linearLogic, tactics, reflection]
 --             }
-    BlogPost { name     = "Cyclic Lists, Purely"
+    BlogPost { name     = "Ever considered using Travis?"
+             , source   = "travis-builds"
+             , pubDate  = mkDay $ fromGregorian 2015 02 11
+             , keywords = []
+             }
+  , BlogPost { name     = "Cyclic Lists, Purely"
              , source   = "cyclic-list-purely"
              , pubDate  = mkDay $ fromGregorian 2014 08 12
              , keywords = [datatype, functionalProgramming, haskell, phantomTypes, typeSafety]

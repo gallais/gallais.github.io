@@ -1,0 +1,165 @@
+[div=bdocs]
+[ul]
+  [li][url=http://docs.travis-ci.com]Travis: Documentation[/url][/li]
+  [li][url=http://docs.travis-ci.com/user/encryption-keys]Travis: Encrypting variables[/url][/li]
+  [li][url=http://docs.travis-ci.com/user/encrypting-files/]Travis: Encrypting files[/url][/li]
+  [li][url=https://github.com/settings/applications]Github: Access tokens[/url][/li]
+  [li][url=https://github.com/andreafabrizi/Dropbox-Uploader/]Dropbox: cli tool[/url][/li]
+  [li][url=https://www.dropbox.com/sh/yn8pr2jorbzsy2g/AABc445eZQIwnXqEuPody0pga?dl=0]Travis-friendly Agda bins[/url][/li]
+[/ul]
+[/div]
+
+[pid=chapo]Over the Christmas break, I decided to play a bit with
+[url=https://travis-ci.org]Travis[/url], a continuous integration
+platform building, testing and deploying software. Here are the
+various projects that benefited from it.[/p]
+
+[h3]Baby steps[/h]
+
+[p]The first thing I set out to do was run a test build of the
+projects hosted on my [url=https://github.com/impega/vart]vart[/url]
+repository where, inspired by Jenn Schiffer's
+[url=http://vart.institute]var t;[/url] experiments, I try to write
+programs which generate artsy things using haskell. Mondrian generates
+and exports (using [url=http://hackage.haskell.org/package/JuicyPixels]JuicyPixels[/url])
+images [url=/img/mondrian.png]in this style[/url] whilst
+[url=https://en.wikipedia.org/wiki/Exquisite_corpse]ExquisiteCorpse[/url]
+is pretty self-explanatory. Getting this to work
+was as simple as registering on the travis website, flipping a switch
+for this repo, [url=https://byorgey.wordpress.com/20100415/cabal-init]
+creating a .cabal file[/url] for each project and adding a
+[url=https:github.com/impega/vart/blob/master/.travis.yml]
+really simple .travis.yml file[/url] to the tree.[/p]
+
+[h3]Using Github tokens[/h]
+
+[p]Building and testing is all fine and dandy until we want to produce
+some [i]artefacts[/i] from the built software and share them. Well, one
+solution to such a problem is to use personal access tokens on github
+and simply host the content on [url=https://pages.github.com/]Github
+pages[/url].[/p]
+
+[h4]Building [url=http://gallais.org]this very website[/url][/h]
+
+[p]This website used to be hosted by [url=http://perso.ens-lyon.fr]ENS Lyon[/url]
+but, not being a student there anymore, it was finally taken down in October
+2014. It used to be written in php which [url=https://personal.cis.strath.ac.uk/]
+our personal pages' server[/url] does not support so I figured it was as
+good an excuse as any to rewrite the whole thing from scratch.
+I settled for [url=https://github.com/jaspervdj]jaspervdj[/url]'s
+[url=http://jaspervdj.be/hakyll]Hakyll[/url] mainly because it is
+written in haskell and I figured I could extend it to meet my needs rather
+easily. As it turned out, getting travis to build and deploy the pages
+was probably the least painful step in the whole process; in comparison
+figuring out how to parse [url=https://github.com/gallais/gallais.github.io/tree/source/src/Text/BBCode]
+the flavour of [tt]BBCode[/tt][/url] I use for these posts was hell
+[footnote]You should not conclude anything about [tt]parsec[/tt] from
+that: I had no prior experience in parsing so I had a lot to learn
+and spent quite some time trying various libraries and parser generators
+before finally settling for [tt]parsec[/tt]. Which does the job as you
+can see.[/footnote].[/p]
+
+[p]The [url=https://github.com/gallais/gallais.github.io/blob/master/.travis.yml].travis.yml
+file[/url] is sligtly more complicated this time given that I need to
+push the generated html pages to the [tt]master[/tt] branch of the
+repository. To do so, one needs to generate personal access tokens
+[url=https://github.com/settings/applications]on github[/url] and then
+[url=http://docs.travis-ci.com/user/encryption-keys]encrypt them using
+[tt]travis[/tt][/url]. If you look closely at the file, that's the
+[tt]${GH_TOKEN}[/tt] I use when pushing.[/p]
+
+[h4][url=http://impega.github.io/reciptacle]Publishing recipes[/url] with a little bit of bash magic[/h]
+
+[p]As soon as I understood how to get it to work, I put together the
+[url=http://impega.github.io/reciptacle]reciptacle[/url] website. A
+bunch of us, uni friends from Lyon, have been sharing recipes we
+enjoy cooking on a github repository for quite a while. With a bit
+of bash scripting magic, the markdown files are now turned into html
+ones, are listed in an index and added to different categories based
+on the #hashtags they contain.[/p]
+
+[p]All of this was made possible by this relatively simple
+[url=https://github.com/impega/reciptacle/blob/master/.travis.yml].travis.yml[/url]
+file. I should add that the whole process has been made more secure by
+[url=http://www.loria.fr/~hferee/index_en.html]Hugo[/url] using
+[url=http://hackage.haskell.org/package/ShellCheck]ShellCheck[/url],
+yet another really cool haskell project, to detect typical caveats
+in our various scripts.[/p]
+
+[h4][url=https://agda.github.io/agda-stdlib/]Documentation for Agda's
+standard library[/url][/h]
+
+[p]Once you know how to upload content to github pages, it is rather
+easy to figure out how to generate and push the documentation produced
+e.g. by Agda when typechecking a project. This is why we now have
+travis generating the standard library's documentation.[/p]
+
+[h3]Encrypting Dropbox credencials[/h]
+
+[p]If a github repository is ideal to host text files, it is rather
+different when you want to distribute binaries where you do not care
+about the previous versions. This is where Dropbox comes into play
+in this little series of experiments: [url=https://github.com/andreafabrizi]
+Andrea Fabrizi[/url]'s [url=https://github.com/andreafabrizi/Dropbox-Uploader]
+Dropbox-Uploader[/url] makes interacting with Dropbox very easy! And
+using travis' hability to [url=http://docs.travis-ci.com/user/encrypting-files/]
+encrypt files[/url], we can safely upload our credencials to a public
+repository.[/p]
+
+[h4]Building a statically-linked Agda executable[/h]
+
+[p]The way the documentation for Agda's standard library was generated
+by my first script was not very robust: we would fetch the current master
+branch of Agda and compile it (which may fail) before starting the real
+work. But why should the documentation generation fail if the master
+branch does not compile at the precise time where the build was started?
+Well, it should not. Why should we spend some time recompiling Agda
+at every change in the standard library? Well, we should not.[/p]
+
+[p]I could not rely on the ubuntu package as it was clearly too old
+for the standard library which tends to rely on "newly" (as in "in the
+last few months") introduced features. The obvious solution was to,
+somehow, get travis to generate a static binary when compiling and
+testing Agda and upload it on Dropbox. This is the purpose of my
+[url=https://github.com/gallais/agda/tree/build-binary][tt]build-binary[/tt][/url]
+branch.[/p]
+
+[p]Compiling static haskell executables is not a process well documented
+online. It is pretty hard to stay sane when facing stackoverflow answers
+pointing you at a blog now defunct, toy examples not dealing with e.g.
+data directories (hint: Agda has some!), and invalid information about
+permission escalation in order to run some of the install as root
+(typically: creating the data directories in /usr/share/).[/p]
+
+[p]After quite a bit of poking around, I finally managed to find
+[url=https://github.com/gallais/agda/commit/bb6fcc3fad3e4cf6a5b5ae4416a48cd5414e60ad
+#diff-b771849a88d590a1da0b3a183b4f2be7]the right set of flags[/url]
+(at least for linux, it's not tested on windows). I could not fix the
+permission escalation problem (yes, I have tried root-cmd) so I ended up
+adopting a solution I am not proud of:
+[url=https://github.com/gallais/agda/blob/build-binary/.travis.yml#L58]
+manually creating the directories[/url] I need with the permissions
+I want. If someone knows [i]the right way[/i] to do it, please do share
+[footnote]A working travis build would be the best demonstration that
+what you are suggesting is indeed the solution![/footnote]![/p]
+
+[h3]Get Travis to build your drafts![/h]
+
+[p]Once you have travis-compatible Agda executables lying around and a
+draft paper which is actually a literate Agda file, there is one obvious
+thing to do: get travis to typecheck your development, build your paper
+and the documentation for the whole project and host all of this on
+github pages. This is precisely what Conor and I have done with our
+[url=http://gallais.github.io/proof-search-ILLWiL/]Certified Proof
+Search for Intuitionistic Linear Logic[/url] draft. This is surely
+not the final answer to [url=http://math.andrej.com/2013/08/19/how-to-review-formalized-mathematics/]
+How to review formalized mathematics[/url] but it might be a step in
+the right direction.[/p]
+
+[p]To access the tarballs hosted on Dropbox using the command-line,
+I have the impression that one needs my credencials. However they
+are [url=https://www.dropbox.com/sh/yn8pr2jorbzsy2g/AABc445eZQIwnXqEuPody0pga?dl=0]
+available for all to download[/url] so there may be a way to automate
+that. If you have suggestions with respect to alternative hosting
+solutions making it easier for other people's scripts to pull the
+tarballs, [url=/contact.html][b]please contact me[/b][/url]![/p]
