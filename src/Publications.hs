@@ -155,7 +155,7 @@ talks =
   [ Publi { authors   = [gallais]
           , title     = "Resource Aware Contexts and Proof Search for IMLL"
           , date      = Date (Just 30) (Just 6) 2014
-          , venue     = Venue { name = "Pl Interest Semniare - University of Edinburgh", www = Nothing }
+          , venue     = Venue { name = "Pl Interest Seminar - University of Edinburgh", www = Nothing }
           , resources = [ github "https://github.com/gallais/potpourri/tree/master/agda/lps" ]
           }
   , Publi { authors   = [gallais]
