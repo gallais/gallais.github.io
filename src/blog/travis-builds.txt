@@ -94,7 +94,7 @@ easy to figure out how to generate and push the documentation produced
 e.g. by Agda when typechecking a project. This is why we now have
 travis generating the standard library's documentation.[/p]
 
-[h3]Encrypting Dropbox credencials[/h]
+[h3]Encrypting Dropbox credentials[/h]
 
 [p]If a github repository is ideal to host text files, it is rather
 different when you want to distribute binaries where you do not care
@@ -103,7 +103,7 @@ in this little series of experiments: [url=https://github.com/andreafabrizi]
 Andrea Fabrizi[/url]'s [url=https://github.com/andreafabrizi/Dropbox-Uploader]
 Dropbox-Uploader[/url] makes interacting with Dropbox very easy! And
 using travis' hability to [url=http://docs.travis-ci.com/user/encrypting-files/]
-encrypt files[/url], we can safely upload our credencials to a public
+encrypt files[/url], we can safely upload our credentials to a public
 repository.[/p]
 
 [h4]Building a statically-linked Agda executable[/h]
@@ -157,7 +157,7 @@ How to review formalized mathematics[/url] but it might be a step in
 the right direction.[/p]
 
 [p]To access the tarballs hosted on Dropbox using the command-line,
-I have the impression that one needs my credencials. However they
+I have the impression that one needs my credentials. However they
 are [url=https://www.dropbox.com/sh/yn8pr2jorbzsy2g/AABc445eZQIwnXqEuPody0pga?dl=0]
 available for all to download[/url] so there may be a way to automate
 that. If you have suggestions with respect to alternative hosting
