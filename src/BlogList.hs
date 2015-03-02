@@ -24,12 +24,12 @@ mkDay d = UTCTime { utctDay = d, utctDayTime = 60 * (37 + 60 * 13) }
 blogPosts :: [BlogPost]
 blogPosts =
   [
---    BlogPost { name     = "Resource Aware Contexts and Proof Search for IMLL"
---             , source   = "linear-proof-search"
---             , pubDate  = mkDay $ fromGregorian 2014 12 26
---             , keywords = [linearLogic, tactics, reflection]
---             }
-    BlogPost { name     = "Ever considered using Travis?"
+    BlogPost { name     = "Resource Aware Contexts and Proof Search for ILL"
+             , source   = "linear-proof-search"
+             , pubDate  = mkDay $ fromGregorian 2015 03 02
+             , keywords = [linearLogic, tactics, reflection]
+             }
+  , BlogPost { name     = "Ever considered using Travis?"
              , source   = "travis-builds"
              , pubDate  = mkDay $ fromGregorian 2015 02 11
              , keywords = []
@@ -84,13 +84,13 @@ blogPosts =
     haskell               = "haskell"
     λcalculus             = "lambda calculus"
     lazyness              = "lazyness"
---    linearLogic           = "linear logic"
+    linearLogic           = "linear logic"
     normalization         = "normalization"
     phantomTypes          = "phantom types"
     physics               = "physics"
---    reflection            = "reflection"
+    reflection            = "reflection"
     soundness             = "soundness"
---    tactics               = "tactics"
+    tactics               = "tactics"
     typeSafety            = "type safety"
     universe              = "universe"
 
