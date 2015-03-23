@@ -6,6 +6,7 @@ module Publications where
 
 import Text.HTML.Combinators
 
+import Data.Monoid
 import Data.Text.Lazy (Text, intercalate)
 import qualified Data.Text.Lazy as T
 
@@ -60,10 +61,10 @@ data Date =
        , year  :: Int }
 
 dateToText :: Date -> Text
-dateToText d = go (day d) `T.append` go (month d) `T.append` T.pack (show (year d))
+dateToText d = T.pack (show (year d)) <> go (month d) <> go (day d)
   where
     go Nothing  = ""
-    go (Just i) = (if i < 10 then "0" else "") `T.append` T.pack (show i) `T.append` " "
+    go (Just i) = " " <> (if i < 10 then "0" else "") <> T.pack (show i)
 
 yearOnly :: Int -> Date
 yearOnly y =
@@ -95,6 +96,7 @@ data Sort =
   | Workshop
   | TechReport
   | Talk
+  | Draft
 
 sortToText :: Sort -> Text
 sortToText Journal    = "Journal papers"
@@ -102,6 +104,7 @@ sortToText Conference = "Conference papers"
 sortToText Workshop   = "Workshops"
 sortToText TechReport = "Technical reports"
 sortToText Talk       = "Talks"
+sortToText Draft      = "Drafts"
 
 data Publis =
   Publis { sort   :: Sort
@@ -153,6 +156,15 @@ journals =
 talks :: [Publi]
 talks =
   [ Publi { authors   = [gallais]
+          , title     = "agdARGS - Command Line Arguments, Options and Flags"
+          , date      = Date (Just 18) (Just 3) 2015
+          , venue     = Venue { name = "Idris Developers Meeting"
+                              , www  = Just "https://github.com/idris-lang/Idris-dev/wiki/Idris-Developers-Meeting,-March-2015"
+                              }
+          , resources = [ github "https://github.com/gallais/agdARGS"
+                        , slides "https://github.com/gallais/agdARGS/blob/master/doc/2015-03-18-IIM.pdf" ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "Resource Aware Contexts and Proof Search for IMLL"
           , date      = Date (Just 30) (Just 6) 2014
           , venue     = Venue { name = "Pl Interest Seminar - University of Edinburgh", www = Nothing }
@@ -184,6 +196,17 @@ reports =
           }
   ]
 
+drafts :: [Publi]
+drafts =
+  [ Publi { authors   = [gallais, cmcbride]
+          , title     = "Certified Proof Search for Intuitionistic Linear Logic"
+          , date      = Date (Just 4) (Just 2) 2015
+          , venue     = Venue { name = "Submitted to TLCA", www = Nothing }
+          , resources = [ github "https://github.com/gallais/proof-search-ILLWiL"
+                        , pdf "http://gallais.github.io/proof-search-ILLWiL/" ]
+          }
+  ]
+
 allPublis :: [Publis]
 allPublis =
   [ Publis { sort = Journal   , publis = journals }
@@ -191,6 +214,7 @@ allPublis =
   , Publis { sort = Workshop  , publis = workshops   }
   , Publis { sort = Talk      , publis = talks       }
   , Publis { sort = TechReport, publis = reports     }
+  , Publis { sort = Draft     , publis = drafts      }
   ]
 
 publications :: Text
