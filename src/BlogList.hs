@@ -4,7 +4,7 @@
 module BlogList where
 
 import Data.Time
---import System.Locale
+import System.Locale
 import qualified Data.List as L
 import Data.Text.Lazy as T
 
