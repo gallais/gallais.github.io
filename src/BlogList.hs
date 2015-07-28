@@ -4,7 +4,7 @@
 module BlogList where
 
 import Data.Time
-import System.Locale
+--import System.Locale
 import qualified Data.List as L
 import Data.Text.Lazy as T
 
@@ -24,7 +24,12 @@ mkDay d = UTCTime { utctDay = d, utctDayTime = 60 * (37 + 60 * 13) }
 blogPosts :: [BlogPost]
 blogPosts =
   [
-    BlogPost { name     = "Resource Aware Contexts and Proof Search for ILL"
+    BlogPost { name     = "Currying using Canonical Structures"
+             , source   = "canonical-structures-currying"
+             , pubDate  = mkDay $ fromGregorian 2015 07 28
+             , keywords = [universe, coq, agda, reflection]
+             }
+  , BlogPost { name     = "Resource Aware Contexts and Proof Search for ILL"
              , source   = "linear-proof-search"
              , pubDate  = mkDay $ fromGregorian 2015 03 02
              , keywords = [linearLogic, tactics, reflection]
