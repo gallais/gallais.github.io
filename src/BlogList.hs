@@ -24,10 +24,15 @@ mkDay d = UTCTime { utctDay = d, utctDayTime = 60 * (37 + 60 * 13) }
 blogPosts :: [BlogPost]
 blogPosts =
   [
-    BlogPost { name     = "Currying using Canonical Structures"
+    BlogPost { name     = "Canonical Structures in Agda using REWRITE"
+             , source   = "canonical-structures-REWRITE"
+             , pubDate  = mkDay $ fromGregorian 2015 08 05
+             , keywords = [agda, reflection, canonicalStructures]
+             }
+  , BlogPost { name     = "Currying using Canonical Structures"
              , source   = "canonical-structures-currying"
              , pubDate  = mkDay $ fromGregorian 2015 07 28
-             , keywords = [universe, coq, agda, reflection]
+             , keywords = [universe, coq, agda, reflection, canonicalStructures]
              }
   , BlogPost { name     = "Resource Aware Contexts and Proof Search for ILL"
              , source   = "linear-proof-search"
@@ -80,6 +85,7 @@ blogPosts =
   -- of the keywords as possible rather than introducing subtle variants.
     agda                  = "Agda"
     binders               = "binders"
+    canonicalStructures   = "canonical structures"
     coq                   = "coq"
     datatype              = "datatype"
     dependentTypes        = "dependent types"
