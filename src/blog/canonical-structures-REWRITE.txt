@@ -126,7 +126,7 @@ flippedMap' {A} = flippedMap {Target A}
 syntax flippedMap' xs f = f ⟨$⟩ xs[/p]
 
 [p]We can now have a look at a couple of small examples. It should be
-noted that our typechecking-time magic does break anything: these examples
+noted that our typechecking-time magic does not break anything: these examples
 still compute! Indeed normalising [tt]example₁[/tt] yields [tt]3 ∷ 5 ∷ [][/tt]
 whilst doing the same for [tt]example₂[/tt] gives us [tt]17 ∷ 30 ∷ [][/tt].[/p]
 
