@@ -155,7 +155,15 @@ journals =
 
 talks :: [Publi]
 talks =
-  [ Publi { authors   = [gallais]
+  [ Publi { authors   = [gallais, jmchapman, cmcbride]
+          , title     = "Type and Scope Preserving Semantics"
+          , date      = Date (Just 21) (Just 10) 2015
+          , venue     = Venue { name = "Scottish PL Seminar"
+                              , www = Just "http://simonjf.com/spls-oct2015/" }
+          , resources = [ github "https://github.com/gallais/type-scope-semantics"
+                        , slides "https://github.com/gallais/type-scope-semantics/blob/master/slides.pdf" ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "agdARGS - Command Line Arguments, Options and Flags"
           , date      = Date (Just 18) (Just 3) 2015
           , venue     = Venue { name = "Idris Developers Meeting"
@@ -167,7 +175,7 @@ talks =
   , Publi { authors   = [gallais]
           , title     = "Resource Aware Contexts and Proof Search for IMLL"
           , date      = Date (Just 30) (Just 6) 2014
-          , venue     = Venue { name = "Pl Interest Seminar - University of Edinburgh", www = Nothing }
+          , venue     = Venue { name = "PL Interest Seminar - University of Edinburgh", www = Nothing }
           , resources = [ github "https://github.com/gallais/potpourri/tree/master/agda/lps" ]
           }
   , Publi { authors   = [gallais]
@@ -198,9 +206,16 @@ reports =
 
 drafts :: [Publi]
 drafts =
-  [ Publi { authors   = [gallais, cmcbride]
+  [ Publi { authors   = [gallais, jmchapman, cmcbride]
+          , title     = "Type and Scope Preserving Semantics"
+          , date      = Date Nothing Nothing 2015
+          , venue     = Venue { name = "Submitted to ESOP", www = Nothing }
+          , resources = [ github "https://github.com/gallais/type-scope-semantics"
+                        , pdf "https://github.com/gallais/type-scope-semantics/blob/master/models.pdf" ]
+          }
+  , Publi { authors   = [gallais, cmcbride]
           , title     = "Certified Proof Search for Intuitionistic Linear Logic"
-          , date      = Date (Just 4) (Just 2) 2015
+          , date      = Date Nothing Nothing 2015
           , venue     = Venue { name = "Submitted to TLCA", www = Nothing }
           , resources = [ github "https://github.com/gallais/proof-search-ILLWiL"
                         , pdf "http://gallais.github.io/proof-search-ILLWiL/" ]
@@ -213,8 +228,8 @@ allPublis =
   , Publis { sort = Conference, publis = conferences }
   , Publis { sort = Workshop  , publis = workshops   }
   , Publis { sort = Talk      , publis = talks       }
-  , Publis { sort = TechReport, publis = reports     }
   , Publis { sort = Draft     , publis = drafts      }
+  , Publis { sort = TechReport, publis = reports     }
   ]
 
 publications :: Text

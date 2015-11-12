@@ -34,6 +34,12 @@ gallais =
          , surname   = "Allais"
          , website   = Nothing }
 
+jmchapman :: Person
+jmchapman =
+  Person { firstname = "James"
+         , surname   = "Chapman"
+         , website   = Just "http://cs.ioc.ee/~james/" }
+
 jnagele :: Person
 jnagele =
   Person { firstname = "Julian"
