@@ -4,7 +4,7 @@
 module BlogList where
 
 import Data.Time
-import System.Locale
+--import System.Locale
 import qualified Data.List as L
 import Data.Text.Lazy as T
 
@@ -24,7 +24,12 @@ mkDay d = UTCTime { utctDay = d, utctDayTime = 60 * (37 + 60 * 13) }
 blogPosts :: [BlogPost]
 blogPosts =
   [
-    BlogPost { name     = "Canonical Structures in Agda using REWRITE"
+    BlogPost { name     = "Parametrised Modules: (ab)using lambda-lifting"
+             , source   = "lambda-lifting"
+             , pubDate  = mkDay $ fromGregorian 2016 01 06
+             , keywords = [agda, modules, functionalProgramming]
+             }
+  , BlogPost { name     = "Canonical Structures in Agda using REWRITE"
              , source   = "canonical-structures-REWRITE"
              , pubDate  = mkDay $ fromGregorian 2015 08 05
              , keywords = [agda, reflection, canonicalStructures]
@@ -96,6 +101,7 @@ blogPosts =
     λcalculus             = "lambda calculus"
     lazyness              = "lazyness"
     linearLogic           = "linear logic"
+    modules               = "modules"
     normalization         = "normalization"
     phantomTypes          = "phantom types"
     physics               = "physics"

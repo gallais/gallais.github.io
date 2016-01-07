@@ -208,14 +208,14 @@ drafts :: [Publi]
 drafts =
   [ Publi { authors   = [gallais, jmchapman, cmcbride]
           , title     = "Type and Scope Preserving Semantics"
-          , date      = Date Nothing Nothing 2015
+          , date      = Date Nothing (Just 10) 2015
           , venue     = Venue { name = "Submitted to ESOP", www = Nothing }
           , resources = [ github "https://github.com/gallais/type-scope-semantics"
                         , pdf "https://github.com/gallais/type-scope-semantics/blob/master/models.pdf" ]
           }
   , Publi { authors   = [gallais, cmcbride]
           , title     = "Certified Proof Search for Intuitionistic Linear Logic"
-          , date      = Date Nothing Nothing 2015
+          , date      = Date Nothing (Just 2) 2015
           , venue     = Venue { name = "Submitted to TLCA", www = Nothing }
           , resources = [ github "https://github.com/gallais/proof-search-ILLWiL"
                         , pdf "http://gallais.github.io/proof-search-ILLWiL/" ]
