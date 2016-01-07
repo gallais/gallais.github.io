@@ -68,7 +68,11 @@ center_ str = str `sandwichedWith` "center"
 footnote_ :: (Functor m, MonadState Footnotes m) => Text -> m Text
 footnote_ str = do
   i <- T.pack . show <$> CMS.gets next
-  push   $ ref i "bot" "top" `T.append` T.cons ' ' str
+  let ftWrapper = p_ " class=\"footnote\""
+  let ftNumber  = div_ " class=\"footnote-number\""
+  let ftBody    = div_ " class=\"footnote-body\""
+  let footnote  = ftNumber (ref i "bot" "top") `T.append` ftBody str
+  push   $ ftWrapper footnote
   return $ ref i "top" "bot"
   where
     ref num here there =

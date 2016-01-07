@@ -13,7 +13,6 @@ import Control.Monad.State as CMS
 import Hakyll.Core.Item
 import Hakyll.Core.Compiler
 
-import Data.List
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy          as T
 import qualified Data.Text.Lazy.Encoding as TE
@@ -37,7 +36,7 @@ ppContent (URL href txts) = liftM (a_ $ outUrl href)  $ ppList ppContent txts
 ppContent (IMG      txt)  = return $ img_             $ outUrl txt
 ppContent (SPAN tag txts) = liftM (span_ $ ppTag tag) $ ppList ppContent txts
 ppContent (CENTER   txts) = liftM center_             $ ppList ppContent txts
-ppContent (FOOTNOTE txts) = footnote_               =<< ppList ppContent txts
+ppContent (FOOTNOTE txts) = footnote_               =<< ppList ppStructure txts
 
 ppStructure :: (Functor m, MonadState Footnotes m) => Structure -> m Text
 ppStructure (TXT cs)       = ppList ppContent cs
@@ -57,4 +56,6 @@ bbcodeCompiler = do
   let (res, ft) = runState html (Footnotes 1 [])
   makeItem $ T.concat $ res :
     if null (list ft) then []
-    else h_ 3 "Footnotes" : intersperse br_ (reverse $ list ft)
+    else
+      let footnotes = T.concat $ reverse $ list ft
+      in [ h_ 3 "Footnotes", div_ " class=\"footnotes\"" footnotes ]

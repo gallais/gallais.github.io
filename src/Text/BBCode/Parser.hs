@@ -44,7 +44,7 @@ data Content =
   | TT           [Content]
   | SPAN     Tag [Content]
   | CENTER       [Content]
-  | FOOTNOTE     [Content]
+  | FOOTNOTE     [Structure]
   | URL      Url [Content]
   | IMG      Url
   | RAW     Text
@@ -110,7 +110,7 @@ content =
          Tok.U        -> U            <$> contents            `finishesWith` Tok.U
          Tok.TT       -> TT           <$> contents            `finishesWith` Tok.TT
          Tok.CENTER   -> CENTER       <$> contents            `finishesWith` Tok.CENTER
-         Tok.FOOTNOTE -> FOOTNOTE     <$> contents            `finishesWith` Tok.FOOTNOTE
+         Tok.FOOTNOTE -> FOOTNOTE     <$> structures          `finishesWith` Tok.FOOTNOTE
          Tok.URL      -> uncurry URL  <$> url
          Tok.SPAN     -> uncurry SPAN <$> withTags (smart RAW) (many content `finishesWith` Tok.SPAN)
   ) <|> RAW . T.concat <$> many1 Tok.isRaw
