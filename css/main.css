@@ -27,6 +27,7 @@ li {
 	list-style-type: square;
 }
 
+
 #container {
 	background-color: #FFF888;
 	border-style: double;
@@ -37,6 +38,15 @@ li {
 	padding: 10px 20px 20px 20px;
 	margin-left: 20%;
 	text-align: justify;
+}
+
+.footnote-number {
+  float:left;
+  width: 2em;
+}
+
+.footnote-body {
+  margin-left: 2em;
 }
 
 #container h1 {

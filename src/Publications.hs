@@ -135,7 +135,16 @@ workshops =
 
 conferences :: [Publi]
 conferences =
-  [ Publi { authors   = [rthiemann, gallais, jnagele]
+  [
+    Publi { authors   = [gallais, jmchapman, cmcbride]
+          , title     = "Type-and-Scope Safe Programs and their Proofs"
+          , date      = yearOnly 2017
+          , venue     = Venue { name = "CPP", www = Just "http://cpp2017.mpi-sws.org/" }
+          , resources = [ pdf "pdf/cpp2017.pdf"
+                        , github "https://github.com/gallais/type-scope-semantics" ]
+          }
+
+  , Publi { authors   = [rthiemann, gallais, jnagele]
           , title     = "On the Formalization of Termination Techniques Based on Multiset Orderings"
           , date      = yearOnly 2012
           , venue     = Venue { name = "RTA", www = Just "http://rta2012.trs.cm.is.nagoya-u.ac.jp/" }
@@ -206,12 +215,13 @@ reports =
 
 drafts :: [Publi]
 drafts =
-  [ Publi { authors   = [gallais, jmchapman, cmcbride]
-          , title     = "Type and Scope Preserving Semantics"
-          , date      = Date Nothing (Just 10) 2015
-          , venue     = Venue { name = "Submitted to ESOP", www = Nothing }
-          , resources = [ github "https://github.com/gallais/type-scope-semantics"
-                        , pdf "https://github.com/gallais/type-scope-semantics/blob/master/models.pdf" ]
+  [
+    Publi { authors   = [gallais]
+          , title     = "Typing with Leftovers - A Mechanization of Intuitionistic Linear Logic"
+          , date      = Date Nothing Nothing 2016
+          , venue     = Venue { name = "Submitted to CSL", www = Nothing }
+          , resources = [ github "https://github.com/gallais/typing-with-leftovers"
+                        , pdf "https://github.com/gallais/typing-with-leftovers/blob/master/main.pdf" ]
           }
   , Publi { authors   = [gallais, cmcbride]
           , title     = "Certified Proof Search for Intuitionistic Linear Logic"

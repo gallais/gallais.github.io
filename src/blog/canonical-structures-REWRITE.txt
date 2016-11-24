@@ -6,24 +6,24 @@
 [pid=chapo]Last week I talked about [url=canonical-structures-currying]currying
 using Coq's Canonical Structures[/url]. This got me thinking about how to
 get something similar working in Agda. It turns out that the recently
-introduced [tt]REWRITE[/tt] pragma is just what is needed to replicate
+introduced [span=inline-code]REWRITE[/span] pragma is just what is needed to replicate
 this use case.[/p]
 
 [p]Let us start with a quick reminder of the problem at hand: the goal is
-to be able to write a [tt]map[/tt] function working on lists and automatically
+to be able to write a [span=inline-code]map[/span] function working on lists and automatically
 currying its argument as much as possible. Why you ask? Well because we
-really don't want to have to define [tt]map_tuple[/tt], [tt]map_triple[/tt]
+really don't want to have to define [span=inline-code]map_tuple[/span], [span=inline-code]map_triple[/span]
 and so on with all the possible nestings imaginable.[/p]
 
-[h3]The definition of [tt]Curry[/tt] and various instances[/h]
+[h3]The definition of [span=inline-code]Curry[/span] and various instances[/h]
 
-[p]The first thing to do is to introduce a record [tt]Curry[/tt] describing
+[p]The first thing to do is to introduce a record [span=inline-code]Curry[/span] describing
 the sort of domains we may curry. You may recognise the structure we used
 in [url=canonical-structures-currying]the previous blog post[/url]: this
-record packs a domain ([tt]dom[/tt]), a type constructor ([tt]cur[/tt])
-and a proof ([tt]prf[/tt]) that for any codomain [tt]cod[/tt], one may turn
-an element of type [tt]cur cod[/tt] into a function from [tt]dom[/tt] to
-[tt]cod[/tt].[/p]
+record packs a domain ([span=inline-code]dom[/span]), a type constructor ([span=inline-code]cur[/span])
+and a proof ([span=inline-code]prf[/span]) that for any codomain [span=inline-code]cod[/span], one may turn
+an element of type [span=inline-code]cur cod[/span] into a function from [span=inline-code]dom[/span] to
+[span=inline-code]cod[/span].[/p]
 
 [p=code]record Curry : Set₁ where
   field
@@ -31,11 +31,11 @@ an element of type [tt]cur cod[/tt] into a function from [tt]dom[/tt] to
     cur : Set → Set
     prf : (cod : Set) (f : cur cod) → dom → cod[/p]
 
-[p]The next step is to define instances of [tt]Curry[/tt]. The most
+[p]The next step is to define instances of [span=inline-code]Curry[/span]. The most
 obvious instance is probably the one doing nothing: for any domain
-[tt]A[/tt], we can define [tt]cur[/tt] to be the function which
-associates [tt]A → cod[/tt] to each codomain [tt]cod[/tt]. The
-proof that one can turn [tt]A → cod[/tt] into [tt]cur cod[/tt]
+[span=inline-code]A[/span], we can define [span=inline-code]cur[/span] to be the function which
+associates [span=inline-code]A → cod[/span] to each codomain [span=inline-code]cod[/span]. The
+proof that one can turn [span=inline-code]A → cod[/span] into [span=inline-code]cur cod[/span]
 is then trivial.[/p]
 
 
@@ -46,9 +46,9 @@ curryDefault A =
          ; prf = λ cod → id
          }[/p]
 
-[p]We then explain how to combine two instances of [tt]Curry[/tt] by
+[p]We then explain how to combine two instances of [span=inline-code]Curry[/span] by
 taking, as domain, the product of their respective domains. The
-definitions of [tt]cur[/tt] and [tt]prf[/tt] become a bit more involved
+definitions of [span=inline-code]cur[/span] and [span=inline-code]prf[/span] become a bit more involved
 but should be understandable.[/p]
 
 [p=code]curryPair : (A B : Curry) → Curry
@@ -61,9 +61,9 @@ curryPair A B =
          }[/p]
 
 
-[h3]Using [tt]REWRITE[/tt] to guide the typechecker[/h]
+[h3]Using [span=inline-code]REWRITE[/span] to guide the typechecker[/h]
 
-[p]A [url=https://github.com/agda/agda/blob/0716021c904186ca806a34fe110ae0fca4a3dd70/src/full/Agda/TypeChecking/Rewriting.hs#L5L42][tt]REWRITE[/tt] pragma[/url]
+[p]A [url=https://github.com/agda/agda/blob/0716021c904186ca806a34fe110ae0fca4a3dd70/src/full/Agda/TypeChecking/Rewriting.hs#L5L42][span=inline-code]REWRITE[/span] pragma[/url]
 has recently been introduced to allow the user to define a binary relation
 characterizing equations the typechecker should internalise. The primary
 goal is, as far as I know, to allow homotopy type theorists to have a bit
@@ -73,10 +73,10 @@ you are not careful when picking your rewrite rules, you will get the
 typechecker into an infinite loop. It happened to me a couple of times
 whilst drafting this program.[/p]
 
-[p]The sole purpose of the [tt]Canonical[/tt] relation we introduce is
+[p]The sole purpose of the [span=inline-code]Canonical[/span] relation we introduce is
 to guide the rewriting process. As such, we don't care about its
 implementation and can simply postulate it. We also introduce a
-[tt]Target[/tt] precisely identifying the candidates for rewriting
+[span=inline-code]Target[/span] precisely identifying the candidates for rewriting
 in order to avoid to send Agda into an infinite loop by reapplying
 the default rule over and over again.[/p]
 
@@ -87,7 +87,7 @@ the default rule over and over again.[/p]
 
 [p]We can then define two rewrite rules based on our previous combinators.
 The order in which they are introduced matters and that is why we start
-with the one dealing with pairs so that we only ever use [tt]curryDefault[/tt]
+with the one dealing with pairs so that we only ever use [span=inline-code]curryDefault[/span]
 when reaching a base type or a type variable.[/p]
 
 [p=code]postulate
@@ -95,9 +95,9 @@ when reaching a base type or a type variable.[/p]
   CanonicalDefault : {A : Set} →   Canonical (Target A) (curryDefault A)
 [/p]
 
-[p]Finally, we use the appropriate pragmas to declare [tt]Canonical[/tt]
+[p]Finally, we use the appropriate pragmas to declare [span=inline-code]Canonical[/span]
 as the relation characterizing the equations which should be internalised
-and tell Agda to use [tt]CanonicalProd[/tt] and [tt]CanonicalDefault[/tt]
+and tell Agda to use [span=inline-code]CanonicalProd[/span] and [span=inline-code]CanonicalDefault[/span]
 as rewrite rules.[/p]
 
 [p=code]{-# BUILTIN REWRITE Canonical #-}
@@ -105,20 +105,20 @@ as rewrite rules.[/p]
 {-# REWRITE CanonicalDefault  #-}[/p]
 
 [p]It is now time to define our generic mapping function. Just like last
-time, it is preferable to defined a [tt]flippedMap[/tt] in order to fire
-the easy constraint [tt]List (Target A)[/tt] first. We define
-[tt]flippedMap[/tt] with a domain [tt]A[/tt] which we now to be [tt]Curry[/tt]
-and use its [tt]prf[/tt] field to transport the function passed as an
+time, it is preferable to defined a [span=inline-code]flippedMap[/span] in order to fire
+the easy constraint [span=inline-code]List (Target A)[/span] first. We define
+[span=inline-code]flippedMap[/span] with a domain [span=inline-code]A[/span] which we now to be [span=inline-code]Curry[/span]
+and use its [span=inline-code]prf[/span] field to transport the function passed as an
 argument.[/p]
 
 [p=code]flippedMap : {A : Curry} {B : Set} (xs : List (dom A)) (f : cur A B)  → List B
 flippedMap {A} xs f = map (prf A _ f) xs[/p]
 
-[p]We then introduce a slight variation on [tt]flippedMap[/tt] which
-turns its argument into a [tt]Target[/tt]. This is a great occasion
+[p]We then introduce a slight variation on [span=inline-code]flippedMap[/span] which
+turns its argument into a [span=inline-code]Target[/span]. This is a great occasion
 to add a bit of syntactic sugar putting the arguments back in their
 right order. We choose to stick to applicative style combinators and use
-[tt]_⟨$⟩_[/tt].[/p]
+[span=inline-code]_⟨$⟩_[/span].[/p]
 
 [p=code]flippedMap' : {A B : Set} (xs : List (dom (Target A))) (f : cur (Target A) B)  → List B
 flippedMap' {A} = flippedMap {Target A}
@@ -127,8 +127,8 @@ syntax flippedMap' xs f = f ⟨$⟩ xs[/p]
 
 [p]We can now have a look at a couple of small examples. It should be
 noted that our typechecking-time magic does not break anything: these examples
-still compute! Indeed normalising [tt]example₁[/tt] yields [tt]3 ∷ 5 ∷ [][/tt]
-whilst doing the same for [tt]example₂[/tt] gives us [tt]17 ∷ 30 ∷ [][/tt].[/p]
+still compute! Indeed normalising [span=inline-code]example₁[/span] yields [span=inline-code]3 ∷ 5 ∷ [][/span]
+whilst doing the same for [span=inline-code]example₂[/span] gives us [span=inline-code]17 ∷ 30 ∷ [][/span].[/p]
 
 [p=code]example₁ : List ℕ
 example₁ = _+_ ⟨$⟩ (1 , 2) ∷ (2 , 3) ∷ []

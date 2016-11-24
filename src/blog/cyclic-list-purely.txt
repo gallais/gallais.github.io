@@ -25,10 +25,10 @@ removing some of them from the cycle.[/p]
 [h3]Fegaras and Sheard's solution[/h]
 
 [p]Cyclic lists are represented using a mixed-variant datatype. On
-top of the expected [tt]CNil[/tt] and [tt]Cons[/tt] shared with usual
-lists, a [tt]CRec[/tt] constructor is provided. It declares a pointer
+top of the expected [span=inline-code]CNil[/span] and [span=inline-code]Cons[/span] shared with usual
+lists, a [span=inline-code]CRec[/span] constructor is provided. It declares a pointer
 which may be used later on to represent that very node. It should be
-noted that [tt]CRec[/tt] is [tt]Cons[/tt]-like in order to guarantee
+noted that [span=inline-code]CRec[/span] is [span=inline-code]Cons[/span]-like in order to guarantee
 that all cycles are productive.[/p]
 
 [p=code]data CList a = CNil
@@ -39,7 +39,7 @@ that all cycles are productive.[/p]
 to handle the pointer declaration in a sort of Higher Order
 Abstract Syntax fashion. It makes giving a semantics for it in terms
 of streams quite easy: one just needs to feed the function stored in
-[tt]CRec[/tt] with the list itself.[/p]
+[span=inline-code]CRec[/span] with the list itself.[/p]
 
 [p=code]toStream :: CList a -> [a]
 toStream CNil          = []
@@ -52,7 +52,7 @@ toStream xs@(CRec x r) = x : toStream (r xs)[/p]
 out in Ghani et al. to justify their favouring of a more intensional
 approach to cycle representation. Most of them relate to the fact
 that it does not put enough restrictions on the ways one may use
-the variable provided by the [tt]CRec[/tt] constructor. As a
+the variable provided by the [span=inline-code]CRec[/span] constructor. As a
 consequence, the encoding lacks canonicity.[/p]
 
 [h3]There is no guarantee on the way pointers are used (if at all)[/h]
@@ -66,8 +66,8 @@ a pointer it will never use:[/p]
 [p=code]finite = Cons 1 $ CRec 2 $ const CNil[/p]
 
 [p]Or introduce multiple pointers only one of which is meant to be
-declared whilst the other ones are [tt]CRec[/tt] cells misused as
-[tt]Cons[/tt] ones. This leads to the possibility of different
+declared whilst the other ones are [span=inline-code]CRec[/span] cells misused as
+[span=inline-code]Cons[/span] ones. This leads to the possibility of different
 representations of the same object:[/p]
 
 [p=code]fourTwos = Cons 4 $ CRec 2 id
@@ -86,9 +86,9 @@ cycle[/h]
 imperfections, it is hard to define basic functions without
 unwinding the cycle. It is for instance impossible to map a
 function across a list without unfoding it. Indeed, using a
-[tt]CRec[/tt] constructor in the last case would provide us
-with a [tt]CList b[/tt] element but [tt]r[/tt] expects a
-[tt]CList a[/tt] one.[/p]
+[span=inline-code]CRec[/span] constructor in the last case would provide us
+with a [span=inline-code]CList b[/span] element but [span=inline-code]r[/span] expects a
+[span=inline-code]CList a[/span] one.[/p]
 
 [p=code]cmap :: (a -> b) -> CList a -> CList b
 cmap f CNil          = CNil
@@ -107,7 +107,7 @@ the very interesting [url=https://tel.github.io/2014/07/15/mutable_algorithms_in
 explaining how the implementation used rank 2 polymorphism to avoid
 references escaping their environment. It was only natural to recycle
 that knowledge in our case to avoid all the API abuses evoked in the
-previous section. The new [tt]CList[/tt] type constructor takes two
+previous section. The new [span=inline-code]CList[/span] type constructor takes two
 arguments; the first one is the type of the elements it contains
 whilst the second one is a phantom type used to enforce that the
 constructor are only ever used in the way they were meant to.[/p]
@@ -117,12 +117,12 @@ constructor are only ever used in the way they were meant to.[/p]
   Cons :: a -> CList a b -> CList a b
   CRec :: a -> (forall b. CList a b -> CList a b) -> CList a Closed[/p]
 
-[p][tt]CRec[/tt]'s argument has to be polymorphic in the phantom
-type which means that it may not use [tt]CRec[/tt] or [tt]CNil[/tt]
-both of which fix the phantom type to [tt]Closed[/tt]. In effect,
-it has to be a finite number of [tt]Cons[/tt] followed by the
+[p][span=inline-code]CRec[/span]'s argument has to be polymorphic in the phantom
+type which means that it may not use [span=inline-code]CRec[/span] or [span=inline-code]CNil[/span]
+both of which fix the phantom type to [span=inline-code]Closed[/span]. In effect,
+it has to be a finite number of [span=inline-code]Cons[/span] followed by the
 variable provided. In other words, an element of type
-[tt]CList a Closed[/tt] describes precisely a potentially cyclic
+[span=inline-code]CList a Closed[/span] describes precisely a potentially cyclic
 list [footnote]We consider here that we only work in the inductive
 fragment of the language. It is obviously impossible to enforce in
 Haskell.[/footnote]. Hence the following type alias:[/p]
@@ -135,7 +135,7 @@ system which detects that we are trying to conflate types which are
 incompatible when we declare a pointer but forget to use it, when we
 declare multiple ones, etc. That is already a nice change but we
 are still facing a major challenge: writing functions such as
-[tt]map[/tt] without unfolding the cycle. This is what Ghani et al.
+[span=inline-code]map[/span] without unfolding the cycle. This is what Ghani et al.
 write on that topic:[/p]
 
 [p=quote] "Although cycles are explicit in this representation,
@@ -148,21 +148,21 @@ functions well".[/p]
 [p]This was absolutely true in the situation they were facing. But
 by exploiting the type system, we have managed to root out an
 awful lot of unwanted constructs. To the point that we now know
-for sure that there is [i]at most one[/i] [tt]CRec[/tt] constructor
-in a [tt]List a[/tt]. This implies in particular that we can detect
-where the pointer declared by a [tt]CRec[/tt] is used. Indeed, if
-[tt]xs[/tt] is equal to [tt]CRec x f[/tt] then we know for sure that
-[tt]f xs[/tt] will contain a [tt]CRec[/tt] and that it will be the
-head constructor of [tt]xs[/tt] showing up where the pointer was
+for sure that there is [i]at most one[/i] [span=inline-code]CRec[/span] constructor
+in a [span=inline-code]List a[/span]. This implies in particular that we can detect
+where the pointer declared by a [span=inline-code]CRec[/span] is used. Indeed, if
+[span=inline-code]xs[/span] is equal to [span=inline-code]CRec x f[/span] then we know for sure that
+[span=inline-code]f xs[/span] will contain a [span=inline-code]CRec[/span] and that it will be the
+head constructor of [span=inline-code]xs[/span] showing up where the pointer was
 used.[/p]
 
-[p]This means that we can actually build a [tt]cfold[/tt] function
+[p]This means that we can actually build a [span=inline-code]cfold[/span] function
 which will not unwind the cycle unless we want it to. Let's start
 by writing down the most general type for it. The two first arguments
-corresponds to the usual [tt]Cons[/tt] and [tt]CNil[/tt] cases with
+corresponds to the usual [span=inline-code]Cons[/span] and [span=inline-code]CNil[/span] cases with
 the right phantom types sprinkled where necessary. The third one
 is the one dealing with cycles and it mimics really closely the type
-of [tt]CRec[/tt]. The whole thing is implemented in terms of an
+of [span=inline-code]CRec[/span]. The whole thing is implemented in terms of an
 auxiliary function.[/p]
 
 [p=code]cfold :: forall a (b :: * -> *).
@@ -174,19 +174,19 @@ cfold c n r = goCRec[/p]
 
 [p]This auxiliary function unfolds the list argument applying the
 appropriate combinator to the constructor's arguments and the
-the induction hypothesis. As its name [tt]goCRec[/tt] suggests, it
-traverses the [tt]CRec[/tt] constructor before handing over the rest
-of the work to [tt]stopCRec[/tt].[/p]
+the induction hypothesis. As its name [span=inline-code]goCRec[/span] suggests, it
+traverses the [span=inline-code]CRec[/span] constructor before handing over the rest
+of the work to [span=inline-code]stopCRec[/span].[/p]
 
 [p=code]goCRec :: forall ph. CList a ph -> b ph
 goCRec CNil          = n
 goCRec (Cons x xs)   = c x $ goCRec xs
 goCRec xs@(CRec x p) = r x $ stopCRec (p xs)[/p]
 
-[p][tt]stopCRec[/tt] is similarly structurally working its way
+[p][span=inline-code]stopCRec[/span] is similarly structurally working its way
 through the list except that it posesses an induction hypothesis
-[tt]ih[/tt] obtained earlier on by [tt]goCRec[/tt]. When faced with
-a [tt]CRec[/tt], we know for sure that we have just followed the
+[span=inline-code]ih[/span] obtained earlier on by [span=inline-code]goCRec[/span]. When faced with
+a [span=inline-code]CRec[/span], we know for sure that we have just followed the
 pointer back to where it was declared. As a consequence, we return
 the induction hypothesis rather than unfolding the cycle yet
 another time.[/p]
@@ -196,15 +196,15 @@ stopCRec (Cons x xs) ih = c x $ stopCRec xs ih
 stopCRec (CRec _ _)  ih = ih[/p]
 
 [p]Now that we have this induction principle, it is really easy to
-define a [tt]cmap[/tt] which outputs a list with a structure
+define a [span=inline-code]cmap[/span] which outputs a list with a structure
 identical to the one we started with.[/p]
 
 [p=code]cmap :: forall a b. (a -> b) -> List a -> List b
 cmap f = cfold (Cons . f) CNil (CRec . f)[/p]
 
-[p]And indeed, [tt]cmap (+1) $ CRec 1 (Cons 2)[/tt] evaluates down to
-[tt]CRec 2 (Cons 3)[/tt] rather than the detestable
-[tt]Cons 2 (Cons 3 (Cons 2 (...)))[/tt] the naïve solution used to
+[p]And indeed, [span=inline-code]cmap (+1) $ CRec 1 (Cons 2)[/span] evaluates down to
+[span=inline-code]CRec 2 (Cons 3)[/span] rather than the detestable
+[span=inline-code]Cons 2 (Cons 3 (Cons 2 (...)))[/span] the naïve solution used to
 produce.[/p]
 
 [p]It is also possible to instantiate this very generic scheme down
@@ -215,8 +215,8 @@ type:[/p]
 [p=code]cfoldRec :: forall a b. (a -> b -> b) -> b ->
             (a -> (b -> b) -> b) -> List a -> b[/p]
 
-[p]An elegant use case of this [tt]cfoldRec[/tt] is the definition
-of the [tt]Show[/tt] instance for [tt]List a[/tt] which allows us
+[p]An elegant use case of this [span=inline-code]cfoldRec[/span] is the definition
+of the [span=inline-code]Show[/span] instance for [span=inline-code]List a[/span] which allows us
 to display a finite string representing the cyclic structure in its
 entirety. When we encounter the pointer declaration, we output
 "rec X. " and keep showing the rest of the list but when the pointer
@@ -226,9 +226,9 @@ is used, we simply output "X" and stop.[/p]
   show = cfoldRec (\ x -> (++) (show x ++ " : ")) "[]"
                   (\ x ih -> "rec X. " ++ show x ++ " : " ++ ih "X")[/p]
 
-[p]And, as we expected, [tt]show $ CRec 1 (Cons 2)[/tt] now reduces
-to the finite string [tt]"rec X. 1 : 2 : X"[/tt]. It is also possible
-to recover a [tt]fold[/tt]-style function unwinding the cycle by
+[p]And, as we expected, [span=inline-code]show $ CRec 1 (Cons 2)[/span] now reduces
+to the finite string [span=inline-code]"rec X. 1 : 2 : X"[/span]. It is also possible
+to recover a [span=inline-code]fold[/span]-style function unwinding the cycle by
 tying the knot in the third argument: the induction hypothesis
 will just be the whole subcomputation itself![/p]
 
@@ -246,7 +246,7 @@ toStream = cfold' (:) [][/p]
 
 [p]There are still plenty of functions to implement on this
 representation some of which may raise interesting questions:
-[tt]czip[/tt] will surely involve computing a least common
+[span=inline-code]czip[/span] will surely involve computing a least common
 multiple. And it will enable us to define an [i]extensional[/i]
 equality on these cyclic structures. Exciting perspectives.[/p]
 
@@ -255,7 +255,7 @@ equality on these cyclic structures. Exciting perspectives.[/p]
 [p]GADTs combined with higher rank polymorphism allowed us to bake
 in invariants which were sufficient for us to write more useful
 functions than the rather untyped approach led us to believe was
-possible. The type of [tt]cfold[/tt] lets us decide at any time
+possible. The type of [span=inline-code]cfold[/span] lets us decide at any time
 whether we want to unwind the cycle or not.[/p]
 
 [p]However, this approach is limited to cases in which it only

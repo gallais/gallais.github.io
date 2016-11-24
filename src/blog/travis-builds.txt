@@ -52,21 +52,21 @@ written in haskell and I figured I could extend it to meet my needs rather
 easily. As it turned out, getting travis to build and deploy the pages
 was probably the least painful step in the whole process; in comparison
 figuring out how to parse [url=https://github.com/gallais/gallais.github.io/tree/source/src/Text/BBCode]
-the flavour of [tt]BBCode[/tt][/url] I use for these posts was hell
-[footnote]You should not conclude anything about [tt]parsec[/tt] from
+the flavour of [span=inline-code]BBCode[/span][/url] I use for these posts was hell
+[footnote]You should not conclude anything about [span=inline-code]parsec[/span] from
 that: I had no prior experience in parsing so I had a lot to learn
 and spent quite some time trying various libraries and parser generators
-before finally settling for [tt]parsec[/tt]. Which does the job as you
+before finally settling for [span=inline-code]parsec[/span]. Which does the job as you
 can see.[/footnote].[/p]
 
 [p]The [url=https://github.com/gallais/gallais.github.io/blob/master/.travis.yml].travis.yml
 file[/url] is sligtly more complicated this time given that I need to
-push the generated html pages to the [tt]master[/tt] branch of the
+push the generated html pages to the [span=inline-code]master[/span] branch of the
 repository. To do so, one needs to generate personal access tokens
 [url=https://github.com/settings/applications]on github[/url] and then
 [url=http://docs.travis-ci.com/user/encryption-keys]encrypt them using
-[tt]travis[/tt][/url]. If you look closely at the file, that's the
-[tt]${GH_TOKEN}[/tt] I use when pushing.[/p]
+[span=inline-code]travis[/span][/url]. If you look closely at the file, that's the
+[span=inline-code]${GH_TOKEN}[/span] I use when pushing.[/p]
 
 [h4][url=http://impega.github.io/reciptacle]Publishing recipes[/url] with a little bit of bash magic[/h]
 
@@ -121,7 +121,7 @@ for the standard library which tends to rely on "newly" (as in "in the
 last few months") introduced features. The obvious solution was to,
 somehow, get travis to generate a static binary when compiling and
 testing Agda and upload it on Dropbox. This is the purpose of my
-[url=https://github.com/gallais/agda/tree/build-binary][tt]build-binary[/tt][/url]
+[url=https://github.com/gallais/agda/tree/build-binary][span=inline-code]build-binary[/span][/url]
 branch.[/p]
 
 [p]Compiling static haskell executables is not a process well documented

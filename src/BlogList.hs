@@ -24,7 +24,12 @@ mkDay d = UTCTime { utctDay = d, utctDayTime = 60 * (37 + 60 * 13) }
 blogPosts :: [BlogPost]
 blogPosts =
   [
-    BlogPost { name     = "Parametrised Modules: (ab)using lambda-lifting"
+    BlogPost { name     = "Three Tricks to make Termination Obvious"
+             , source   = "termination-tricks"
+             , pubDate  = mkDay $ fromGregorian 2016 11 24
+             , keywords = [agda, termination, functionalProgramming]
+             }
+  , BlogPost { name     = "Parametrised Modules: (ab)using lambda-lifting"
              , source   = "lambda-lifting"
              , pubDate  = mkDay $ fromGregorian 2016 01 06
              , keywords = [agda, modules, functionalProgramming]
@@ -108,6 +113,7 @@ blogPosts =
     reflection            = "reflection"
     soundness             = "soundness"
     tactics               = "tactics"
+    termination           = "termination"
     typeSafety            = "type safety"
     universe              = "universe"
 

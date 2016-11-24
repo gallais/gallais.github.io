@@ -15,11 +15,11 @@ used to tidy up some definitions.[/p]
 arguments. These variables are then made available to the user across
 the whole body of the module in a manner reminiscent of Coq's
 [url=https://coq.inria.fr/distrib/8.4pl6/refman/Reference-Manual004.html#sec77]Sections[/url].
-The most bare-bones example I could come up with is an [tt]Identity[/tt]
-module parameterised by [tt]A[/tt], a [tt]Set[/tt], and defining the
-identity function for [tt]A[/tt]. This definition is accepted without an
+The most bare-bones example I could come up with is an [span=inline-code]Identity[/span]
+module parameterised by [span=inline-code]A[/span], a [span=inline-code]Set[/span], and defining the
+identity function for [span=inline-code]A[/span]. This definition is accepted without an
 out of scope error being raised because, inside the module, the context
-is extended with [tt]A : Set[/tt].[/p]
+is extended with [span=inline-code]A : Set[/span].[/p]
 
 [p=code]module Identity (A : Set) where
 
@@ -27,11 +27,11 @@ is extended with [tt]A : Set[/tt].[/p]
   identity = λ x → x
 [/p]
 
-[p]Once we leave the module, the type of [tt]identity[/tt] as it is
-written down does not make sense anymore because [tt]A[/tt]'s scope
+[p]Once we leave the module, the type of [span=inline-code]identity[/span] as it is
+written down does not make sense anymore because [span=inline-code]A[/span]'s scope
 was only extending as far as the module was. The process of taking
 such a definition and altering it so that it makes sense even outside
-of [tt]Identity[/tt] is called
+of [span=inline-code]Identity[/span] is called
 [url=https://en.wikipedia.org/wiki/Lambda_lifting]lambda-lifting[/url].
 It consists in prepending the telescope of arguments the module was
 parameterised with
@@ -47,16 +47,16 @@ defined symbol's type and body.
 [/footnote]
 
 to the type and body of the various defined symbols it contains. We can
-check that [tt]Identity.identity[/tt]'s type now includes an extra argument:
-the type [tt]A[/tt]. Outside the [tt]Identity[/tt] module, it is effectively
+check that [span=inline-code]Identity.identity[/span]'s type now includes an extra argument:
+the type [span=inline-code]A[/span]. Outside the [span=inline-code]Identity[/span] module, it is effectively
 the polymorphic identity
 
 [footnote]
-[p]Here we write [tt]a ∈ A[/tt] to mean that [tt]a[/tt] has type [tt]A[/tt].
+[p]Here we write [span=inline-code]a ∈ A[/span] to mean that [span=inline-code]a[/span] has type [span=inline-code]A[/span].
 This notion can be defined using a simple indexed family which looks a
 lot like propositional equality: because of the way the only constructor
-[tt]indeed[/tt] is defined, if [tt]a ∈ A[/tt] is inhabited then [tt]A[/tt]
-can only ever be [tt]a[/tt]'s type:[/p]
+[span=inline-code]indeed[/span] is defined, if [span=inline-code]a ∈ A[/span] is inhabited then [span=inline-code]A[/span]
+can only ever be [span=inline-code]a[/span]'s type:[/p]
 
 [p=code]data _∈_ {ℓ : Level} {A : Set ℓ} (a : A) : (B : Set ℓ) → Set where
   indeed : a ∈ A
@@ -76,26 +76,26 @@ check = indeed
 when you need to make the content of a record, passed as an argument,
 available to the type and body of a defined symbol. To keep things simple,
 I decided to use one of the most basic constructs in the standard library's
-[tt]Algebra[/tt]: a [tt]RawMonoid[/tt]. If you have one such beast, then
+[span=inline-code]Algebra[/span]: a [span=inline-code]RawMonoid[/span]. If you have one such beast, then
 you can aggregate values by using the monoid's binary operation and
 [url=https://www.youtube.com/watch?v=We90tGh1z3g#t=11m29s]people do
 that in [i]real[/i] software[/url].[/p]
 
-[p]This module is called [tt]Reduce[/tt], it is parameterised by a [tt]RawMonoid[/tt]
+[p]This module is called [span=inline-code]Reduce[/span], it is parameterised by a [span=inline-code]RawMonoid[/span]
 
 [footnote]
-In the standard library, a [tt]Monoid[/tt] is a [tt]RawMonoid[/tt]
-plus some laws. Here we do not care about the proofs that [tt]_∙_[/tt]
-is associative and [tt]ε[/tt] a neutral element for it. It goes without
+In the standard library, a [span=inline-code]Monoid[/span] is a [span=inline-code]RawMonoid[/span]
+plus some laws. Here we do not care about the proofs that [span=inline-code]_∙_[/span]
+is associative and [span=inline-code]ε[/span] a neutral element for it. It goes without
 saying that in a general-purpose library, it would be more interesting
-to work on a [tt]Monoid[/tt] and prove [tt]aggregate[/tt]'s properties
+to work on a [span=inline-code]Monoid[/span] and prove [span=inline-code]aggregate[/span]'s properties
 (e.g. that it is a monoid homomorphism).
 [/footnote]
 
-and it implements [tt]aggregate[/tt], a function which collapses a list
+and it implements [span=inline-code]aggregate[/span], a function which collapses a list
 of values down to a single one. Here it is crucial for us to be able
-to bring the fields of the [tt]RawMonoid mon[/tt] in scope for the
-whole definition: [tt]Carrier[/tt], [tt]_∙_[/tt] and [tt]ε[/tt] are
+to bring the fields of the [span=inline-code]RawMonoid mon[/span] in scope for the
+whole definition: [span=inline-code]Carrier[/span], [span=inline-code]_∙_[/span] and [span=inline-code]ε[/span] are
 all packed up in that record.[/p]
 
 [p=code]module Reduce {c ℓ : Level} (mon : RawMonoid c ℓ) where
@@ -120,12 +120,12 @@ aggregate′′ : {c ℓ : Level} (mon : RawMonoid c ℓ) →
 aggregate′′ mon = foldr (RawMonoid._∙_ mon) (RawMonoid.ε mon)
 [/p]
 
-[p]We can now use [tt]aggregate[/tt] with an extra argument (the
-[tt]RawMonoid[/tt] in question). Assuming we have [tt]ℕ+[/tt] and
-[tt]ℕ*[/tt] (respectively the additive and multiplicative monoids over
-the natural numbers) and a function [tt][_⋯_][/tt] generating a range
+[p]We can now use [span=inline-code]aggregate[/span] with an extra argument (the
+[span=inline-code]RawMonoid[/span] in question). Assuming we have [span=inline-code]ℕ+[/span] and
+[span=inline-code]ℕ*[/span] (respectively the additive and multiplicative monoids over
+the natural numbers) and a function [span=inline-code][_⋯_][/span] generating a range
 of natural numbers, we can write some test about computations involving
-[tt]aggregate[/tt]:[/p]
+[span=inline-code]aggregate[/span]:[/p]
 
 [p=code]test-aggregate : Reduce.aggregate ℕ+ [ 1 ⋯ 5 ] ≡ 15
                ∧ Reduce.aggregate ℕ* [ 1 ⋯ 5 ] ≡ 120
@@ -136,15 +136,15 @@ when defining what could be considered a semantics, is to anticipate
 the lambda-lifting and define an infix operator which uses a double
 turnstile (⊨) to separate the specific theory used from the
 (parametrically defined) computation it acts upon. Here this would mean
-adding the following line [b]inside[/b] the module [tt]Reduce[/tt]:[/p]
+adding the following line [b]inside[/b] the module [span=inline-code]Reduce[/span]:[/p]
 
 [p=code]  _⊨reduce_ = aggregate[/p]
 
-[p][tt]_⊨reduce_[/tt] is supposed to take two arguments but, inside
-[tt]Reduce[/tt], [tt]aggregate[/tt] only takes one. This weird mismatch
-is solved when we leave the module and the [tt]RawMonoid[/tt] argument
-is lambda-lifted. We can now write [tt]A ⊨reduce xs[/tt] to mean that we use
-the monoid [tt]A[/tt] to give a meaning to the phrase "reduce xs".
+[p][span=inline-code]_⊨reduce_[/span] is supposed to take two arguments but, inside
+[span=inline-code]Reduce[/span], [span=inline-code]aggregate[/span] only takes one. This weird mismatch
+is solved when we leave the module and the [span=inline-code]RawMonoid[/span] argument
+is lambda-lifted. We can now write [span=inline-code]A ⊨reduce xs[/span] to mean that we use
+the monoid [span=inline-code]A[/span] to give a meaning to the phrase "reduce xs".
 The same tests as before hold but I find the type more readable:[/p]
 
 [p=code]test-reduce : ℕ+ ⊨reduce [ 1 ⋯ 5 ] ≡ 15

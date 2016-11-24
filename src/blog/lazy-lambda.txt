@@ -3,7 +3,7 @@
 [li][url=http://hackage.haskell.org/package/bound]bound on Hackage[/url][/li]
 [li][url=code/LazyLambda/LazyLambda.html]Colored Agda[/url][/li]
 [/ul][/div]
-[pid=chapo]One of the key features of [tt]bound[/tt] is that it
+[pid=chapo]One of the key features of [span=inline-code]bound[/span] is that it
 introduces redundancies in the representation of syntaxes in
 order to avoid traversing entire subterms just to apply a
 weakening. However, equality testing currently quotients out
@@ -19,9 +19,9 @@ out to be quite a bit more work than I expected & I was not able to
 deliver it when asked to. Better late than never.[/p]
 
 [p]Our running example will be the untyped lambda calculus
-with its well-known 3 constructors: [tt]var[/tt], [tt]lam[/tt] and
-[tt]app[/tt]. We will start by motivating the use of the notion
-of [tt]Scope[/tt] when dealing with syntaxes with binding both for
+with its well-known 3 constructors: [span=inline-code]var[/span], [span=inline-code]lam[/span] and
+[span=inline-code]app[/span]. We will start by motivating the use of the notion
+of [span=inline-code]Scope[/span] when dealing with syntaxes with binding both for
 its added safety, genericity and efficiency. We will then move on
 to the actual meat of this post: the lazy equality test.[/p]
 
@@ -64,7 +64,7 @@ them whilst being reminded by the typechecker that some magic needs
 to happen after a new variable has been bound.[/p]
 
 [p]Typed alternatives to de Bruijn indices do exist; we can e.g.
-think of terms well-scoped by constructions using [tt]Fin[/tt]
+think of terms well-scoped by constructions using [span=inline-code]Fin[/span]
 or the non-regular datatypes reflecting the indices at the type level
 we are going to use:[/p]
 
@@ -73,12 +73,12 @@ we are going to use:[/p]
   app : (t u : Lam A)       → Lam A
   lam : (b : Lam (Maybe A)) → Lam A[/p]
 
-[p][tt]Lam[/tt] quite clearly is a functor hence the existence of
-a higher-order function [tt]map[/tt] which loosely corresponds
+[p][span=inline-code]Lam[/span] quite clearly is a functor hence the existence of
+a higher-order function [span=inline-code]map[/span] which loosely corresponds
 to the notion of renaming / weakening [footnote]It [i]is[/i]
 respectively renaming / weakening provided that the function
 passed is well-behaved (resp. bijective / injective).[/footnote].
-The [tt]var[/tt] and [tt]app[/tt] cases are unchanged but the type
+The [span=inline-code]var[/span] and [span=inline-code]app[/span] cases are unchanged but the type
 of the lamdba's body now rejects the erroneous recursive call
 described earlier. We are forced to both extend the substitution
 with the new bound variable which is unchanged, and weaken the
@@ -104,16 +104,16 @@ in the representation. This can be done by letting the variables
 in a subterm be either bound by the nearest binder or [i]whole[/i]
 subterms living in the non-extended context (aka weakened subterms).
 This naturally translates to the following notions of
-[tt]Scope[/tt]:[/p]
+[span=inline-code]Scope[/span]:[/p]
 
 [p=code]Scope : (F : Set → Set) (A : Set) → Set
 Scope F A = F (Maybe (F A))[/p]
 
 [p]In this case, the definition is simple enough that Agda has no
-problem seeing that the [tt]Scope[/tt] transformer preserves
-positivity and that [tt]Lam[/tt] is therefore a legal inductive
+problem seeing that the [span=inline-code]Scope[/span] transformer preserves
+positivity and that [span=inline-code]Lam[/span] is therefore a legal inductive
 definition. However in more intricate examples, e.g. when describing
-a universe of syntaxes with [tt]Scope[/tt]s, only a tool like
+a universe of syntaxes with [span=inline-code]Scope[/span]s, only a tool like
 [url=http://www2.tcs.ifi.lmu.de/~abel/miniagda/]MiniAgda[/url]
 which allows for positivity annotations will accept the definition
 as valid.[/p]
@@ -129,7 +129,7 @@ as valid.[/p]
 equality testing? We have added redundancies which therefore
 need to be quotiented out when comparing two terms. The simplest
 way to implement such a comparison function is to define a
-function [tt]flatten[/tt] which will push the weakenings into the
+function [span=inline-code]flatten[/span] which will push the weakenings into the
 leaves of the terms thus producing terms in [i]de Bruijn normal
 form[/i].[/p]
 
@@ -153,11 +153,11 @@ of weakenings respectively encountered on the way down to the
 current subterms.[/p]
 
 [p]We introduce this notion of inclusion [footnote]It makes sense as
-a notion of inclusion because a proof that [tt]A ⊆ B[/tt] gives rise
-to a morphism from [tt]A[/tt] to [tt]B[/tt]. Cf.
+a notion of inclusion because a proof that [span=inline-code]A ⊆ B[/span] gives rise
+to a morphism from [span=inline-code]A[/span] to [span=inline-code]B[/span]. Cf.
 [url=code/LazyLambda/LazyLambda.html#4861]the accompanying Agda doc[/url].[/footnote]
-whose 2nd constructor ([tt]↑_[/tt]) tags the moment one goes under
-a lambda abstraction whilst the 3rd one ([tt]◂_[/tt]) tags the
+whose 2nd constructor ([span=inline-code]↑_[/span]) tags the moment one goes under
+a lambda abstraction whilst the 3rd one ([span=inline-code]◂_[/span]) tags the
 moment one encounters a weakening. [/p]
 
 [p=code]data _⊆_ : (A B : Set) → Set₁ where
@@ -168,8 +168,8 @@ moment one encounters a weakening. [/p]
 [h4][url=code/LazyLambda/LazyLambda.html#10054]Term comparison[/url][/h]
 
 [p]Now, we are ready to describe the comparison of two terms living
-in their respective local contexts [tt]A[/tt] and [tt]B[/tt] both
-sharing a common super-context [tt]T[/tt].[/p]
+in their respective local contexts [span=inline-code]A[/span] and [span=inline-code]B[/span] both
+sharing a common super-context [span=inline-code]T[/span].[/p]
 
 [p=code]data EQ : {T A : Set} (incA : A ⊆ T) (t : Lam A)
           {B : Set}   (incB : B ⊆ T) (u : Lam B)
@@ -205,7 +205,7 @@ further.[/p]
 mostly syntax-directed except for the two last rules which happen
 to commute. Turning this specification into a recursive algorithm
 will therefore just be a matter of picking an order in which to
-check that either [tt]EQvarFre₁[/tt] or [tt]EQvarFre₂[/tt] applies.
+check that either [span=inline-code]EQvarFre₁[/span] or [span=inline-code]EQvarFre₂[/span] applies.
 Which is good news when you are in the business of actually
 deciding equality.[/p]
 
@@ -215,28 +215,28 @@ comparison[/url][/h]
 
 [p]Variable comparison is always done up to weakenings. We count
 the numbers of weakenings encountered thus far respectively in
-[tt]kA[/tt] and [tt]kB[/tt] and manage (in/de)crements based on
+[span=inline-code]kA[/span] and [span=inline-code]kB[/span] and manage (in/de)crements based on
 the tokens we stumble upon.[/p]
 
 [p=code]data EQVar : {TA A : Set} (incA : A ⊆ TA) (kA : Nat)
              {TB B : Set} (incB : B ⊆ TB) (kB : Nat)
              → Set₁ where[/p]
 [p]When both context inclusions are synchronized on a lambda
-binder (tagged by [tt]↑_[/tt] in the derivations) and no weakening
-whatsoever has been applied (both [tt]kA[/tt] and [tt]kB[/tt] are
+binder (tagged by [span=inline-code]↑_[/span] in the derivations) and no weakening
+whatsoever has been applied (both [span=inline-code]kA[/span] and [span=inline-code]kB[/span] are
 zero) then we can conclude that the variables are indeed equal.[/p]
 [p=code]  EQVarZRO : EQVar (↑ incA) zero (↑ incB) zero
 [/p]
 
 [p]When, on the other hand, they both claim to be referring to a
-binder which is at least one level up (both [tt]kA[/tt] and
-[tt]kB[/tt] are non-zero), one can forget about the binder at hand
+binder which is at least one level up (both [span=inline-code]kA[/span] and
+[span=inline-code]kB[/span] are non-zero), one can forget about the binder at hand
 and go explore the context inclusions upward.[/p]
 
 [p=code]  EQVarSUC : EQVar incA kA incB kB →
              EQVar (↑ incA) (suc kA) (↑ incB) (suc kB)[/p]
 [p]Finally, when we encounter a weakening (marked with a
-[tt]◂_[/tt]), we record its presence by incrementing the appropriate
+[span=inline-code]◂_[/span]), we record its presence by incrementing the appropriate
 counter and keep comparing the rest of the inclusion proofs.[/p]
 
 [p=code]  EQVarWK₁ : EQVar incA (suc kA) incB kB →

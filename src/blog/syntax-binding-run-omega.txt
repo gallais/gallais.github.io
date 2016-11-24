@@ -27,24 +27,24 @@ in his paper on ornaments [footnote]Ornamental algebras, algebraic ornaments
 except for an extra constructor which allows us to introduce a new variable. It
 comes with a decoding function which, for this is the non dependent case, can be
 defined separately. We will however present each constructor together with its
-semantics given by the decoding function [tt]⟦_⟧[/tt] in the pure tradition of
+semantics given by the decoding function [span=inline-code]⟦_⟧[/span] in the pure tradition of
 Induction-Recursion [footnote]Cf. e.g. Peter Dybjer's [url=http://www.cse.chalmers.se/~peterd/papers/inductive.html]
-work[/url].[/footnote]. This decoding function defines an endofunctor on [tt]List V → Set[/tt].[/p]
+work[/url].[/footnote]. This decoding function defines an endofunctor on [span=inline-code]List V → Set[/span].[/p]
 
 [p=code]data Desc : Set₁ where
 ⟦_⟧ : ∀ {V} → Desc → (R : List V → Set) → List V → Set[/p]
 
 [p]Sigma types can either be used in a non-dependent fashion in order to store
 elements of a set inside the structure of the datatype e.g. when defining lists;
-or to give the user a set (indexed by [tt]A[/tt] of different constructors she may
+or to give the user a set (indexed by [span=inline-code]A[/span] of different constructors she may
 use.[/p]
 
 [p=code]`σ[_]_ : (A : Set) → (da : (a : A) → Desc) → Desc
 ⟦ `σ[ A ] d ⟧ R Γ = Σ A (λ a → ⟦ d a ⟧ R Γ)[/p]
 
 [p]Recursive positions are the variable positions in the functor and are therefore
-interpreted by [tt]R[/tt] which will be the fixpoint itself when tying the knot.
-They correspond to e.g. the tail of the list in the description of the [tt]_∷_[/tt]
+interpreted by [span=inline-code]R[/span] which will be the fixpoint itself when tying the knot.
+They correspond to e.g. the tail of the list in the description of the [span=inline-code]_∷_[/span]
 constructor.[/p]
 
 [p=code]`r_ : (d : Desc) → Desc
@@ -94,17 +94,17 @@ are strictly positive by construction and accordingly have a fixpoint.[/p]
 
 [h3]Defining substitution[/h]
 
-[p]We call substitution for [tt]d[/tt] from [tt]Γ[/tt] to [tt]Δ[/tt], a function
-which provides for each variable in [tt]Γ[/tt] a term of type [tt]`μ d[/tt]
-using variables taken in [tt]Δ[/tt].[/p]
+[p]We call substitution for [span=inline-code]d[/span] from [span=inline-code]Γ[/span] to [span=inline-code]Δ[/span], a function
+which provides for each variable in [span=inline-code]Γ[/span] a term of type [span=inline-code]`μ d[/span]
+using variables taken in [span=inline-code]Δ[/span].[/p]
 
 [p=code]subst[_] : ∀ {V} → Desc → List V → List V → Set
 subst[ d ] Γ Δ = ∀ v → v ∈ Γ → `μ d Δ[/p]
 
 [p]As one would expect from the name of this function, given a substitution for
-[tt]d[/tt] from [tt]Γ[/tt] to [tt]Δ[/tt] and a term in [tt]`μ d[/tt] with free
-variables ranging in [tt]Γ[/tt], one can build a term in [tt]`μ d[/tt] only using
-variables in [tt]Δ[/tt]. The whole process corresponds to applying this substitution
+[span=inline-code]d[/span] from [span=inline-code]Γ[/span] to [span=inline-code]Δ[/span] and a term in [span=inline-code]`μ d[/span] with free
+variables ranging in [span=inline-code]Γ[/span], one can build a term in [span=inline-code]`μ d[/span] only using
+variables in [span=inline-code]Δ[/span]. The whole process corresponds to applying this substitution
 and is defined by two mutually defined functions.
 [br]A term is either a variable, in which case we can just apply the substitution,
 or it is an inhabitant of the functor applied to the fixpoint and we rely on the
@@ -121,7 +121,7 @@ where we go under a binder. In this case, we extend the substitution with the
 identity on the first variable and weaken the terms corresponding to the other
 ones. The careful reader will notice the generalization applied to the type of
 the recursive positions to ensure that the definition goes through. In practice,
-all direct calls to [tt]map⟦_⟧[/tt] will be such that [tt]d = e[/tt].[/p]
+all direct calls to [span=inline-code]map⟦_⟧[/span] will be such that [span=inline-code]d = e[/span].[/p]
 
 [p=code]  map⟦_⟧ : ∀ {V} d {e} {Γ Δ : List V} (t : ⟦ d ⟧ (`μ e) Γ)
     (ρ : subst[ e ] Γ Δ) → ⟦ d ⟧ (`μ e) Δ
@@ -144,13 +144,13 @@ it is rather easy to define what's named β reduction in the lambda calculus.[/p
 
 [p]When building examples, we introduce enumerations of labels corresponding to
 the different constructors of the language. We hope the definitions of the various
-[tt]Desc[/tt] functors to be easier to understand this way.
+[span=inline-code]Desc[/span] functors to be easier to understand this way.
 [br]Let's start with a very simple language: the untyped lambda calculus. Its
 grammar has two components: one can introduce a lambda abstraction (label
-[tt]lam[/tt]) which binds a variable and contains a subterm (a recursive position
-[tt]`r[/tt]) or an applications (label [tt]app[/tt]) which contains two subterms.
-The set of lambda terms with variables in [tt]Γ[/tt] is then given by [tt]`μ[/tt].
-The set of closed terms is therefore [tt]lc [][/tt][/p]
+[span=inline-code]lam[/span]) which binds a variable and contains a subterm (a recursive position
+[span=inline-code]`r[/span]) or an applications (label [span=inline-code]app[/span]) which contains two subterms.
+The set of lambda terms with variables in [span=inline-code]Γ[/span] is then given by [span=inline-code]`μ[/span].
+The set of closed terms is therefore [span=inline-code]lc [][/span][/p]
 
 [p=code]lc-grammar : Desc
 lc-grammar =
@@ -164,21 +164,21 @@ lc Γ = `μ lc-grammar Γ[/p]
 [url=http://code.google.com/p/agda/issues/detail?id=495]Feature request[/url]
 on agda's bug tracker.[/footnote], we can recover a nice syntax closer to the one we are
 used to. Our lambdas, variables and applications will desugar to the somewhat
-horrendous codes describing elements of the fixpoint of [tt]lc-grammar[/tt].
-We can, for instance, define the well-known looping function [tt]:Ω[/tt].[/p]
+horrendous codes describing elements of the fixpoint of [span=inline-code]lc-grammar[/span].
+We can, for instance, define the well-known looping function [span=inline-code]:Ω[/span].[/p]
 
 [p=code]:δ :Ω : lc []
 :δ = :λ :v z :$ :v z
 :Ω = :δ :$ :δ[/p]
 
-[p]We can now define a function [tt]fire : lc [] → Maybe (lc [])[/tt] which explores
+[p]We can now define a function [span=inline-code]fire : lc [] → Maybe (lc [])[/span] which explores
 a (closed) term looking for a redex and returns either nothing if the term is in
 weak-head normal form or just the term after having fired the first redex encountered.
-Iterating [tt]fire[/tt] on a term gives rise to an [tt]execute[/tt] function
-which produces a [tt]CoList[/tt] of successive reducts.[/p]
+Iterating [span=inline-code]fire[/span] on a term gives rise to an [span=inline-code]execute[/span] function
+which produces a [span=inline-code]CoList[/span] of successive reducts.[/p]
 
-[p]As one would expect, running [tt]:Ω[/tt] yields an infinitely long [tt]CoList[/tt]
-of [tt]:Ω[/tt]s.[/p]
+[p]As one would expect, running [span=inline-code]:Ω[/span] yields an infinitely long [span=inline-code]CoList[/span]
+of [span=inline-code]:Ω[/span]s.[/p]
 
 [p=code]lemma : execute :Ω ≣ repeat :Ω
 lemma = ∷ ♯ lemma[/p]
@@ -187,7 +187,7 @@ lemma = ∷ ♯ lemma[/p]
 
 [p]I cooked up the [url=http://patch-tag.com/r/gallais/agda/snapshot/current/content/raw/src/generic/indexed.agda]indexed version[/url]
 with which it is possible to get sexy well-typed terms for the simply-typed lambda
-calculus such as [tt]`K[/tt]. But that is another story.[/p]
+calculus such as [span=inline-code]`K[/span]. But that is another story.[/p]
 
 [p=code]`K : ∀ {Γ σ τ} → Γ ⊢ σ `→ τ `→ σ
 `K = :λ :λ :v (s z)[/p]

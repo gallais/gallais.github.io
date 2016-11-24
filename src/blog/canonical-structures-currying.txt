@@ -12,8 +12,8 @@ them. Here's the result.[/p]
 
 [p]Whilst reading [url=http://coq-blog.clarus.me/simple-unit-testing-in-coq.html]a
 completely unrelated blog post[/url] about unit testing in Coq, I stumbled
-upon a series of almost identical functions named [tt]List.map_pair[/tt],
-[tt]List.map_triple[/tt] and [tt]List.map_quad[/tt]. I thought to myself
+upon a series of almost identical functions named [span=inline-code]List.map_pair[/span],
+[span=inline-code]List.map_triple[/span] and [span=inline-code]List.map_quad[/span]. I thought to myself
 that, surely, it should be possible in a language with type-level computations
 to do away with the sort of [url=http://hackage.haskell.org/package/base-4.8.1.0/docs/Data-List.html#v:zipWith3]monstrosities[/url]
 one can sometime find in Haskell libraries.
@@ -26,8 +26,8 @@ of reifying the domain of the function we want to curry. Annoying.[/p]
 
 [p]That is when Canonical Structures come to the rescue: they are a way
 to give hints to the unification algorithm when it faces a problem of the
-shape [tt]project ?x ~ term[/tt] where [tt]project[/tt] is a projection
-out of a record, [tt]?x[/tt] is a unification variable and [tt]term[/tt]
+shape [span=inline-code]project ?x ~ term[/span] where [span=inline-code]project[/span] is a projection
+out of a record, [span=inline-code]?x[/span] is a unification variable and [span=inline-code]term[/span]
 is... a term. Because this unification step can lead to new ones, we
 effectively have a way to encode a prolog-like proof search. And we are
 going to use it to generate the right sort of currying.[/p]
@@ -37,18 +37,18 @@ going to use it to generate the right sort of currying.[/p]
 [p]This whole development is following quite closely the really good
 introduction [url=https://hal.inria.fr/hal-00816703]Canonical Structures
 for the working Coq user[/url]. We start by defining a module which
-contains first and foremost a Record [tt]class[/tt] indexed by a domain
-[tt]Dom[/tt] and a type constructor [tt]Curr[/tt] such that [tt]Curr a[/tt]
-is a curried version of the function space [tt]Dom -> a[/tt] as witnessed
-by the [tt]Fun[/tt] stored in the record.[/p]
+contains first and foremost a Record [span=inline-code]class[/span] indexed by a domain
+[span=inline-code]Dom[/span] and a type constructor [span=inline-code]Curr[/span] such that [span=inline-code]Curr a[/span]
+is a curried version of the function space [span=inline-code]Dom -> a[/span] as witnessed
+by the [span=inline-code]Fun[/span] stored in the record.[/p]
 
 [p=code]Module Currying.
   Record class (Dom : Type) (Curr : Type -> Type) :=
          Class { Fun : forall cod, Curr cod -> (Dom -> cod) }.
 [/p]
 
-[p]We then define a structure called [tt]type[/tt] packing together
-a [tt]Dom[/tt], a [tt]Curr[/tt] and the [tt]class Dom Curr[/tt] evidence
+[p]We then define a structure called [span=inline-code]type[/span] packing together
+a [span=inline-code]Dom[/span], a [span=inline-code]Curr[/span] and the [span=inline-code]class Dom Curr[/span] evidence
 that they are related.[/p]
 
 [p=code]  Structure type := Pack { dom      : Type
@@ -57,12 +57,12 @@ that they are related.[/p]
 [/p]
 
 [p]Now, remember that canonical structures are used to give hints to the
-unification algorithm when facing [tt]project ?x ~ term[/tt] problems.
-Having this [tt]type[/tt] structure will allow us to generate
-[tt]dom ?x ~ something[/tt] unification problems which means that the
+unification algorithm when facing [span=inline-code]project ?x ~ term[/span] problems.
+Having this [span=inline-code]type[/span] structure will allow us to generate
+[span=inline-code]dom ?x ~ something[/span] unification problems which means that the
 unification algorithm will be able to infer from the shape of the domain
 what its curried version is. In order to trigger these unification problems,
-we are defining a special version of [tt]map[/tt] on [tt]list[/tt]:[/p]
+we are defining a special version of [span=inline-code]map[/span] on [span=inline-code]list[/span]:[/p]
 
 [p=code]  Definition flippedmap (Curry : type) :
     forall cod, list (dom Curry) -> curr Curry cod -> list cod.
@@ -74,12 +74,12 @@ we are defining a special version of [tt]map[/tt] on [tt]list[/tt]:[/p]
 [p]Multiple things are going on here. First we define the function
 interactively because we have some nasty type-level dependencies and
 this post is not about dependent matching in Coq. Second we implemented
-[tt]flippedmap[/tt] rather than [tt]map[/tt] because taking the function
-first would create a unification problem [tt]curr ?x ~ [some function type][/tt]
-which is obviously harder to resolve than [tt]list (dom ?x) ~ list ([some type])[/tt].[/p]
+[span=inline-code]flippedmap[/span] rather than [span=inline-code]map[/span] because taking the function
+first would create a unification problem [span=inline-code]curr ?x ~ [some function type][/span]
+which is obviously harder to resolve than [span=inline-code]list (dom ?x) ~ list ([some type])[/span].[/p]
 
 [p]We can introduce a notation in order to recover the usual arguments
-order. We then close our [tt]Currying[/tt] module and bring the notation
+order. We then close our [span=inline-code]Currying[/span] module and bring the notation
 into scope.[/p]
 
 [p=code]  Module theory.
@@ -89,12 +89,12 @@ End Currying.
 
 Import Currying.theory.[/p]
 
-[h3]The Canonical Structures associated to [tt]Currying.type[/tt][/h]
+[h3]The Canonical Structures associated to [span=inline-code]Currying.type[/span][/h]
 
 [p]Now that our interface has been defined, it is time to populate it
 with canonical instances. The first one simply states that given two
 domains we know how to curry, we can explain how to curry their product.
-The nesting [tt]fun cod => Currying.curr c1 (Currying.curr c2 cod)[/tt]
+The nesting [span=inline-code]fun cod => Currying.curr c1 (Currying.curr c2 cod)[/span]
 is chosen so that arguments are kept in the right order.[/p]
 
 [p=code]Definition pair_curry (c1 c2 : Currying.type) :
@@ -117,7 +117,7 @@ with base types. Should we add an instance for each one of them? And
 what about type variables? It turns out that we can rely on the fact
 that these hints are tried in the order they are declared in and introduce
 a defaulting instance which does not do anything as witnessed by its
-[tt]Fun[/tt] component which is simply the identity.[/p]
+[span=inline-code]Fun[/span] component which is simply the identity.[/p]
 
 [p=code]Canonical Structure failsafe (a : Type) : Currying.type :=
   Currying.Pack a (fun cod => a -> cod) (Currying.Class (fun _ f => f)).[/p]
@@ -126,8 +126,8 @@ a defaulting instance which does not do anything as witnessed by its
 [h3]Concluding Examples[/h]
 
 [p]Thanks to the canonical structures, we can effortlessly recover the
-functions [tt]List.map_pair[/tt], [tt]List.map_triple[/tt] and
-[tt]List.map_quad[/tt] I mentioned earlier:[/p]
+functions [span=inline-code]List.map_pair[/span], [span=inline-code]List.map_triple[/span] and
+[span=inline-code]List.map_quad[/span] I mentioned earlier:[/p]
 
 [p=code]Definition map_pair {A B C} (f : A -> B -> C) (l : list (A * B)) : list C := f <$> l.
 Definition map_triple {A B C D} (f : A -> B -> C -> D) (l : list (A * B * C)) : list D := f <$> l.

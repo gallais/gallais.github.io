@@ -45,10 +45,10 @@ thus leading us to write the rule the following way:[/p]
 ------------------------------ ⊗ʳ
             Γ ⊢ σ `⊗ τ[/p]
 
-[p]Here, [tt]Γ ≡ Δ ⋈ E[/tt] means that [tt]Γ[/tt] is obtained by
-interleaving [tt]Δ[/tt] and [tt]E[/tt] which, if we read the rule
+[p]Here, [span=inline-code]Γ ≡ Δ ⋈ E[/span] means that [span=inline-code]Γ[/span] is obtained by
+interleaving [span=inline-code]Δ[/span] and [span=inline-code]E[/span] which, if we read the rule
 bottom-up, precisely correspond to the idea of finding the right
-partition when applying [tt]⊗ʳ[/tt]. But we really do not want to
+partition when applying [span=inline-code]⊗ʳ[/span]. But we really do not want to
 have to generate [i]all[/i] partitions and test them one after the
 other. This leads us to our first maxim:[/p]
 
@@ -87,7 +87,7 @@ new sequent calculus generalising linear logic:[/p]
 Γ ⊢ `κ k ⊣ Δ                 Γ ⊢ σ `⊗ τ ⊣ E                               Γ ⊢ σ `& τ ⊣ E[/p]
 
 [p]The case of atomic propositions is defined in terms of an auxiliary
-relation [tt]_∋_∈_[/tt] describing how variable lookup consumes a
+relation [span=inline-code]_∋_∈_[/span] describing how variable lookup consumes a
 resource from the context. In the tensor case, we have arbitrarily
 decided that proof search will start on the first subgoal and thread
 the contexts as expected. The par one is slightly more subtle: we use
@@ -104,39 +104,39 @@ recover a derivation in ILL.[/p]
 [p=code]soundness : Γ ⊢ σ ⊣ Δ → Γ ─ Δ ⊢ σ[/p]
 
 [p]Defining this difference operator is however quite hard: we have
-nothing (apart from the derivation [tt]Γ ⊢ σ ⊣ Δ[/tt] itself) telling
-us that [tt]Δ[/tt] is indeed a sub-multiset of [tt]Γ[/tt]! This new
+nothing (apart from the derivation [span=inline-code]Γ ⊢ σ ⊣ Δ[/span] itself) telling
+us that [span=inline-code]Δ[/span] is indeed a sub-multiset of [span=inline-code]Γ[/span]! This new
 obstacle teaches us our second principle:[/p]
 
 [h3]Never ditch the structure you might want to use later on![/h]
 
-[p]It is hard for us to define [tt]Γ ─ Δ[/tt] because we don't know
-how [tt]Γ[/tt] relates to [tt]Δ[/tt]. But this can be dealt with by
+[p]It is hard for us to define [span=inline-code]Γ ─ Δ[/span] because we don't know
+how [span=inline-code]Γ[/span] relates to [span=inline-code]Δ[/span]. But this can be dealt with by
 introducing the notion of consumption annotation: instead of defining
 the sequent calculus over contexts of assumptions, we can define it
-over [tt]Usage[/tt]s of [i]a given context[/i]. Consumption via the
+over [span=inline-code]Usage[/span]s of [i]a given context[/i]. Consumption via the
 axiom rule turns available resources into consumed ones but, most
 importantly, it preserves the structure of it all![/p]
 
-[p]A [tt]Usage[/tt] of a context [tt]γ[/tt] is defined in a pointwise
+[p]A [span=inline-code]Usage[/span] of a context [span=inline-code]γ[/span] is defined in a pointwise
 manner saying whether each assumption is an available resource or an
 already used one. A variable lookup will merely turn a previously
 available assumption into a used one. And checking that two outputs
-are synchronized now amounts to making sure that the [tt]Usage[/tt]s
-agree in a pointwise manner! The relation corresponding to [tt]Usage[/tt]
+are synchronized now amounts to making sure that the [span=inline-code]Usage[/span]s
+agree in a pointwise manner! The relation corresponding to [span=inline-code]Usage[/span]
 differences is also defined in a pointwise manner and we can prove that
-[tt]Γ ⊢ σ ⊣ Δ[/tt] being derivable implies that there is a difference
-[tt]E[/tt] such that [tt]E ⊢ σ[/tt].[/p]
+[span=inline-code]Γ ⊢ σ ⊣ Δ[/span] being derivable implies that there is a difference
+[span=inline-code]E[/span] such that [span=inline-code]E ⊢ σ[/span].[/p]
 
 [p]The last unresolved problem is the way we are going to deal with
 left rules. The left rule for par is a direct loss of information:
-we move from having [tt]A & B[/tt] as an assumption to either one
+we move from having [span=inline-code]A & B[/span] as an assumption to either one
 of the subformula. If the goal we are trying to prove is
-[tt]B & A[/tt] then applying a left rule too early will lead us to
+[span=inline-code]B & A[/span] then applying a left rule too early will lead us to
 a dead end. The one for tensor is typically needed before using a
 right introduction rule for tensor itself: the two subformulas of
 the assumptions may be used in different subproofs e.g. when proving
-[tt]A ⊗ B[/tt] with [tt]A ⊗ B[/tt] in the context. But it could
+[span=inline-code]A ⊗ B[/span] with [span=inline-code]A ⊗ B[/span] in the context. But it could
 also be applied earlier on without any dramatic consequences.
 Hence our last slogan:[/p]
 
@@ -150,8 +150,8 @@ it is possible to formulate the notion of usage in a way that completely
 frees us from having to deal with them: rather than having a binary
 notion of usage for assumptions, we can have a more subtle one describing
 how an assumption may have been partially used so far. For example,
-we may write [tt][ A ]⊗ B[/tt] to mean that [tt]A[/tt] is entirely
-available whilst [tt]B[/tt] is partially used. A careful analysis
+we may write [span=inline-code][ A ]⊗ B[/span] to mean that [span=inline-code]A[/span] is entirely
+available whilst [span=inline-code]B[/span] is partially used. A careful analysis
 of a derivation in the more general calculus will allow us to
 insert left rules wherever needed.[/p]
 
