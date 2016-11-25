@@ -128,7 +128,7 @@ showXMLs :: XML -> [Doc]
 ...
 showXMLs (Elt n a c)  = [text "<" <> showTag n a <> text ">" <>
                         showFill showXMLs c <>
-                        text "</" <> text n <> text ">"]
+                        text "&lt;/" <> text n <> text ">"]
 ...[/p]
 
 [p]A common trick in this type of situation is to mutually define
