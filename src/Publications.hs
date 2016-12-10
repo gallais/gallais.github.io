@@ -118,7 +118,15 @@ publisToText Publis{..} = T.concat [ h_ 3 h3 , ulWith_ "<hr />" lis ]
 
 workshops :: [Publi]
 workshops =
-  [ Publi { authors   = [gallais, pboutillier, cmcbride]
+  [
+    Publi { authors   = [gallais]
+          , title     = "agdARGS - Declarative Hierarchical Command Line Interfaces"
+          , date      = yearOnly 2017
+          , venue     = Venue { name = "TTT", www = Just "http://popl17.sigplan.org/track/TTT-2017" }
+          , resources = [ pdf "pdf/TTT-2017.pdf"
+                        , github "https://github.com/gallais/agdARGS" ]
+          }
+  , Publi { authors   = [gallais, pboutillier, cmcbride]
           , title     = "New Equations for Neutral Terms: A Sound and Complete Decision Procedure, Formalized"
           , date      = yearOnly 2013
           , venue     = Venue { name = "DTP", www = Just "http://www.seas.upenn.edu/~sweirich/dtp13/" }
