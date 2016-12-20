@@ -1,11 +1,11 @@
 # Using the container-based infrastructure
 sudo: false
-# Installing ghc 7.10, which is not available natively
+# Installing ghc 8.0.1, which is not available natively
 language: c
 matrix:
   include:
-    - env: CABALVER=1.24 GHCVER=7.10.3
-      addons: {apt: {packages: [cabal-install-1.24,ghc-7.10.3],sources: [hvr-ghc]}}
+    - env: CABALVER=1.24 GHCVER=8.0.1
+      addons: {apt: {packages: [cabal-install-1.24,ghc-8.0.1],sources: [hvr-ghc]}}
 before_install:
   - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
   - cd src/
@@ -23,7 +23,7 @@ after_script:
   - git config user.email "travis@gallais.org"
   - git remote add upstream https://${GH_TOKEN}@github.com/gallais/gallais.github.io &>/dev/null
   - git fetch upstream && git reset upstream/master
-  - git add *.html *.xml blog/*
+  - git add *.html *.xml blog/* pdf/*
   - git commit -m "Uploading snapshot $(date '+%m/%d/%y %H:%M')"
   - git push -q upstream HEAD:master &>/dev/null
 branches:
