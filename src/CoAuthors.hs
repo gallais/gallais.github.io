@@ -44,13 +44,15 @@ jnagele :: Person
 jnagele =
   Person { firstname = "Julian"
          , surname   = "Nagele"
-         , website   = Nothing }
+         , website   = Just "http://cl-informatik.uibk.ac.at/users/csag8264/"
+         }
 
 pboutillier :: Person
 pboutillier =
   Person { firstname = "Pierre"
          , surname   = "Boutillier"
-         , website   = Just "http://www.pps.univ-paris-diderot.fr/~pboutill/index.en.html" }
+         , website   = Just "https://github.com/pirbo"
+         }
 
 rthiemann :: Person
 rthiemann =
