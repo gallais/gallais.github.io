@@ -149,6 +149,7 @@ conferences =
           , date      = yearOnly 2017
           , venue     = Venue { name = "CPP", www = Just "http://cpp2017.mpi-sws.org/" }
           , resources = [ pdf "pdf/cpp2017.pdf"
+                        , slides "pdf/cpp2017_slides.pdf"
                         , github "https://github.com/gallais/type-scope-semantics" ]
           }
 
