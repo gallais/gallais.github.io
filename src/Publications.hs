@@ -124,6 +124,7 @@ workshops =
           , date      = yearOnly 2017
           , venue     = Venue { name = "TTT", www = Just "http://popl17.sigplan.org/track/TTT-2017" }
           , resources = [ pdf "pdf/TTT-2017.pdf"
+                        , slides "pdf/TTT-2017_slides.pdf"
                         , github "https://github.com/gallais/agdARGS" ]
           }
   , Publi { authors   = [gallais, pboutillier, cmcbride]
