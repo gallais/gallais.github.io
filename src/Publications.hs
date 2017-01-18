@@ -145,7 +145,7 @@ workshops =
 conferences :: [Publi]
 conferences =
   [
-    Publi { authors   = [gallais, jmchapman, cmcbride]
+    Publi { authors   = [gallais, jmchapman, cmcbride, jmckinna]
           , title     = "Type-and-Scope Safe Programs and their Proofs"
           , date      = yearOnly 2017
           , venue     = Venue { name = "CPP", www = Just "http://cpp2017.mpi-sws.org/" }
