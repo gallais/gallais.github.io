@@ -13,6 +13,10 @@ matrix:
             - cabal-install-1.24
             - ghc-8.0.1
             - libghc-hakyll-dev
+            - libghc-text-dev
+            - libghc-feed-dev
+            - libghc-mtl-dev
+            - libghc-parsec3-dev
 before_install:
   - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
   - cd src/
