@@ -81,7 +81,7 @@ data Publi =
 
 publiToText :: Publi -> Text
 publiToText Publi{..} =
-  T.concat
+  T.unlines
     [ b_ title , docs , br_ , bys
     , span_ " class=\"docs\"" $ T.concat [ conf , ", " , time ] ]
   where
@@ -111,7 +111,7 @@ data Publis =
          , publis :: [Publi] }
 
 publisToText :: Publis -> Text
-publisToText Publis{..} = T.concat [ h_ 3 h3 , ulWith_ "<hr />" lis ]
+publisToText Publis{..} = T.unlines [ h_ 3 h3 , ulWith_ "<hr />" lis ]
   where
     h3  = sortToText sort
     lis = fmap publiToText publis
@@ -263,7 +263,7 @@ allPublis =
   ]
 
 publications :: Text
-publications = T.concat $ fmap publisToText allPublis
+publications = T.unlines $ fmap publisToText allPublis
 
 
 
