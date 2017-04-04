@@ -174,7 +174,17 @@ journals =
 
 talks :: [Publi]
 talks =
-  [ Publi { authors   = [gallais, jmchapman, cmcbride]
+  [ Publi { authors   = [gallais]
+          , title     = "agdarsec - Total Parser Combinators in Agda"
+          , date      = Date (Just 04) (Just 04) 2017
+          , venue     = Venue { name = "Brouwer Seminar"
+                              , www  = Just "https://www.cs.ru.nl/is/foundations/seminar/"
+                              }
+          , resources = [ github "https://github.com/gallais/agdarsec"
+                        , slides "pdf/brouwer17.pdf"
+                        ]
+          }
+  , Publi { authors   = [gallais, jmchapman, cmcbride]
           , title     = "Type and Scope Preserving Semantics"
           , date      = Date (Just 21) (Just 10) 2015
           , venue     = Venue { name = "Scottish PL Seminar"
