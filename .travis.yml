@@ -14,18 +14,18 @@ matrix:
           packages:
             - cabal-install-1.24
             - ghc-8.0.1
-            - libghc-hakyll-dev
-            - libghc-text-dev
-            - libghc-feed-dev
-            - libghc-mtl-dev
-            - libghc-parsec3-dev
+#            - libghc-hakyll-dev
+#            - libghc-text-dev
+#            - libghc-feed-dev
+#            - libghc-mtl-dev
+#            - libghc-parsec3-dev
 before_install:
   - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
   - cd src/
 install:
-#  - cabal update
-#  - cabal install --only-dependencies
-  - cabal configure
+  - cabal update
+  - cabal install --only-dependencies
+#  - cabal configure
   - ghc -v --make site.hs
 script:
   - ./site build
