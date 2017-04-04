@@ -1,3 +1,5 @@
+dist: trusty
+
 # Using the container-based infrastructure
 sudo: false
 # Installing ghc 8.0.1, which is not available natively
