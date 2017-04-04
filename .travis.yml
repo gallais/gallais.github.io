@@ -16,7 +16,7 @@ matrix:
             - libghc-feed-dev
             - libghc-mtl-dev
             - libghc-parsec3-dev
-            - libghc-time-compat-dev 
+            - libghc-oldtime-dev 
 before_install:
   - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
   - cd src/
