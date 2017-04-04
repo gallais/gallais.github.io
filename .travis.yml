@@ -23,6 +23,7 @@ before_install:
 install:
 #  - cabal update
 #  - cabal install --only-dependencies
+  - cabal configure
   - ghc -v --make site.hs
 script:
   - ./site build
