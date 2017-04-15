@@ -236,7 +236,16 @@ reports =
 drafts :: [Publi]
 drafts =
   [
-    Publi { authors   = [gallais]
+    Publi { authors   = [gallais, ratkey, jmchapman, cmbride, jmckinna]
+          , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
+          , date      = Date Nothing (Just 4) 2017
+          , venue     = Venue { name = "Submitted to FSCD", www = Nothing }
+          , resources = [ github "https://github.com/gallais/generic-syntax"
+                        , pdf "pdf/draft_fscd17.pdf"
+                        ]
+          }
+
+  , Publi { authors   = [gallais]
           , title     = "Typing with Leftovers - A Mechanization of Intuitionistic Linear Logic"
           , date      = Date Nothing Nothing 2016
           , venue     = Venue { name = "Submitted to CSL", www = Nothing }
