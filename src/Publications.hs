@@ -236,7 +236,7 @@ reports =
 drafts :: [Publi]
 drafts =
   [
-    Publi { authors   = [gallais, ratkey, jmchapman, cmbride, jmckinna]
+    Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
           , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
           , date      = Date Nothing (Just 4) 2017
           , venue     = Venue { name = "Submitted to FSCD", www = Nothing }
