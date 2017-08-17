@@ -3,33 +3,48 @@ dist: trusty
 # Using the container-based infrastructure
 sudo: false
 # Installing ghc 8.0.1, which is not available natively
-language: c
-matrix:
-  include:
-#    - env: CABALVER=1.24 GHCVER=8.0.1
-      addons:
-        apt: 
-          packages:
-            - ghc
-            - libghc-hakyll-dev
-            - libghc-text-dev
-            - libghc-feed-dev
-            - libghc-mtl-dev
-            - libghc-parsec3-dev
-            - libghc-old-time-dev 
+language: haskell
+
+cache:
+  directories:
+    - $HOME/.cabsnap
+
+
 before_install:
   - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
   - cd src/
+
 install:
-#  - cabal update
-#  - cabal install --only-dependencies
-#:  - cabal configure
+  - sed -i 's/^jobs:/-- jobs:/' $HOME/.cabal/config
+  # checking whether .ghc is still valid
+  - cabal install --only-dependencies --dry -v > $HOME/installplan.txt
+  - sed -i -e '1,/^Resolving /d' $HOME/installplan.txt; cat $HOME/installplan.txt
+  - touch $HOME/.cabsnap/intallplan.txt
+  - mkdir -p $HOME/.cabsnap/ghc $HOME/.cabsnap/lib $HOME/.cabsnap/share $HOME/.cabsnap/bin
+  - if diff -u $HOME/.cabsnap/installplan.txt $HOME/installplan.txt;
+    then
+      echo "cabal build-cache HIT";
+      rm -rfv .ghc;
+      cp -a $HOME/.cabsnap/ghc $HOME/.ghc;
+      cp -a $HOME/.cabsnap/lib $HOME/.cabsnap/share $HOME/.cabsnap/bin $HOME/.cabal/;
+    else
+      echo "cabal build-cache MISS";
+      rm -rf $HOME/.cabsnap;
+      mkdir -p $HOME/.ghc $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin;
+    fi
+  - cabal install --only-dependencies
+  # snapshot package-db on cache miss
+  - echo "snapshotting package-db to build-cache";
+    mkdir $HOME/.cabsnap;
+    cp -a $HOME/.ghc $HOME/.cabsnap/ghc;
+    cp -a $HOME/.cabal/lib $HOME/.cabal/share $HOME/.cabal/bin $HOME/installplan.txt $HOME/.cabsnap/;
+  # Actually building the web site
   - ghc -v --make site.hs
 script:
   - ./site build
   - cp -R _site/* ../
   - cd ../
-after_script:
+after_success:
   - git init
   - git config user.name "travis-worker"
   - git config user.email "travis@gallais.org"
