@@ -13,6 +13,7 @@ import Control.Monad.State as CMS
 import Hakyll.Core.Item
 import Hakyll.Core.Compiler
 
+import qualified Data.Char as C
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy          as T
 import qualified Data.Text.Lazy.Encoding as TE
@@ -49,10 +50,20 @@ instance PrettyBBCode Structure where
     TXT cs            -> prettyBBCode cs
     DIV tag txts      -> div_ <$> prettyBBCode tag <*> prettyBBCode txts
     H int txt@[RAW t] -> T.append (anchor t') <$> h_ int <$> prettyBBCode txt
-      where t' = T.concat $ T.words $ T.toTitle t
+      where t' = T.concat $ T.words $ toTitle t
     H int txts        -> ah_ int =<< prettyBBCode txts
     P tag txts        -> p_ <$> prettyBBCode tag <*> prettyBBCode txts
     UL lis            -> ul_ <$> mapM prettyBBCode lis
+
+    where
+
+      capitalize :: Text -> Text
+      capitalize t = case T.uncons t of
+        Nothing      -> ""
+        Just (c, t') -> T.cons (C.toUpper c) t'
+
+      toTitle :: Text -> Text
+      toTitle t = T.unwords $ fmap capitalize $ T.words t
 
 ppBBCode :: (Functor m, MonadState HTMLState m) => [Structure] -> m Text
 ppBBCode strs = T.intercalate "\n" <$> mapM prettyBBCode strs
