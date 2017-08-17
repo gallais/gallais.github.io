@@ -9,12 +9,27 @@ import Control.Monad.State as CMS
 import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as T
 
-data Footnotes =
-  Footnotes { next :: Int
-            , list :: [Text] }
+data HTMLState = HTMLState
+  { nbSections   :: !Int
+  , nbFootnotes  :: !Int
+  , getFootnotes :: [Text]
+  }
 
-push :: MonadState Footnotes m => Text -> m ()
-push str = CMS.modify $ \ (Footnotes n fs) -> Footnotes (n + 1) (str : fs)
+initHTMLState :: HTMLState
+initHTMLState = HTMLState 0 1 []
+
+newSection :: MonadState HTMLState m => m Int
+newSection = do
+  i <- CMS.gets nbSections
+  CMS.modify $ \ st -> st { nbSections = i + 1 }
+  return i
+
+newFootnote :: MonadState HTMLState m => (Int -> Text) -> m Int
+newFootnote k = do
+  i <- CMS.gets nbFootnotes
+  CMS.modify $ \ st -> st { nbFootnotes  = i + 1
+                          , getFootnotes = k i : getFootnotes st }
+  return i
 
 sandwichedWith :: Text -> Text -> Text
 str `sandwichedWith` bread = T.concat [ tag "" , str , tag "/" ]
@@ -32,6 +47,9 @@ aWith_ name href txt =
            , " href=\"" , href , "\">"
            , txt
            , "</a>" ]
+
+anchor :: Text -> Text
+anchor name = T.concat [ "<a name=\"" , name , "\" />" ]
 
 br_ :: Text
 br_ = "<br />"
@@ -64,21 +82,24 @@ img_ str = T.concat [ "<img src=\"" , str , "\" />" ]
 center_ :: Text -> Text
 center_ str = str `sandwichedWith` "center"
 
-
-footnote_ :: (Functor m, MonadState Footnotes m) => Text -> m Text
+footnote_ :: MonadState HTMLState m => Text -> m Text
 footnote_ str = do
-  i <- T.pack . show <$> CMS.gets next
-  let ftWrapper = p_ " class=\"footnote\""
-  let ftNumber  = div_ " class=\"footnote-number\""
-  let ftBody    = div_ " class=\"footnote-body\""
-  let footnote  = ftNumber (ref i "bot" "top") `T.append` ftBody str
-  push   $ ftWrapper footnote
+  i <- newFootnote $ \ i ->
+    let ftWrapper = p_ " class=\"footnote\""
+        ftNumber  = div_ " class=\"footnote-number\""
+        ftBody    = div_ " class=\"footnote-body\""
+        footnote  = ftNumber (ref i "bot" "top") `T.append` ftBody str
+    in ftWrapper footnote
   return $ ref i "top" "bot"
+
   where
+
+    ref :: Int -> Text -> Text -> Text
     ref num here there =
-      let anchorH = T.concat [ "ref" , here , num ]
-          anchorT = T.concat [ "#ref" , there, num ]
-      in aWith_ anchorH anchorT $ T.cons '[' $ num `T.snoc` ']'
+      let num'    = T.pack (show num)
+          anchorH = T.concat [ "ref" , here , num' ]
+          anchorT = T.concat [ "#ref" , there, num' ]
+      in aWith_ anchorH anchorT $ T.cons '[' $ num' `T.snoc` ']'
 
 block_ :: Text -> Text -> Text -> Text
 block_ name tag str =
@@ -98,3 +119,8 @@ span_ = block_ "span"
 h_ :: Int -> Text -> Text
 h_ n title = T.concat [ "<" , tag , title , "</" , tag ]
   where tag = T.concat [ "h" , T.pack $ show n , ">" ]
+
+ah_ :: MonadState HTMLState m => Int -> Text -> m Text
+ah_ n title = do
+  i <- T.pack . show <$> newSection
+  return $ T.concat [ anchor i, "\n", h_ n title ]
