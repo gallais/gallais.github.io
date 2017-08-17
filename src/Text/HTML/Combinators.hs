@@ -120,7 +120,7 @@ h_ :: Int -> Text -> Text
 h_ n title = T.concat [ "<" , tag , title , "</" , tag ]
   where tag = T.concat [ "h" , T.pack $ show n , ">" ]
 
-ah_ :: MonadState HTMLState m => Int -> Text -> m Text
+ah_ :: (Functor m, MonadState HTMLState m) => Int -> Text -> m Text
 ah_ n title = do
   i <- T.pack . show <$> newSection
   return $ T.concat [ anchor i, "\n", h_ n title ]

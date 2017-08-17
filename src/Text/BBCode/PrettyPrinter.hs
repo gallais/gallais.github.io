@@ -25,7 +25,7 @@ instance PrettyBBCode Tag where
     CLASS name -> " class=" `T.append` outName name
 
 class PrettyBBCode a where
-  prettyBBCode :: MonadState HTMLState m => a -> m Text
+  prettyBBCode :: (Functor m, MonadState HTMLState m) => a -> m Text
 
 instance PrettyBBCode Content where
   prettyBBCode c = case c of
@@ -54,7 +54,7 @@ instance PrettyBBCode Structure where
     P tag txts        -> p_ <$> prettyBBCode tag <*> prettyBBCode txts
     UL lis            -> ul_ <$> mapM prettyBBCode lis
 
-ppBBCode :: MonadState HTMLState m => [Structure] -> m Text
+ppBBCode :: (Functor m, MonadState HTMLState m) => [Structure] -> m Text
 ppBBCode strs = T.intercalate "\n" <$> mapM prettyBBCode strs
 
 bbcodeCompiler :: Compiler (Item Text)
