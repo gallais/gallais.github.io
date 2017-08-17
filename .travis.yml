@@ -24,7 +24,7 @@ install:
 #  - cabal update
 #  - cabal install --only-dependencies
 #:  - cabal configure
-  - ghc -v --make site.hs
+  - ghc --make site.hs
 script:
   - ./site build
   - cp -R _site/* ../
