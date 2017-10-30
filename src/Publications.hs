@@ -236,7 +236,15 @@ reports =
 drafts :: [Publi]
 drafts =
   [
-    Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
+    Publi { authors   = [gallais]
+          , title     = "agdarsec — Total Parser Combinators"
+          , date      = Date Nothing (Just 10) 2017
+          , venue     = Venue { name = "Submitted to JFLA", www = Nothing }
+          , resources = [ github "https://github.com/gallais/agdarsec"
+                        , pdf "pdf/agdarsec17.pdf"
+                        ]
+          }
+  , Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
           , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
           , date      = Date Nothing (Just 4) 2017
           , venue     = Venue { name = "Submitted to FSCD", www = Nothing }
