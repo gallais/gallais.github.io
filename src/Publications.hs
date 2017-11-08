@@ -236,7 +236,15 @@ reports =
 drafts :: [Publi]
 drafts =
   [
+
     Publi { authors   = [gallais]
+          , title     = "Typing with Leftovers - A Mechanization of Intuitionistic Linear Logic"
+          , date      = Date Nothing Nothing 2017
+          , venue     = Venue { name = "Submitted to TYPES", www = Nothing }
+          , resources = [ github "https://github.com/gallais/typing-with-leftovers"
+                        , pdf "pdf/leftovers17.pdf" ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "agdarsec — Total Parser Combinators"
           , date      = Date Nothing (Just 10) 2017
           , venue     = Venue { name = "Submitted to JFLA", www = Nothing }
@@ -251,14 +259,6 @@ drafts =
           , resources = [ github "https://github.com/gallais/generic-syntax"
                         , pdf "pdf/draft_fscd17.pdf"
                         ]
-          }
-
-  , Publi { authors   = [gallais]
-          , title     = "Typing with Leftovers - A Mechanization of Intuitionistic Linear Logic"
-          , date      = Date Nothing Nothing 2016
-          , venue     = Venue { name = "Submitted to CSL", www = Nothing }
-          , resources = [ github "https://github.com/gallais/typing-with-leftovers"
-                        , pdf "https://github.com/gallais/typing-with-leftovers/blob/master/main.pdf" ]
           }
   , Publi { authors   = [gallais, cmcbride]
           , title     = "Certified Proof Search for Intuitionistic Linear Logic"
