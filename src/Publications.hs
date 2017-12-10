@@ -120,6 +120,14 @@ workshops :: [Publi]
 workshops =
   [
     Publi { authors   = [gallais]
+          , title     = "agdarsec — Total Parser Combinators"
+          , date      = Date Nothing (Just 1) 2018
+          , venue     = Venue { name = "JFLA", www = Just "https://www.lri.fr/~sboldo/JFLA18/" }
+          , resources = [ github "https://github.com/gallais/agdarsec"
+                        , pdf "pdf/agdarsec18.pdf"
+                        ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "agdARGS - Declarative Hierarchical Command Line Interfaces"
           , date      = yearOnly 2017
           , venue     = Venue { name = "TTT", www = Just "http://popl17.sigplan.org/track/TTT-2017" }
@@ -243,14 +251,6 @@ drafts =
           , venue     = Venue { name = "Submitted to TYPES", www = Nothing }
           , resources = [ github "https://github.com/gallais/typing-with-leftovers"
                         , pdf "pdf/leftovers17.pdf" ]
-          }
-  , Publi { authors   = [gallais]
-          , title     = "agdarsec — Total Parser Combinators"
-          , date      = Date Nothing (Just 10) 2017
-          , venue     = Venue { name = "Submitted to JFLA", www = Nothing }
-          , resources = [ github "https://github.com/gallais/agdarsec"
-                        , pdf "pdf/agdarsec17.pdf"
-                        ]
           }
   , Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
           , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
