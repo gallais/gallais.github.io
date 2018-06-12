@@ -239,6 +239,13 @@ reports =
           , resources = [ pdf "pdf/report2012.pdf"
                         , github "https://github.com/gallais/agda-nbe" ]
           }
+  , Publi { authors   = [gallais]
+          , title     = "Deciding Presburger Arithmetic using Reflection"
+          , date      = yearOnly 2010
+          , venue     = Venue { name = "ENS Lyon / University of Nottingham", www = Nothing }
+          , resources = [ pdf "pdf/presburger10.pdf"
+                        , github "https://github.com/gallais/agda-presburger" ]
+          }
   ]
 
 drafts :: [Publi]
