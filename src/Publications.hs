@@ -244,6 +244,7 @@ reports =
           , date      = yearOnly 2010
           , venue     = Venue { name = "ENS Lyon / University of Nottingham", www = Nothing }
           , resources = [ pdf "pdf/presburger10.pdf"
+                        , slides "pdf/presburger10_slides.pdf"
                         , github "https://github.com/gallais/agda-presburger" ]
           }
   ]
