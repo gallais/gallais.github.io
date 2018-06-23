@@ -262,10 +262,10 @@ drafts =
           }
   , Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
           , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
-          , date      = Date Nothing (Just 4) 2017
-          , venue     = Venue { name = "Submitted to FSCD", www = Nothing }
+          , date      = Date Nothing (Just 6) 2018
+          , venue     = Venue { name = "Submitted to ICFP", www = Nothing }
           , resources = [ github "https://github.com/gallais/generic-syntax"
-                        , pdf "pdf/draft_fscd17.pdf"
+                        , pdf "pdf/draft_icfp18.pdf"
                         ]
           }
   , Publi { authors   = [gallais, cmcbride]
