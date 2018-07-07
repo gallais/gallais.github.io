@@ -172,7 +172,15 @@ conferences =
 
 journals :: [Publi]
 journals =
-  [ Publi { authors   = [ybertot, gallais]
+  [ Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
+          , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
+          , date      = Date Nothing (Just 9) 2018
+          , venue     = Venue { name = "PACMPL issue ICFP 2018", www = Just "https://icfp18.sigplan.org/" }
+          , resources = [ github "https://github.com/gallais/generic-syntax"
+                        , pdf "pdf/icfp18.pdf"
+                        ]
+          }
+  , Publi { authors   = [ybertot, gallais]
           , title     = "Views of PI: Definition and computation"
           , date      = Date Nothing (Just 10) 2014
           , venue     = Venue { name = "Journal of Formalized Reasoning", www = Just "http://jfr.unibo.it/" }
@@ -259,14 +267,6 @@ drafts =
           , venue     = Venue { name = "Submitted to TYPES", www = Nothing }
           , resources = [ github "https://github.com/gallais/typing-with-leftovers"
                         , pdf "pdf/leftovers17.pdf" ]
-          }
-  , Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
-          , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
-          , date      = Date Nothing (Just 6) 2018
-          , venue     = Venue { name = "Submitted to ICFP", www = Nothing }
-          , resources = [ github "https://github.com/gallais/generic-syntax"
-                        , pdf "pdf/draft_icfp18.pdf"
-                        ]
           }
   , Publi { authors   = [gallais, cmcbride]
           , title     = "Certified Proof Search for Intuitionistic Linear Logic"
