@@ -153,7 +153,14 @@ workshops =
 conferences :: [Publi]
 conferences =
   [
-    Publi { authors   = [gallais, jmchapman, cmcbride, jmckinna]
+    Publi { authors   = [gallais]
+          , title     = "Typing with Leftovers - A Mechanization of Intuitionistic Multiplicative Additive Linear Logic"
+          , date      = Date Nothing Nothing 2018
+          , venue     = Venue { name = "TYPES 2017 Post Proceeding", www = Nothing }
+          , resources = [ github "https://github.com/gallais/typing-with-leftovers"
+                        , pdf "pdf/types17.pdf" ]
+          }
+  , Publi { authors   = [gallais, jmchapman, cmcbride, jmckinna]
           , title     = "Type-and-Scope Safe Programs and their Proofs"
           , date      = yearOnly 2017
           , venue     = Venue { name = "CPP", www = Just "http://cpp2017.mpi-sws.org/" }
@@ -259,16 +266,7 @@ reports =
 
 drafts :: [Publi]
 drafts =
-  [
-
-    Publi { authors   = [gallais]
-          , title     = "Typing with Leftovers - A Mechanization of Intuitionistic Linear Logic"
-          , date      = Date Nothing Nothing 2017
-          , venue     = Venue { name = "Submitted to TYPES", www = Nothing }
-          , resources = [ github "https://github.com/gallais/typing-with-leftovers"
-                        , pdf "pdf/leftovers17.pdf" ]
-          }
-  , Publi { authors   = [gallais, cmcbride]
+  [ Publi { authors   = [gallais, cmcbride]
           , title     = "Certified Proof Search for Intuitionistic Linear Logic"
           , date      = Date Nothing (Just 2) 2015
           , venue     = Venue { name = "Submitted to TLCA", www = Nothing }
