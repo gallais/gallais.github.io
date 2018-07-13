@@ -22,8 +22,7 @@ user more configuration options.[/p]
 discussing the first version of the library.[/footnote], the configuration
 options are granted by a set of parameters.[/p]
 
-[p=code]
-record Parameters : Set₁ where
+[p=code]record Parameters : Set₁ where
   field
     Tok  : Set
     Toks : ℕ → Set
@@ -59,8 +58,7 @@ the set of [tt]Parameters[/tt] of a [tt]Parser[/tt]. We add one new field:
 [tt]recordToken[/tt] which is to be used [emph]every[/emph] time a token is read
 from the input.[/p]
 
-[p=code]
-record Parameters : Set₁ where
+[p=code]record Parameters : Set₁ where
   field
   (...)
     recordToken : Tok → M ⊤
@@ -81,8 +79,7 @@ able to report precise errors to users further down the line. We model
 positions with two natural numbers corresponding to the line and character
 offset respectively.[/p]
 
-[p=code]
-record Position : Set where
+[p=code]record Position : Set where
   field line   : ℕ
         offset : ℕ
 [/p]
@@ -91,8 +88,7 @@ record Position : Set where
 then we increment the line count and reset the offset one; otherwise we simply
 increment the offset.[/p]
 
-[p=code]
-next : Char → Position → Position
+[p=code]next : Char → Position → Position
 next c p = if c == '\n'
   then record { line = suc (line p) ; offset = 0 }
   else record p { offset = suc (offset p) }
@@ -135,8 +131,7 @@ not of 'b' because we feel like it's a fairer assessment of what the problem is.
 We can do this by distinguishing soft failures (from which we can recover) from
 hard failures (which are fatal).[/p]
 
-[p=code]
-data Result (A : Set) : Set where
+[p=code]data Result (A : Set) : Set where
   HardFail : Error → Result A
   SoftFail : Error → Result A
   Value    : A → Result A
@@ -147,8 +142,7 @@ data Result (A : Set) : Set where
 The only difference here is that we only try the other branch if we are facing
 a [emph]soft[/emph] failure. Otherwise we propagate the error.[/p]
 
-[p=code]
-_∣_ : ∀ {A} → Result A → Result A → Result A
+[p=code]_∣_ : ∀ {A} → Result A → Result A → Result A
 ma₁ ∣ ma₂ = case ma₁ of λ where
   (SoftFail _) → ma₂
   r            → r
@@ -158,8 +152,7 @@ ma₁ ∣ ma₂ = case ma₁ of λ where
 [tt]commit[/tt] to one branch by turning [emph]soft[/emph] failures into
 [emph]hard[/emph] ones.[/p]
 
-[p=code]
-commit : ∀ {A} → Result A → Result A
+[p=code]commit : ∀ {A} → Result A → Result A
 commit ma = case ma of λ where
   (SoftFail e) → HardFail e
   r            → r
@@ -182,8 +175,17 @@ switching to a different monad stack. We can still think of alternatives such
 as trying the second branch of the disjunction and in case it also fails use
 a heuristics to decide which error to propagate.[/p]
 
+[h2]Conclusion[/h]
 
-[h4]Acknowledgements[/h]
+[p]We have seen how to add instrumentation to parsers written using total
+parser combinators by changing the one combinator which pulls tokens directly
+from the input and picking an appropriate monad stack. You can see these
+design decisions in use in the STLC parser in
+[url=https://github.com/gallais/agdarky/blob/aca1ccd76bdb341e7cba03c26a5e233935cf1306/src/stlc/Parse.agda#L62]agarky[/url],
+a project bringing together some of my libraries to write software entirely
+in Agda.[/p]
+
+[h3]Acknowledgements[/h]
 
 [p]This work would not have been possible without discussions with
 [url=https://github.com/clayrat]@clayrat[/url] on the
