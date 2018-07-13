@@ -181,7 +181,7 @@ a heuristics to decide which error to propagate.[/p]
 parser combinators by changing the one combinator which pulls tokens directly
 from the input and picking an appropriate monad stack. You can see these
 design decisions in use in the STLC parser in
-[url=https://github.com/gallais/agdarky/blob/aca1ccd76bdb341e7cba03c26a5e233935cf1306/src/stlc/Parse.agda#L62]agarky[/url],
+[url=https://github.com/gallais/agdarky/blob/aca1ccd76bdb341e7cba03c26a5e233935cf1306/src/stlc/Parse.agda#L62]agdarky[/url],
 a project bringing together some of my libraries to write software entirely
 in Agda.[/p]
 
