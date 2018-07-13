@@ -52,7 +52,7 @@ instance PrettyBBCode Structure where
     H int txt@[RAW t] -> T.append (anchor t') <$> h_ int <$> prettyBBCode txt
       where t' = T.concat $ T.words $ toTitle t
     H int txts        -> ah_ int =<< prettyBBCode txts
-    P tag txts        -> p_ <$> prettyBBCode tag <*> prettyBBCode (dropWhile (== BR) txts)
+    P tag txts        -> p_ <$> prettyBBCode tag <*> prettyBBCode txts
     UL lis            -> ul_ <$> mapM prettyBBCode lis
 
     where
