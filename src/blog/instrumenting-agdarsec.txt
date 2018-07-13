@@ -169,9 +169,9 @@ commit ma = case ma of λ where
 of [tt]commit[/tt] bring two benefits to the table:
 [ul]
   [li] the parser finishes faster when it fails because it ignores all the
-       alternative branches
+       alternative branches[/li]
   [li] the parser returns a more relevant error to the end-user rather than
-       the one found in the last of the alternatives
+       the one found in the last of the alternatives[/li]
 [/ul]
 [/p]
 
