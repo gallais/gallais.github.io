@@ -24,7 +24,12 @@ mkDay d = UTCTime { utctDay = d, utctDayTime = 60 * (37 + 60 * 13) }
 blogPosts :: [BlogPost]
 blogPosts =
   [
-    BlogPost { name     = "Three Tricks to make Termination Obvious"
+    BlogPost { name     = "Instrumenting Total Parsers Written in agdarsec"
+             , source   = "instrumenting-agdarsec"
+             , pubDate  = mkDay $ fromGregorian 2018 07 13
+             , keywords = [agda, functionalProgramming, parser]
+             }
+  , BlogPost { name     = "Three Tricks to make Termination Obvious"
              , source   = "termination-tricks"
              , pubDate  = mkDay $ fromGregorian 2016 11 24
              , keywords = [agda, termination, functionalProgramming]
@@ -108,6 +113,7 @@ blogPosts =
     linearLogic           = "linear logic"
     modules               = "modules"
     normalization         = "normalization"
+    parser                = "parser"
     phantomTypes          = "phantom types"
     physics               = "physics"
     reflection            = "reflection"

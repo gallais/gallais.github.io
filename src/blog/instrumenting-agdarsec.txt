@@ -1,0 +1,193 @@
+[div=bdocs][ul]
+[li][url=https://www.github.com/gallais/agdarsec]agdarsec[/url][/li]
+[li][url=https://gallais.github.io/agdarsec/]documentation[/url][/li]
+[/ul][/div]
+[pid=chapo]A common request I have received from (potential) users of my
+library of total parser combinators is to add support for error reporting.
+This is the story of adding such a machinery with minimal changes to the
+combinators themselves.[/p]
+
+[h2]The (Idealized) Type of Parsers[/h]
+
+[p]The type of total parser combinators in
+[url=https://github.com/gallais/agdarsec]agdarsec[/url] is essentially a
+fancy version of the classic Haskell type [tt]Parser a = String -> [(String, a)][/tt].
+The added complexity has two goals: to enforce totality and to give the
+user more configuration options.[/p]
+
+[h3]Parameters of the Parser.[/h]
+
+[p]If the support for totality is baked in the representation
+[footnote]For more details, read the [url=https://gallais.github.io/pdf/agdarsec18.pdf]paper[/url]
+discussing the first version of the library.[/footnote], the configuration
+options are granted by a set of parameters.[/p]
+
+[p=code]
+record Parameters : Set₁ where
+  field
+    Tok  : Set
+    Toks : ℕ → Set
+    M    : Set → Set
+[/p]
+
+[p]These parameters allow the user to specify a type of tokens [tt]Tok[/tt] the
+parser is working on (for instance [tt]Char[/tt]), the type of the sized input
+[tt]Toks[/tt] (typically something like [tt]Vec Tok[/tt]) and a monad [tt]M[/tt].
+The fact that the input is sized is essential for proving termination but is
+largely irrelevant from the end-user's point of view. In effect the parser type
+is morally equivalent to [tt]Parser a = Toks → M (a, Toks)[/tt] where the size
+of the [tt]Toks[/tt] in the output is smaller than that of the one in the input.[/p]
+
+[p]These definitions are already enough to define a wealth of parser combinators
+ranging from conjunction, disjunction, left or right associated chains, etc. all
+relying on the properties of [tt]M[/tt] (e.g. [tt]Alternative M[/tt] gives us the
+ability to defined the disjunction combinator) to realise the expected behaviour.
+For unambiguous grammars a simple [tt]Maybe[/tt]-based solution worsk really well.[/p]
+
+
+[p]However by using [tt]Maybe[/tt] as our monad, whenever a parse fails the user
+does not get any information about the failure. It makes debugging the parser (or
+the expression being parsed) quite hard. This is where instrumentation comes in.[/p]
+
+
+[h2]Instrumenting a Parser[/h]
+
+[p]Most of the instrumentation can be done by picking a more appropriate stack of
+monad transformers for [tt]M[/tt]. Keeping track of the position of the parser in
+the original source file is the one thing that needs to be hard-wired by extending
+the set of [tt]Parameters[/tt] of a [tt]Parser[/tt]. We add one new field:
+[tt]recordToken[/tt] which is to be used [emph]every[/emph] time a token is read
+from the input.[/p]
+
+[p=code]
+record Parameters : Set₁ where
+  field
+  (...)
+    recordToken : Tok → M ⊤
+[/p]
+
+[p]The only change to the combinators in the library is in [tt]anyToken[/tt],
+the function which grabs the first token on the input (if it exists). It now
+performs an extra operation before returning the grabbed value: it uses our
+new [tt]recordToken[/tt] to remember the what was obtained.[/p]
+
+[h3]Position Tracking[/h]
+
+[p]Now that we record every token read from the input, we can start tracking
+the current position in the source file. This can be used to associate a
+position to each nodes of the Abstract Syntax Tree our parser produces
+which is useful if we are for instance writing a compiler and want to be
+able to report precise errors to users further down the line. We model
+positions with two natural numbers corresponding to the line and character
+offset respectively.[/p]
+
+[p=code]
+record Position : Set where
+  field line   : ℕ
+        offset : ℕ
+[/p]
+
+[p]Each character yields an action on positions: if it is a newline character
+then we increment the line count and reset the offset one; otherwise we simply
+increment the offset.[/p]
+
+[p=code]
+next : Char → Position → Position
+next c p = if c == '\n'
+  then record { line = suc (line p) ; offset = 0 }
+  else record p { offset = suc (offset p) }
+[/p]
+
+[p]By using a [tt]StateT Position[/tt] transformer in our monad stack and
+making sure that [tt]recordToken[/tt] updates the state by calling [tt]next[/tt],
+we now have extended character-based parsers to be position-aware.[/p]
+
+[p]Not only can this be used to produce ASTs recording the source file positions
+corresponding to each of their nodes, it also allows us to report parsing errors
+more accurately by returning the position at the point of failure.[/p]
+
+[h3]Distinguishing Soft and Hard Failures[/h]
+
+[p]Simply using [tt]StateT Position (Position ⊎_)[/tt] as our monad does not
+quite yield the behaviour we expect. If a parser cannot succeed on a source file,
+it will always return as its position at the time of failure the one corresponding
+to the failure in the rightmost path in our grammar. Indeed at each disjunction,
+a failure in the left branch is recovered from by trying the right branch. However
+this is often not what we want.[/p]
+
+[p]For instance if we were to parse numbers written in either binary or hexadecimal
+format, we could describe the parser as a disjunction between a parser for strings
+of the form [tt]0b[01]+[/tt] and one for strings of the form [tt]0x[0-9A-F]+[/tt].
+For the input "0b0000002" the parser would:
+[ul]
+[li] take the first branch and fail upon finding '2'[/li]
+[li] backtrack to the disjunction[/li]
+[li] take the second branch and fail upon finding 'b'[/li]
+[li] finish with an error reporting failure at the position of 'b'[/li]
+[/ul]
+
+Ideally we would like to bypass completely the second branch because having read "0b",
+we know that it can only fail. And we would like the error location to be that of '2',
+not of 'b' because we feel like it's a fairer assessment of what the problem is.[/p]
+
+[p]In other words: after having read a disambiguating token we sometimes want to
+[emph]commit[/emph] to one branch of the disjunction, ignoring the alternatives.
+We can do this by distinguishing soft failures (from which we can recover) from
+hard failures (which are fatal).[/p]
+
+[p=code]
+data Result (A : Set) : Set where
+  HardFail : Error → Result A
+  SoftFail : Error → Result A
+  Value    : A → Result A
+[/p]
+
+[p]The [tt]Alternative[/tt] instance for [tt]Result[/tt] is similar to that of
+[tt]A ⊎_[/tt]: if the first computation has failed then we try the second one.
+The only difference here is that we only try the other branch if we are facing
+a [emph]soft[/emph] failure. Otherwise we propagate the error.[/p]
+
+[p=code]
+_∣_ : ∀ {A} → Result A → Result A → Result A
+ma₁ ∣ ma₂ = case ma₁ of λ where
+  (SoftFail _) → ma₂
+  r            → r
+[/p]
+
+[p]This distinction between soft and hard failures gives us the ability to
+[tt]commit[/tt] to one branch by turning [emph]soft[/emph] failures into
+[emph]hard[/emph] ones.[/p]
+
+[p=code]
+commit : ∀ {A} → Result A → Result A
+commit ma = case ma of λ where
+  (SoftFail e) → HardFail e
+  r            → r
+[/p]
+
+[p]This [tt]Result[/tt] type, the associated alternative instance and the use
+of [tt]commit[/tt] bring two benefits to the table:
+[ul]
+  [li] the parser finishes faster when it fails because it ignores all the
+       alternative branches
+  [li] the parser returns a more relevant error to the end-user rather than
+       the one found in the last of the alternatives
+[/ul]
+[/p]
+
+[p]It is important to note that we get all of this without having to modify
+the parser combinators; the setup is generic enough that end-users can drastically
+alter a parser's behaviour and the amount of information it returns simply by
+switching to a different monad stack. We can still think of alternatives such
+as trying the second branch of the disjunction and in case it also fails use
+a heuristics to decide which error to propagate.[/p]
+
+
+[h4]Acknowledgements[/h]
+
+[p]This work would not have been possible without discussions with
+[url=https://github.com/clayrat]@clayrat[/url] on the
+design, implementation and testing of the instrumentation of agdarsec and
+their port of the changes to the Idris version of the library
+([url=https://github.com/gallais/idris-tparsec]idris-tparsec[/url]).
+[/p]
