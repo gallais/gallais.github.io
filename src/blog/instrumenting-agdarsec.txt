@@ -55,7 +55,7 @@ the expression being parsed) quite hard. This is where instrumentation comes in.
 monad transformers for [tt]M[/tt]. Keeping track of the position of the parser in
 the original source file is the one thing that needs to be hard-wired by extending
 the set of [tt]Parameters[/tt] of a [tt]Parser[/tt]. We add one new field:
-[tt]recordToken[/tt] which is to be used [emph]every[/emph] time a token is read
+[tt]recordToken[/tt] which is to be used [i]every[/i] time a token is read
 from the input.[/p]
 
 [p=code]record Parameters : Set₁ where
@@ -127,7 +127,7 @@ we know that it can only fail. And we would like the error location to be that o
 not of 'b' because we feel like it's a fairer assessment of what the problem is.[/p]
 
 [p]In other words: after having read a disambiguating token we sometimes want to
-[emph]commit[/emph] to one branch of the disjunction, ignoring the alternatives.
+[i]commit[/i] to one branch of the disjunction, ignoring the alternatives.
 We can do this by distinguishing soft failures (from which we can recover) from
 hard failures (which are fatal).[/p]
 
@@ -140,7 +140,7 @@ hard failures (which are fatal).[/p]
 [p]The [tt]Alternative[/tt] instance for [tt]Result[/tt] is similar to that of
 [tt]A ⊎_[/tt]: if the first computation has failed then we try the second one.
 The only difference here is that we only try the other branch if we are facing
-a [emph]soft[/emph] failure. Otherwise we propagate the error.[/p]
+a [i]soft[/i] failure. Otherwise we propagate the error.[/p]
 
 [p=code]_∣_ : ∀ {A} → Result A → Result A → Result A
 ma₁ ∣ ma₂ = case ma₁ of λ where
@@ -149,8 +149,8 @@ ma₁ ∣ ma₂ = case ma₁ of λ where
 [/p]
 
 [p]This distinction between soft and hard failures gives us the ability to
-[tt]commit[/tt] to one branch by turning [emph]soft[/emph] failures into
-[emph]hard[/emph] ones.[/p]
+[tt]commit[/tt] to one branch by turning [i]soft[/i] failures into
+[i]hard[/i] ones.[/p]
 
 [p=code]commit : ∀ {A} → Result A → Result A
 commit ma = case ma of λ where
