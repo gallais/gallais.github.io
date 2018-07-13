@@ -33,10 +33,11 @@ main = hakyll $ do
     let rssIcon = span_ " style=\"float:right\"" $ a_ "/rss.xml" $ img_ "/img/rss.png"
     forM blogPosts $ \ post ->
       create [ fromFilePath $ "blog/" ++ source post ++ ".txt" ] $ do
+        let title = constField "title" (T.unpack (name post))
         route   $ setExtension "html"
         compile $ fmap (fmap $ T.unpack . ((rssIcon <> h_ 1 (name post)) <>)) bbcodeCompiler
           >>= saveSnapshot "content"
-          >>= loadAndApplyTemplate "templates/default.html" defaultContext
+          >>= loadAndApplyTemplate "templates/default.html" (title <> defaultContext)
           >>= relativizeUrls
 
     forM allTags $ \ key ->
