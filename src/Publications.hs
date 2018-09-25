@@ -185,6 +185,7 @@ journals =
           , venue     = Venue { name = "PACMPL issue ICFP 2018", www = Just "https://icfp18.sigplan.org/" }
           , resources = [ github "https://github.com/gallais/generic-syntax"
                         , pdf "pdf/icfp18.pdf"
+                        , slides "pdf/icfp18-slides.pdf"
                         ]
           }
   , Publi { authors   = [ybertot, gallais]
