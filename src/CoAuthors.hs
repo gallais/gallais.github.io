@@ -22,6 +22,48 @@ personToText :: Person -> Text
 personToText Person{..} = urlToText name website
   where name = (T.head firstname `T.cons` ". " `T.append` surname)
 
+aabel :: Person
+aabel = Person
+  { firstname = "Andreas"
+  , surname   = "Abel"
+  , website   = Just "http://www.cse.chalmers.se/~abela/"
+  }
+
+ahameer :: Person
+ahameer = Person
+  { firstname = "Aliya"
+  , surname   = "Hameer"
+  , website   = Nothing
+  }
+
+bpientka :: Person
+bpientka = Person
+  { firstname = "Brigitte"
+  , surname   = "Pientka"
+  , website   = Just "https://www.cs.mcgill.ca/~bpientka/"
+  }
+
+amomigliano :: Person
+amomigliano = Person
+  { firstname = "Alberto"
+  , surname   = "Momigliano"
+  , website   = Just "http://momigliano.di.unimi.it/"
+  }
+
+sschafer :: Person
+sschafer = Person
+  { firstname = "Steven"
+  , surname   = "Schäfer"
+  , website   = Just "https://www.ps.uni-saarland.de/~schaefer/"
+  }
+
+kstark :: Person
+kstark = Person
+  { firstname = "Kathrin"
+  , surname   = "Stark"
+  , website   = Just "https://www.ps.uni-saarland.de/~kstark/"
+  }
+
 ratkey :: Person
 ratkey =
   Person { firstname = "Robert"

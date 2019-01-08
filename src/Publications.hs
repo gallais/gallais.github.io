@@ -267,7 +267,15 @@ reports =
 
 drafts :: [Publi]
 drafts =
-  [ Publi { authors   = [gallais, cmcbride]
+  [ Publi { authors   = [aabel, gallais, ahameer, bpientka, amomigliano, sschafer, kstark]
+          , title     = "POPLMark Reloaded: Mechanizing Proofs by Logical Relations"
+          , date      = Date Nothing (Just 12) 2018
+          , venue     = Venue { name = "Submitted to JFP"
+                              , www = Just "https://www.cambridge.org/core/journals/journal-of-functional-programming"
+                              }
+          , resources = [ pdf "pdf/jfp18_draft.pdf" ]
+          }
+  , Publi { authors   = [gallais, cmcbride]
           , title     = "Certified Proof Search for Intuitionistic Linear Logic"
           , date      = Date Nothing (Just 2) 2015
           , venue     = Venue { name = "Submitted to TLCA", www = Nothing }
