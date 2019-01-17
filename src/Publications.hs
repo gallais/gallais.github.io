@@ -267,11 +267,20 @@ reports =
 
 drafts :: [Publi]
 drafts =
-  [ Publi { authors   = [aabel, gallais, ahameer, bpientka, amomigliano, sschafer, kstark]
+  [ Publi { authors   = [gallais]
+          , title     = "Syntaxes with Binding, Their Programs, and Proofs"
+          , date      = Date (Just 15) (Just 12) 2018
+          , venue     = Venue { name = "Draft PhD Thesis"
+                              , www  = Nothing
+                              }
+          , resources = [ github "https://github.com/gallais/thesis"
+                        , pdf "pdf/thesis18_draft.pdf" ]
+          }
+  , Publi { authors   = [aabel, gallais, ahameer, bpientka, amomigliano, sschafer, kstark]
           , title     = "POPLMark Reloaded: Mechanizing Proofs by Logical Relations"
           , date      = Date Nothing (Just 12) 2018
           , venue     = Venue { name = "Submitted to JFP"
-                              , www = Just "https://www.cambridge.org/core/journals/journal-of-functional-programming"
+                              , www  = Just "https://www.cambridge.org/core/journals/journal-of-functional-programming"
                               }
           , resources = [ pdf "pdf/jfp18_draft.pdf" ]
           }
