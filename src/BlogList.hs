@@ -4,7 +4,6 @@
 module BlogList where
 
 import Data.Time
-import System.Locale
 import qualified Data.List as L
 import Data.Text.Lazy as T
 
@@ -102,6 +101,7 @@ blogPosts =
     binders               = "binders"
     canonicalStructures   = "canonical structures"
     coq                   = "coq"
+    cubical               = "cubical"
     datatype              = "datatype"
     dependentTypes        = "dependent types"
     dimensions            = "dimensions"

@@ -235,7 +235,7 @@ Définitions des classes utilisées dans un post
   font-family:monospace;
   white-space: pre;
   background-color: #F8F8F8;
-  border: 1px solid #666;
+/*  border: 1px solid #666; */
 }
 
 .bad {

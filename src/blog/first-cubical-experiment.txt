@@ -1,0 +1,144 @@
+[div=bdocs][ul]
+[li][url=]Cubical Agda[/url][/li]
+[li][url=]list0.agda[/url][/li]
+[/ul][/div]
+[pid=chapo]
+With Agda version 2.6.0 close to being released, I decided
+to experiment with cubical Agda.
+[/p]
+
+[p]
+I first tried to formalise Frumin, Geuvers, Gondelman, and van der Weide's
+[url=https://dl.acm.org/citation.cfm?id=3167085]Finite Sets in Homotopy Type Theory[/url].
+I got immediately stuck on the very first function when I had to figure
+out what a path's image was. Time to go back to basics!
+[/p]
+
+[h2]A simple example: [tt]List⁰[/tt][/h]
+
+[p]
+My attempt to boil down the problem I was facing resulted in [tt]List⁰[/tt].
+It is a higher inductive type of strange lists: we have the two usual list
+constructors, together with a path saying that a non-empty list is equal to
+its tail.
+[/p]
+
+[p=code]data List⁰ (A : Set) : Set where
+  []  : List⁰ A
+  _∷_ : A → List⁰ A → List⁰ A
+  del : ∀ x e → x ∷ e ≡ e
+[/p]
+
+[p]
+Hopefully, this mix of the familiar and the new will let us build on our
+old intuitions to understand new concepts. We can start by revisiting a
+function we know very well in the list case.
+[/p]
+
+[h3]Appending two [tt]List⁰[/tt][/h]
+
+[p]
+We define append by recursion on the first element. The first two cases
+are similar to what one would do in Haskell (or vanilla Agda). But there
+is also a third case: [tt]List⁰[/tt] is a higher inductive type and that
+means that we need to explain how append acts on paths!
+[/p]
+
+[p=code]_++_ : (e f : List⁰ A) → List⁰ A
+[]        ++ f = f
+(x ∷ e)   ++ f = x ∷ (e ++ f)
+del x e i ++ f = ?
+[/p]
+
+[p]
+Because the function [tt]_++_[/tt] acts on elements of [tt]List⁰ A[/tt],
+we need its first argument to be of type [tt]List⁰ A[/tt]. For this reason,
+the case mentions [span=inline-code]del x e i[/span]: a value at position [tt]i[/tt]
+along the line of type [span=inline-code]x ∷ e ≡ e[/span] described by [tt]del[/tt].
+The type of the hole is [tt]List⁰ A[/tt] but it does not mean that we can put just
+about any expression in: there are side conditions!
+[/p]
+
+[p]
+These sides conditions can be understood from a very practical point of view:
+if [tt]i[/tt] gets instantiated to either [tt]0[/tt] or [tt]1[/tt], the value
+of [span=inline-code]del x e i ++ f[/span] should not depend on whether we
+evaluate [tt]_++_[/tt] first and then instantiate [tt]i[/tt], or the converse.
+To guarantee that evaluation is confluent, Agda demands that both reductions
+lead to judgmentally equal values.
+[/p]
+
+[p]
+Understanding where these constraints come from, we can compute them. Remembering
+that if [tt]p[/tt] has type [span=inline-code]a ≡ b[/span] then [span=inline-code]p 0 = a[/span]
+and [span=inline-code]p 1 = b[/span]:
+[/p]
+
+[p=code]i = 0 ⊢ del x e i               ++ f
+      = (del x e : x ∷ e ≡ e) 0 ++ f
+      = x ∷ e                   ++ f
+      = x ∷ (e ++ f)
+
+i = 1 ⊢ del x e i               ++ f
+      = (del x e : x ∷ e ≡ e) 1 ++ f
+      = e                       ++ f
+      = e ++ f
+[/p]
+
+[p]
+So, the expression we pick to fill in the [tt]List⁰ A[/tt] will need to be
+equal to [span=inline-code]x ∷ (e ++ f)[/span] if [tt]i[/tt] is [tt]0[/tt]
+and [span=inline-code]e ++ f[/span] if [tt]i[/tt] is [tt]1[/tt].
+Observing that [span=inline-code]del x (e ++ f)[/span] has type
+[span=inline-code]x ∷ (e ++ f) ≡ e ++ f[/span], we pick the following
+solution:
+[/p]
+
+[p=code]del x e i ++ f = del x (e ++ f) i
+[/p]
+
+[p]
+Agda performs the checks we have mentioned earlier and sees that our
+solution is indeed compatible with the equations we already had. We
+now have a fully-defined function. Time to prove some of its properties!
+[/p]
+
+[h3]Left and Right Identities[/h]
+
+[p]
+The left identity holds by computation: the definition of append itself
+declares that [span=inline-code][] ++ e[/span] should reduce to [span=inline-code]e[/span].
+[/p]
+
+[p=code]++-idˡ : (e : List⁰ A) → [] ++ e ≡ e
+++-idˡ e = refl
+[/p]
+
+[p=code]++-idʳ : (e : List⁰ A) → e ++ [] ≡ e
+++-idʳ []          = refl
+++-idʳ (x ∷ e)     = cong (x ∷_) (++-idʳ e)
+++-idʳ (del x e i) = cong (λ e → del x e i) (++-idʳ e)
+[/p]
+
+[h3]Cancelling append[/h]
+
+[p=code]dels : (e f : List⁰ A) → e ++ f ≡ f
+dels []          f j = f
+dels (x ∷ e)     f j = del x (dels e f j) j
+dels (del x e i) f j = del x (dels e f j) (i ∨ j)
+[/p]
+
+[p=code]
+    f : (e : List⁰ A) → lhs(e) ≡ rhs(e)
+
+
+   v(0,j)              f (del x e i) j = v (i, j)             v(1,j) 
+   = f (x ∷ e) j                                              = f e j
+     |                                                          |
+     |                                                          |
+
+
+[/p]
+
+
+
