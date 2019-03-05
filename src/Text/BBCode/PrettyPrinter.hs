@@ -47,15 +47,16 @@ instance PrettyBBCode a => PrettyBBCode [a] where
 
 instance PrettyBBCode Structure where
   prettyBBCode s = case s of
-    TXT cs            -> prettyBBCode cs
-    DIV tag txts      -> div_ <$> prettyBBCode tag <*> prettyBBCode txts
-    H int txt@[RAW t] -> T.append (anchor t') <$> h_ int <$> prettyBBCode txt
-      where t' = T.concat $ T.words $ toTitle t
-    H int txts        -> ah_ int =<< prettyBBCode txts
-    P tag txts        -> p_ <$> prettyBBCode tag <*> prettyBBCode txts
-    UL lis            -> ul_ <$> mapM prettyBBCode lis
-
+    TXT cs       -> prettyBBCode cs
+    DIV tag txts -> div_ <$> prettyBBCode tag <*> prettyBBCode txts
+    P tag txts   -> p_ <$> prettyBBCode tag <*> prettyBBCode txts
+    UL lis       -> ul_ <$> mapM prettyBBCode lis
+    H int txts   -> ah_ int (title txts) =<< prettyBBCode txts
     where
+      title :: [Content] -> Maybe Text
+      title txts = case txts of
+        [RAW t] -> pure $ T.concat $ T.words $ toTitle t
+        _ -> Nothing
 
       capitalize :: Text -> Text
       capitalize t = case T.uncons t of
@@ -78,4 +79,4 @@ bbcodeCompiler = do
     if null (getFootnotes ft) then []
     else
       let footnotes = T.concat $ reverse $ getFootnotes ft
-      in [ h_ 3 "Footnotes", div_ " class=\"footnotes\"" footnotes ]
+      in [ ah'_ 3 "Footnotes" "Footnotes", div_ " class=\"footnotes\"" footnotes ]

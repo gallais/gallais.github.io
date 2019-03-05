@@ -48,6 +48,13 @@ aWith_ name href txt =
            , txt
            , "</a>" ]
 
+aClass_ :: Text -> Text -> Text -> Text
+aClass_ name href txt =
+  T.concat [ "<a class=\"" , name , "\""
+           , " href=\"" , href , "\">"
+           , txt
+           , "</a>" ]
+
 anchor :: Text -> Text
 anchor name = T.concat [ "<a name=\"" , name , "\" />" ]
 
@@ -120,7 +127,18 @@ h_ :: Int -> Text -> Text
 h_ n title = T.concat [ "<" , tag , title , "</" , tag ]
   where tag = T.concat [ "h" , T.pack $ show n , ">" ]
 
-ah_ :: (Functor m, MonadState HTMLState m) => Int -> Text -> m Text
-ah_ n title = do
-  i <- T.pack . show <$> newSection
-  return $ T.concat [ anchor i, "\n", h_ n title ]
+ah'_ :: Int -> Text -> Text -> Text
+ah'_ n i title =
+  let link = aClass_ "sectionref" ("#" <> i) "#" in
+  T.concat
+         [ anchor i
+         , "\n"
+         , h_ n (link <> " " <> title)
+         ]
+
+ah_ :: (Functor m, MonadState HTMLState m) => Int -> Maybe Text -> Text -> m Text
+ah_ n anc title = do
+  i <- case anc of
+         Nothing -> T.append "section" . T.pack . show <$> newSection
+         Just x  -> return x
+  pure $ ah'_ n i title
