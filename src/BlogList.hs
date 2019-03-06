@@ -7,6 +7,7 @@ import Data.Time
 import qualified Data.List as L
 import Data.Text.Lazy as T
 
+import System.Locale
 import Text.RSS.Syntax
 import Text.HTML.Combinators
 
