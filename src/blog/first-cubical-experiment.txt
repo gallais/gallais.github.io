@@ -66,7 +66,7 @@ about any expression in: there are side conditions!
 
 [p]
 These sides conditions can be understood from a very practical point of view:
-if [tt]i[/tt] gets instantiated to either [tt]0[/tt] or [tt]1[/tt], the value
+if [tt]i[/tt] gets instantiated to either [tt]i0[/tt] or [tt]i1[/tt], the value
 of [span=inline-code]del x e i ++ f[/span] should not depend on whether we
 evaluate [tt]_++_[/tt] first and then instantiate [tt]i[/tt], or the converse.
 To guarantee that evaluation is confluent, Agda demands that both reductions
@@ -75,22 +75,22 @@ lead to judgmentally equal values.
 
 [p]
 Understanding where these constraints come from, we can compute them. Remembering
-that if [tt]p[/tt] has type [span=inline-code]a ≡ b[/span] then [span=inline-code]p 0 = a[/span]
-and [span=inline-code]p 1 = b[/span]:
+that if [tt]p[/tt] has type [span=inline-code]a ≡ b[/span] then [span=inline-code]p i0 = a[/span]
+and [span=inline-code]p i1 = b[/span]:
 [/p]
 
-[p=code]i = 0 ⊢ del x e i ++ f    { del x e 0 = x ∷ e }
-      = x ∷ e     ++ f    { unfold _++_ }
-      = x ∷ (e ++ f)
+[p=code]i = i0 ⊢ del x e i ++ f    { del x e i0 = x ∷ e }
+       = x ∷ e     ++ f    { unfold _++_ }
+       = x ∷ (e ++ f)
 
-i = 1 ⊢ del x e i ++ f    { del x e 1 = e }
-      = e ++ f
+i = i1 ⊢ del x e i ++ f    { del x e i1 = e }
+       = e ++ f
 [/p]
 
 [p]
 So, the expression we pick to fill in the [tt]List⁰ A[/tt] will need to be
-equal to [span=inline-code]x ∷ (e ++ f)[/span] if [tt]i[/tt] is [tt]0[/tt]
-and [span=inline-code]e ++ f[/span] if [tt]i[/tt] is [tt]1[/tt].
+equal to [span=inline-code]x ∷ (e ++ f)[/span] if [tt]i[/tt] is [tt]i0[/tt]
+and [span=inline-code]e ++ f[/span] if [tt]i[/tt] is [tt]i1[/tt].
 Observing that [span=inline-code]del x (e ++ f)[/span] has type
 [span=inline-code]x ∷ (e ++ f) ≡ e ++ f[/span], we pick the following
 solution:
@@ -160,22 +160,22 @@ A natural candidate for this equality is to use the induction hypothesis to
 obtain a proof that [span=inline-code]e ++ [] ≡ e[/span] and use congruence
 to apply the function [span=inline-code]λ e → del x e i[/span] to each side.
 However remember that we need to check that this definition is compatible with
-the other clauses when [tt]i[/tt] becomes either [tt]0[/tt] or [tt]1[/tt].
+the other clauses when [tt]i[/tt] becomes either [tt]i0[/tt] or [tt]i1[/tt].
 This gives us the following constraints:
 [/p]
 
-[p=code]i = 0 ⊢ ++-idʳ (del x e i)       { del x e 0 = x ∷ e }
-      = ++-idʳ (x ∷ e)           { unfold ++-idʳ }
-      = cong (x ∷_) (++-idʳ e)
+[p=code]i = i0 ⊢ ++-idʳ (del x e i)       { del x e i0 = x ∷ e }
+       = ++-idʳ (x ∷ e)           { unfold ++-idʳ }
+       = cong (x ∷_) (++-idʳ e)
 
-i = 1 ⊢ ++-idʳ (del x e i)       { del x e 1 = e }
-      = ++-idʳ e
+i = i1 ⊢ ++-idʳ (del x e i)       { del x e i1 = e }
+       = ++-idʳ e
 [/p]
 
 [p]
 We can easily verify that [span=inline-code]cong (λ e → del x e i) (++-idʳ e)[/span]
-does collapse to the right expressions when we set [tt]i[/tt] to either [tt]0[/tt] or
-[tt]1[/tt] thanks in part to the fact that [span=inline-code]cong (λ x → x) p[/span]
+does collapse to the right expressions when we set [tt]i[/tt] to either [tt]i0[/tt] or
+[tt]i1[/tt] thanks in part to the fact that [span=inline-code]cong (λ x → x) p[/span]
 is definitionally equal to [span=inline-code]p[/span]. This leads us to the following
 completed definition:
 [/p]
@@ -205,8 +205,8 @@ we proceed by induction on it. The first case is easily dealt with: it is precis
 the left identity law for append which we know holds definitionally. For uniformity
 with the upcoming case, we eta-expand [span=inline-code]refl[/span] and write [footnote]
 Remember that an equality proof [span=inline-code]x ≡ y[/span] in [tt]A[/tt] is a function
-from the interval to [tt]A[/tt] which evaluates to [span=inline-code]x[/span] at [tt]0[/tt]
-and [span=inline-code]y[/span] at [tt]1[/tt]. The proof [span=inline-code]refl[/span]
+from the interval to [tt]A[/tt] which evaluates to [span=inline-code]x[/span] at [tt]i0[/tt]
+and [span=inline-code]y[/span] at [tt]i1[/tt]. The proof [span=inline-code]refl[/span]
 of [span=inline-code]x ≡ x[/span] corresponds to the constant function
 [span=inline-code]λ j → x[/span].[/footnote]:
 [/p]
@@ -229,37 +229,37 @@ We write:
 [/p]
 
 [p]
-We let the reader check that when [tt]j[/tt] is [tt]0[/tt] we
+We let the reader check that when [tt]j[/tt] is [tt]i0[/tt] we
 do get [span=inline-code]x ∷ e ++ f[/span] whilst making [tt]j[/tt]
-equal to [tt]1[/tt] takes us to [span=inline-code]f[/span].
+equal to [tt]i1[/tt] takes us to [span=inline-code]f[/span].
 We are now left with the last clause. We need a term of type
 [span=inline-code]del x e i ++ f ≡ f[/span] which satisfies the
 usual two side conditions stating that when we make [tt]i[/tt]
-either [tt]0[/tt] or [tt]1[/tt], it is compatible with the previous
+either [tt]i0[/tt] or [tt]i1[/tt], it is compatible with the previous
 clauses.
 [/p]
 
-[p=code]i = 0 ⊢ dels (del x e i) f j       { del x e 0 = x ∷ e }
-      = dels (x ∷ e) f j           { unfold dels }
-      = del x (dels e f j) j
+[p=code]i = i0 ⊢ dels (del x e i) f j       { del x e i0 = x ∷ e }
+       = dels (x ∷ e) f j           { unfold dels }
+       = del x (dels e f j) j
 
-i = 1 ⊢ dels (del x e i) f j       { del x e 1 = e }
-      = dels e f j
+i = i1 ⊢ dels (del x e i) f j       { del x e i1 = e }
+       = dels e f j
 [/p]
 
 [p]It is hard to give an intuition for the jump from these constraints
 to the solution. One thing we can notice is that [span=inline-code]dels e f j[/span]
 is the right hand side of the equality proved by [span=inline-code]del x (dels e f j)[/span].
 So we need to somehow get a term which is equal [span=inline-code]del x (dels e f j) j[/span]
-when [tt]i[/tt] is [tt]0[/tt] and collapses to [span=inline-code]del x (dels e f j)[/span]'s
-right hand side when [tt]i[/tt] is [tt]1[/tt].[/p]
+when [tt]i[/tt] is [tt]i0[/tt] and collapses to [span=inline-code]del x (dels e f j)[/span]'s
+right hand side when [tt]i[/tt] is [tt]i1[/tt].[/p]
 
 [p]
 The key idea in cubical Agda which will help us here is the fact that
 [url=https://agda.readthedocs.io/en/latest/language/cubical.html#the-interval-and-path-types]
 elements of the interval for a De Morgan algebra[/url]. We can use the interval
-value [span=inline-code]i ∨ j[/span]: when [tt]i[/tt] is [tt]0[/tt], we get [tt]j[/tt]
-back and when [tt]i[/tt] is [tt]1[/tt], [span=inline-code]i ∨ j[/span] collapses to [tt]1[/tt].
+value [span=inline-code]i ∨ j[/span]: when [tt]i[/tt] is [tt]i0[/tt], we get [tt]j[/tt]
+back and when [tt]i[/tt] is [tt]i1[/tt], [span=inline-code]i ∨ j[/span] collapses to [tt]i1[/tt].
 [/p]
 
 [p]
