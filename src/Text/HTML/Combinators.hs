@@ -137,7 +137,8 @@ ah'_ n i title =
          , h_ n (link <> " " <> title)
          ]
 
-ah_ :: MonadState HTMLState m => Int -> Maybe Text -> Text -> m Text
+ah_ :: (Functor m, MonadState HTMLState m)
+    => Int -> Maybe Text -> Text -> m Text
 ah_ n anc title = do
   i <- case anc of
          Nothing -> T.append "section" . T.pack . show <$> newSection
