@@ -22,8 +22,8 @@ blogRSS = do
       loadSnapshotBody (fromFilePath $ "blog/" ++ source post ++ ".txt") "content"
       >>= return . postRSS post
   return $
-    (nullRSS "gallais' blog" "http://blog.gallais.org")
-      { rssChannel = (nullChannel "gallais' blog" "http://blog.gallais.org")
+    (nullRSS "gallais' blog" ("http://" <> domain <> "/blog/"))
+      { rssChannel = (nullChannel "gallais' blog" ("http://" <> domain <> "/blog/"))
       { rssItems   = items } }
 
 

@@ -5,11 +5,15 @@ module BlogList where
 
 import Data.Time
 import qualified Data.List as L
+import Data.String ( IsString(..) )
 import Data.Text.Lazy as T
 
 import System.Locale
 import Text.RSS.Syntax
 import Text.HTML.Combinators
+
+domain :: IsString str => str
+domain = fromString "gallais.github.io"
 
 data BlogPost =
   BlogPost { name      :: Text
@@ -167,11 +171,11 @@ blogIndex key = T.concat
 
 postRSS :: BlogPost -> String -> RSSItem
 postRSS bp txt =
-  let url = L.concat [ "http://blog.gallais.org/", source bp , ".html" ]
-      css = "<head> \
-            \<link rel=\"stylesheet\" type=\"text/css\" \
-            \      href=\"http://www.gallais.org/css/main.css\" />\
-            \</head>" in
+  let url = L.concat [ "http://", domain, "/blog/", source bp , ".html" ]
+      css = L.concat [ "<head>"
+                     , "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://", domain, "/css/main.css\" />"
+                     , "</head>"
+                     ] in
   RSSItem { rssItemTitle       = Just $ T.unpack $ name bp
           , rssItemLink        = Just url
           , rssItemDescription = Just $ css ++ txt
