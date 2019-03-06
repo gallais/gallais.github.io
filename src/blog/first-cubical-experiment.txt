@@ -1,6 +1,6 @@
 [div=bdocs][ul]
-[li][url=]Cubical Agda[/url][/li]
-[li][url=]list0.agda[/url][/li]
+[li][url=https://agda.readthedocs.io/en/latest/language/cubical.html]Cubical Agda[/url][/li]
+[li][url=https://github.com/gallais/potpourri/blob/efdfa3e5f84953666dfd9b98499ae9136ade570b/agda/cubical/list0.agda]list0.agda[/url][/li]
 [/ul][/div]
 [pid=chapo]
 With Agda version 2.6.0 close to being released, I decided
@@ -8,13 +8,16 @@ to experiment with cubical Agda.
 [/p]
 
 [p]
-I first tried to formalise Frumin, Geuvers, Gondelman, and van der Weide's
-[url=https://dl.acm.org/citation.cfm?id=3167085]Finite Sets in Homotopy Type Theory[/url].
-I got immediately stuck on the very first function when I had to figure
-out what a path's image was. Time to go back to basics!
+Now that [url=https://agda.readthedocs.io/en/latest/language/cubical.html]the
+documentation for cubical Agda[/url] is available, it should be easier to start
+experimenting. I first tried to formalise Frumin, Geuvers, Gondelman, and van
+der Weide's [url=https://dl.acm.org/citation.cfm?id=3167085]Finite Sets in
+Homotopy Type Theory[/url]. However I got stuck trying to write the very first
+function when I had to figure out what a path's image was. Time to go back to
+basics!
 [/p]
 
-[h2]A simple example: [tt]List⁰[/tt][/h]
+[h2]A basic datatype: [tt]List⁰[/tt][/h]
 
 [p]
 My attempt to boil down the problem I was facing resulted in [tt]List⁰[/tt].
@@ -38,10 +41,12 @@ function we know very well in the list case.
 [h3]Appending two [tt]List⁰[/tt][/h]
 
 [p]
-We define append by recursion on the first element. The first two cases
-are similar to what one would do in Haskell (or vanilla Agda). But there
-is also a third case: [tt]List⁰[/tt] is a higher inductive type and that
-means that we need to explain how append acts on paths!
+We define append by recursion on the first list. The first two cases
+are similar to what one would do in Haskell (or vanilla Agda): if the first
+list is empty, we return the second one; and if it has a head and a tail,
+we cons the head and the result of the recursive call on the tail. But there
+is also a third case: [tt]List⁰[/tt] is a higher inductive type and that means
+that we need to explain how append acts on paths!
 [/p]
 
 [p=code]_++_ : (e f : List⁰ A) → List⁰ A
@@ -74,14 +79,11 @@ that if [tt]p[/tt] has type [span=inline-code]a ≡ b[/span] then [span=inline-c
 and [span=inline-code]p 1 = b[/span]:
 [/p]
 
-[p=code]i = 0 ⊢ del x e i               ++ f
-      = (del x e : x ∷ e ≡ e) 0 ++ f
-      = x ∷ e                   ++ f
+[p=code]i = 0 ⊢ del x e i ++ f    { del x e 0 = x ∷ e }
+      = x ∷ e     ++ f    { unfold _++_ }
       = x ∷ (e ++ f)
 
-i = 1 ⊢ del x e i               ++ f
-      = (del x e : x ∷ e ≡ e) 1 ++ f
-      = e                       ++ f
+i = 1 ⊢ del x e i ++ f    { del x e 1 = e }
       = e ++ f
 [/p]
 
@@ -103,15 +105,79 @@ solution is indeed compatible with the equations we already had. We
 now have a fully-defined function. Time to prove some of its properties!
 [/p]
 
+[h2]Proving the Properties of Append[/h]
+
+[p]
+Just like for lists, we can prove that [span=inline-code][][/span] is a neutral
+element for the binary operation [span=inline-code]_++_[/span]. That is to say
+that both [span=inline-code][] ++_[/span] and [span=inline-code]_++ [][/span]
+are the identity function. This should not be too much work but it will get us
+the opportunity to think about what happens in the [span=inline-code]del[/span]
+case. We will then prove a more complex result: given that [span=inline-code]del[/span]
+allows us to peel-off the head of a non-empty list, we should be able to prove
+that we can ``cancel'' append, that is to say that [span=inline-code]e ++ f[/span]
+is equal to [span=inline-code]f[/span].
+[/p]
+
 [h3]Left and Right Identities[/h]
 
 [p]
-The left identity holds by computation: the definition of append itself
-declares that [span=inline-code][] ++ e[/span] should reduce to [span=inline-code]e[/span].
+The left identity holds by computation: the definition of append itself declares
+that [span=inline-code][] ++ e[/span] should reduce to [span=inline-code]e[/span].
+We can use [span=inline-code]refl[/span] to prove the goal like we would do in
+vanilla Agda. The main difference here being that [span=inline-code]refl[/span] is
+not a constructor: it is the constant function which given any value in the interval
+returns [span=inline-code]e[/span].
 [/p]
 
 [p=code]++-idˡ : (e : List⁰ A) → [] ++ e ≡ e
 ++-idˡ e = refl
+[/p]
+
+[p]
+The right identity requires a bit more work: given that append is defined by
+recursion on its first argument, we need to proceed by induction on it. The first
+two cases are what you would expect from the proof of
+[url=https://agda.github.io/agda-stdlib/v0.17/Data.List.Properties.html#4357]
+a similar result on lists[/url].
+[/p]
+
+[p=code]++-idʳ : (e : List⁰ A) → e ++ [] ≡ e
+++-idʳ []          = refl
+++-idʳ (x ∷ e)     = cong (x ∷_) (++-idʳ e)
+++-idʳ (del x e i) = ?
+[/p]
+
+[p]
+The last case is not a lot more complicated, at least at first glance:
+[ul]
+[li]the left hand side of the equality goal is [span=inline-code]del x e i ++ [][/span]
+which reduces to [span=inline-code]del x (e ++ []) i[/span] by definition of
+append[/li]
+[li]the right hand side is [span=inline-code]del x e i[/span][/li]
+[/ul]
+A natural candidate for this equality is to use the induction hypothesis to
+obtain a proof that [span=inline-code]e ++ [] ≡ e[/span] and use congruence
+to apply the function [span=inline-code]λ e → del x e i[/span] to each side.
+However remember that we need to check that this definition is compatible with
+the other clauses when [tt]i[/tt] becomes either [tt]0[/tt] or [tt]1[/tt].
+This gives us the following constraints:
+[/p]
+
+[p=code]i = 0 ⊢ ++-idʳ (del x e i)       { del x e 0 = x ∷ e }
+      = ++-idʳ (x ∷ e)           { unfold ++-idʳ }
+      = cong (x ∷_) (++-idʳ e)
+
+i = 1 ⊢ ++-idʳ (del x e i)       { del x e 1 = e }
+      = ++-idʳ e
+[/p]
+
+[p]
+We can easily verify that [span=inline-code]cong (λ e → del x e i) (++-idʳ e)[/span]
+does collapse to the right expressions when we set [tt]i[/tt] to either [tt]0[/tt] or
+[tt]1[/tt] thanks in part to the fact that [span=inline-code]cong (λ x → x) p[/span]
+is definitionally equal to [span=inline-code]p[/span]. This leads us to the following
+completed definition:
 [/p]
 
 [p=code]++-idʳ : (e : List⁰ A) → e ++ [] ≡ e
@@ -120,7 +186,88 @@ declares that [span=inline-code][] ++ e[/span] should reduce to [span=inline-cod
 ++-idʳ (del x e i) = cong (λ e → del x e i) (++-idʳ e)
 [/p]
 
+[p]We can now move on to a more difficult proof.[/p]
+
 [h3]Cancelling append[/h]
+
+[p]
+Given that a non-empty list is declared equal to its tail it should be possible
+to prove that if we append two lists, the result is equal to the second one alone.
+The intuition being that we can repeatedly use [span=inline-code]del[/span] to
+consume all of the elements in the first list. Formally, this gives us the type:
+[/p]
+
+[p=code]dels : (e f : List⁰ A) → e ++ f ≡ f
+[/p]
+
+[p]Remarking once more that append is defined by recursion on its first argument,
+we proceed by induction on it. The first case is easily dealt with: it is precisely
+the left identity law for append which we know holds definitionally. For uniformity
+with the upcoming case, we eta-expand [span=inline-code]refl[/span] and write [footnote]
+Remember that an equality proof [span=inline-code]x ≡ y[/span] in [tt]A[/tt] is a function
+from the interval to [tt]A[/tt] which evaluates to [span=inline-code]x[/span] at [tt]0[/tt]
+and [span=inline-code]y[/span] at [tt]1[/tt]. The proof [span=inline-code]refl[/span]
+of [span=inline-code]x ≡ x[/span] corresponds to the constant function
+[span=inline-code]λ j → x[/span].[/footnote]:
+[/p]
+
+[p=code]dels [] f j = f
+[/p]
+
+[p]The second clause demands an equality proof between
+[span=inline-code]x ∷ e ++ f[/span] on the one hand and
+[span=inline-code]f[/span] on the other. We could use
+transitivity to combine a call to [span=inline-code]del[/span]
+taking us from [span=inline-code]x ∷ e ++ f[/span] to
+[span=inline-code]e ++ f[/span] and then use the induction
+hypothesis to conclude. However it turns out that we can
+find a more compact proof by defining the path explicitly.
+We write:
+[/p]
+
+[p=code]dels (x ∷ e) f j = del x (dels e f j) j
+[/p]
+
+[p]
+We let the reader check that when [tt]j[/tt] is [tt]0[/tt] we
+do get [span=inline-code]x ∷ e ++ f[/span] whilst making [tt]j[/tt]
+equal to [tt]1[/tt] takes us to [span=inline-code]f[/span].
+We are now left with the last clause. We need a term of type
+[span=inline-code]del x e i ++ f ≡ f[/span] which satisfies the
+usual two side conditions stating that when we make [tt]i[/tt]
+either [tt]0[/tt] or [tt]1[/tt], it is compatible with the previous
+clauses.
+[/p]
+
+[p=code]i = 0 ⊢ dels (del x e i) f j       { del x e 0 = x ∷ e }
+      = dels (x ∷ e) f j           { unfold dels }
+      = del x (dels e f j) j
+
+i = 1 ⊢ dels (del x e i) f j       { del x e 1 = e }
+      = dels e f j
+[/p]
+
+[p]It is hard to give an intuition for the jump from these constraints
+to the solution. One thing we can notice is that [span=inline-code]dels e f j[/span]
+is the right hand side of the equality proved by [span=inline-code]del x (dels e f j)[/span].
+So we need to somehow get a term which is equal [span=inline-code]del x (dels e f j) j[/span]
+when [tt]i[/tt] is [tt]0[/tt] and collapses to [span=inline-code]del x (dels e f j)[/span]'s
+right hand side when [tt]i[/tt] is [tt]1[/tt].[/p]
+
+[p]
+The key idea in cubical Agda which will help us here is the fact that
+[url=https://agda.readthedocs.io/en/latest/language/cubical.html#the-interval-and-path-types]
+elements of the interval for a De Morgan algebra[/url]. We can use the interval
+value [span=inline-code]i ∨ j[/span]: when [tt]i[/tt] is [tt]0[/tt], we get [tt]j[/tt]
+back and when [tt]i[/tt] is [tt]1[/tt], [span=inline-code]i ∨ j[/span] collapses to [tt]1[/tt].
+[/p]
+
+[p]
+The reader can check that [span=inline-code]λ j → del x (dels e f j) (i ∨ j)[/span]
+proves the equality [span=inline-code]del x e i ++ f ≡ f[/span] and that it reduces
+to the right expressions when [tt]i[/tt] is set to either of the interval's extremities.
+Putting everything together, we get the following definition:
+[/p]
 
 [p=code]dels : (e f : List⁰ A) → e ++ f ≡ f
 dels []          f j = f
@@ -128,17 +275,20 @@ dels (x ∷ e)     f j = del x (dels e f j) j
 dels (del x e i) f j = del x (dels e f j) (i ∨ j)
 [/p]
 
-[p=code]
-    f : (e : List⁰ A) → lhs(e) ≡ rhs(e)
+[h2]Conclusion[/h]
 
-
-   v(0,j)              f (del x e i) j = v (i, j)             v(1,j) 
-   = f (x ∷ e) j                                              = f e j
-     |                                                          |
-     |                                                          |
-
-
+[p]
+It took me about ten hours total to formalise the content of this post, most
+of it spent on [span=inline-code]dels[/span]. Once I understood the origin of
+the side conditions one has to deal with in the cases involving
+[span=inline-code]del x e i[/span], it finally clicked and things felt easier.
+I hope this post makes the confluence imperative behind these side conditions
+clear and really drills down the importance of computing them.
 [/p]
 
-
-
+[p]I would like to conclude this post by thanking
+[url=http://cs.ru.nl/~nweide/]Nils van der Weide[/url] and
+[url=https://cs.ru.nl/~dfrumin/]Dan Frumin[/url] for sharing my misery when
+banging my head against these simple-looking problems as well as the insightful
+discussions that ensued.
+[/p]

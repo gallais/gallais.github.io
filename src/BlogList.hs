@@ -23,7 +23,12 @@ mkDay d = UTCTime { utctDay = d, utctDayTime = 60 * (37 + 60 * 13) }
 blogPosts :: [BlogPost]
 blogPosts =
   [
-    BlogPost { name     = "Instrumenting Total Parsers Written in agdarsec"
+    BlogPost { name     = "First Cubical Experiment"
+             , source   = "first-cubical-experiment"
+             , pubDate  = mkDay $ fromGregorian 2019 03 06
+             , keywords = [agda, functionalProgramming, cubical]
+             }
+  , BlogPost { name     = "Instrumenting Total Parsers Written in agdarsec"
              , source   = "instrumenting-agdarsec"
              , pubDate  = mkDay $ fromGregorian 2018 07 13
              , keywords = [agda, functionalProgramming, parser]
