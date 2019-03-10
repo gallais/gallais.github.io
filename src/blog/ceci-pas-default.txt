@@ -1,5 +1,5 @@
 [div=bdocs][ul]
-[li][url=][/url][/li]
+[li][url=https://github.com/gallais/potpourri/blob/0bc7d7e6069976292423134f05548990437abfc3/haskell/defaulting/Default.hs]Default.hs[/url][/li]
 [/ul][/div]
 [pid=chapo]Being the default value is not the same as being actively set
 to a value which happens to match the default. [tt]Maybe[/tt] as a type
@@ -39,10 +39,17 @@ We could be using [tt]Maybe[/tt] as the type constructor extending a type
 with a default value. However the design choices are now scattered in a
 lot of different places:
 [ul]
-[li] sensible defaults are set in the initial record value,[/li]
-[li] the choice to use [tt]Maybe[/tt] to add a neutral default value is made explicit in the type,[/li]
-[li] but this default value is declared somewhere else e.g. in a cleanup function
-computing the final set of options
+[li] sensible defaults are set in the initial record value,
+[/li]
+[li] the choice to use [tt]Maybe[/tt] to add a neutral default value is
+     made explicit in the type,
+[/li]
+[li] but this default value is declared somewhere else e.g. in a cleanup
+     function computing the final set of options,
+[/li]
+[li] if we collapse [tt]Maybe a[/tt] to [tt]a[/tt] in multiple locations,
+     we need to be consistent and make sure that we use the same default
+     everywhere.
 [/li]
 [/ul]
 This situation is not very satisfactory. And it turns out that we can do
@@ -69,16 +76,33 @@ setDefault k v = case v of
   _ -> v
 [/p]
 
+[h3]Turning [tt]Default[/tt] into the default.[/h]
+
 [p]
 Now that we can set the value, it's only natural to want to also get it.
 In case it still is the [tt]Default[/tt], we need to be able to produce the
-right value. To be able to extract a term-level value from the available
+term-level value. In order to extract a term-level value from the available
 type-level information, we need some extra machinery.
 [/p]
 
-[p=code]data family Sing k (a :: k)
+[p]
+The [url=https://dl.acm.org/citation.cfm?id=2503786]hasochistic[/url] device
+that allows us to connect term and type levels is naturally the notion of
+[url=https://dl.acm.org/citation.cfm?id=2364522]singletons[/url]. We postulate
+the existence of a data family of singletons, that is to say that to each
+type-level constructor should correspond a term-level one indexed by it.
+[/p]
 
-class Known k (a :: k) | a -> k where
+[p=code]data family Sing k (a :: k)
+[/p]
+
+[p]
+We say that a type-level value is [tt]Known[/tt] if we can obtain a singleton
+for it. We also assume that if a value is known then we are able to erase a
+singleton for it down to its mere term level value.
+[/p]
+
+[p=code]class Known k (a :: k) | a -> k where
   sing  :: Sing k a
   erase :: Sing k a -> k
 [/p]
@@ -97,7 +121,20 @@ collapseDefault x = case x of
   Value v -> v
 [/p]
 
+[p]
+So what do instances of these data and class definitions look like?
+[/p]
+
 [h3]First instance: Boolean literals[/h]
+
+[p]
+Using a Generalized Algebraic DataType (GADT), we define the singleton
+for booleans like so: [tt]STrue[/tt] is the term-level constructor
+reflecting the type-level [tt]'True[/tt] whilst [tt]SFalse[/tt] corresponds
+to [tt]'False[/tt]. This makes both [tt]'True[/tt] and [tt]'False[/tt]
+known booleans: we have singletons for them and can easily produce the
+underlying [tt]Bool[/tt].
+[/p]
 
 [p=code]data instance Sing Bool b where
   STrue  :: Sing Bool 'True
@@ -112,11 +149,36 @@ instance Known Bool 'False where
   erase _ = False
 [/p]
 
+[p]Using these instances, we can already write some examples. Evaluating
+the following example returns the expected list
+[span=inline-code][False,True,True][/span][/p]
+
+[p=code]bool :: [Bool]
+bool = collapseDefault <$>
+     [ Value False
+     , Value True
+     , Default :: WithDefault Bool 'True
+     ]
+[/p]
+
 [h3]Polymorphic Instances[/h]
+
+[p]
+Becaue the data family [tt]Sing[/tt] applies to all types, we are not
+limited to ground types: we can give instances for polymorphic container
+types by assuming we have instances for the elements they store. We can
+for instance define the following singleton datatype for [tt]Maybe[/tt]:
+[/p]
 
 [p=code]data instance Sing (Maybe a) m where
   SNothing :: Sing (Maybe a) 'Nothing
   SJust    :: Sing a v -> Sing (Maybe a) ('Just v)
+[/p]
+
+[p]
+The type-level constructor [tt]'Nothing[/tt] is evidently known: its
+singleton is [tt]SNothing[/tt] and it erases to the term level value
+[tt]Nothing[/tt].
 [/p]
 
 [p=code]instance Known (Maybe a) 'Nothing where
@@ -124,17 +186,92 @@ instance Known Bool 'False where
   erase _ = Nothing
 [/p]
 
+[p]
+We can only say that [tt]'Just v[/tt] is known if [tt]v[/tt] itself
+already is. We obtain the right singleton by using the assumption
+that [tt]v[/tt] is known to obtain a singleton for it and wrap it
+in a [tt]SJust[/tt] constructor. Erasure is defined in a similar
+manner: we output [tt]Just[/tt] and use [tt]erase[/tt] to compute
+its content.
+[/p]
+
 [p=code]instance Known a v => Known (Maybe a) ('Just v) where
   sing            = SJust sing
   erase (SJust v) = Just (erase v)
 [/p]
 
+[p]
+We have similar instances for lists and pairs.
+[/p]
+
 [h2]Dealing with Text[/h]
 
 [p]
-With the current setup we cannot state that we expect to get a string
-but will happily default to "Hello" if we were given nothing at all.
-GHC does provide us with [tt]Symbol[/tt], the kind of type-level strings.
-So we ought to be able to also support default values for the string types
-such as Text.
+Unfortunately the current setup means we cannot state that we expect to
+be given a string but will happily default to "Hello" if we are not given
+anything. GHC does provide us with [tt]Symbol[/tt], the kind of type-level
+strings. So we ought to be able to also support default values for the
+string types such as [tt]Text[/tt].
+[/p]
+
+[p]
+The trick here is to decorrelate the kind of the type-level value and the
+type it represents. Instead of the [tt]WithDefault[/tt] type we defined
+earlier, we use the following [tt]WithDefault'[/tt] as our core representation
+and define [tt]WithDefault[/tt] as an alias for the special case where kind
+and type do match up.
+[/p]
+
+[p=code]data WithDefault' k l (a :: l) where
+  Default :: WithDefault' k l a
+  Value   :: k -> WithDefault' k l a
+
+type WithDefault (k :: Type) (a :: k) = WithDefault' k k a
+[/p]
+
+[p]
+This change needs to be propagated through all the families, classes,
+instance declarations, and functions. The interested reader can check
+the [url=https://github.com/gallais/potpourri/blob/0bc7d7e6069976292423134f05548990437abfc3/haskell/defaulting/Default.hs]Haskell file[/url]. We choose
+to focus here on the [tt]Text[/tt] instance.
+[/p]
+
+[p]
+We can't quite define an enumerated type providing a constructor for each
+string in existence. However the kind people at GHC's HQ are already doing
+this for us:
+ [url=https://hackage.haskell.org/package/base-4.12.0.0/docs/GHC-TypeLits.html][tt]GHC.TypeLits[/tt][/url]
+gives us access to [tt]KnownSymbol[/tt]. Our data instance for [tt]Text[/tt]
+is capturing a constraint of the form [tt]KnownSymbol s[/tt] as the notion
+of singleton for [tt]s[/tt].
+[/p]
+
+[p=code]data instance Sing Text Symbol s where
+  SText :: KnownSymbol s => Sing Text Symbol s
+[/p]
+
+[p]
+Using the GHC-provided function [tt]symbolVal[/tt], we can obtain a
+[tt]String[/tt] corresponding to a given [tt]KnownSymbol[/tt]. As a
+consequence, if [tt]s[/tt] is a known symbol, we can trivially build
+a proof that it is a [tt]Known Text[/tt] too.
+[/p]
+
+[p=code]instance KnownSymbol s => Known Text Symbol s where
+  sing  = SText
+  erase = pack . symbolVal
+[/p]
+
+[p]
+Although the instance declarations are now a bit more verbose, the user
+experience is virtually the same.
+[/p]
+
+[h2]Wrap up[/h]
+
+[p]
+We have seen that we can define an optional type indexed by the value
+it should default to. Using standard type-level trickery we can write
+the function collapsing the [tt]Default[/tt] constructor to the value
+specified in the type.
 [/p]
