@@ -1,0 +1,140 @@
+[div=bdocs][ul]
+[li][url=][/url][/li]
+[/ul][/div]
+[pid=chapo]Being the default value is not the same as being actively set
+to a value which happens to match the default. [tt]Maybe[/tt] as a type
+constructor enriching an existing type with a default value is not
+satisfactory: what this default value means is not documented in the
+type.
+[/p]
+
+[p]
+When designing a command line interface, it is quite often necessary to
+provide default values for some of the flags.[/p]
+
+[p]
+Sometimes there is only one sensible choice and it is simply picked when
+initialising the record of options. In Agda for instance we set the default
+verbosity to 1 (the bigger the number, the more detailed the debugging
+information) and ask for the empty context (the more specific the context,
+the more irrelevant information is filtered out).
+[/p]
+
+[p]
+Other times, there are multiple sensible choices and they may be incompatible.
+In Agda, both guardedness checking and sized types can be used to program with
+codata. But combining the two makes the system unsound. By default we want
+users to be able to use both so both are turned on. However if they use the
+[tt]--safe[/tt] flag, they should only be allowed to use at most one. We want
+to shout at the user if they actively turn both on and declare the module 
+should be safe. So we need to distinguish between the flags being set to
+the default and them being actively set to a value which happens to match the
+default.
+[/p]
+
+[h2]Key Idea: A Fancy Maybe[/h]
+
+[p]
+We could be using [tt]Maybe[/tt] as the type constructor extending a type
+with a default value. However the design choices are now scattered in a
+lot of different places:
+[ul]
+[li] sensible defaults are set in the initial record value,[/li]
+[li] the choice to use [tt]Maybe[/tt] to add a neutral default value is made explicit in the type,[/li]
+[li] but this default value is declared somewhere else e.g. in a cleanup function
+computing the final set of options
+[/li]
+[/ul]
+This situation is not very satisfactory. And it turns out that we can do
+better with a little bit of type-level programming. We start with a fancy
+version of [tt]Maybe[/tt] which is parametrised not only by a type but also
+by a type-level value of that type.[/p]
+
+[p=code]data WithDefault k (a :: k) where
+  Default :: WithDefault k a
+  Value   :: k -> WithDefault k a
+[/p]
+
+[p]
+When we write [span=inline-code]WithDefault Bool 'True[/span] we explicitly
+tell the reader that our [tt]Maybe[/tt]-looking optional type will default
+to [tt]True[/tt] unless the value has been set. We can start by writing
+the function which let us set a value. In case it's been set already we
+simply ignore the new value.
+[/p]
+
+[p=code]setDefault :: k -> WithDefault k a -> WithDefault k a
+setDefault k v = case v of
+  Default -> Value k
+  _ -> v
+[/p]
+
+[p]
+Now that we can set the value, it's only natural to want to also get it.
+In case it still is the [tt]Default[/tt], we need to be able to produce the
+right value. To be able to extract a term-level value from the available
+type-level information, we need some extra machinery.
+[/p]
+
+[p=code]data family Sing k (a :: k)
+
+class Known k (a :: k) | a -> k where
+  sing  :: Sing k a
+  erase :: Sing k a -> k
+[/p]
+
+[p]
+Now that we have the ability to turn a type-level value into a term level one,
+we can write a function out of [tt]WithDefault[/tt]. It is essentially the
+function [tt]fromMaybe[/tt] except that we do not need to specify what to do
+in case we find [tt]Nothing[/tt]: provided that the type-level value is
+[tt]Known[/tt], the type itself tells us what the output should be.
+[/p]
+
+[p=code]collapseDefault :: forall k a. Known k a => WithDefault k a -> k
+collapseDefault x = case x of
+  Default -> erase (sing :: Sing k a)
+  Value v -> v
+[/p]
+
+[h3]First instance: Boolean literals[/h]
+
+[p=code]data instance Sing Bool b where
+  STrue  :: Sing Bool 'True
+  SFalse :: Sing Bool 'False
+
+instance Known Bool 'True where
+  sing = STrue
+  erase _ = True
+
+instance Known Bool 'False where
+  sing = SFalse
+  erase _ = False
+[/p]
+
+[h3]Polymorphic Instances[/h]
+
+[p=code]data instance Sing (Maybe a) m where
+  SNothing :: Sing (Maybe a) 'Nothing
+  SJust    :: Sing a v -> Sing (Maybe a) ('Just v)
+[/p]
+
+[p=code]instance Known (Maybe a) 'Nothing where
+  sing = SNothing
+  erase _ = Nothing
+[/p]
+
+[p=code]instance Known a v => Known (Maybe a) ('Just v) where
+  sing            = SJust sing
+  erase (SJust v) = Just (erase v)
+[/p]
+
+[h2]Dealing with Text[/h]
+
+[p]
+With the current setup we cannot state that we expect to get a string
+but will happily default to "Hello" if we were given nothing at all.
+GHC does provide us with [tt]Symbol[/tt], the kind of type-level strings.
+So we ought to be able to also support default values for the string types
+such as Text.
+[/p]
