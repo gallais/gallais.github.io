@@ -81,8 +81,8 @@ setDefault k v = case v of
 [p]
 Now that we can set the value, it's only natural to want to also get it.
 In case it still is the [tt]Default[/tt], we need to be able to produce the
-term-level value. In order to extract a term-level value from the available
-type-level information, we need some extra machinery.
+term-level value which corresponds to the type level one. To do that we need
+some extra machinery.
 [/p]
 
 [p]
@@ -111,8 +111,9 @@ singleton for it down to its mere term level value.
 Now that we have the ability to turn a type-level value into a term level one,
 we can write a function out of [tt]WithDefault[/tt]. It is essentially the
 function [tt]fromMaybe[/tt] except that we do not need to specify what to do
-in case we find [tt]Nothing[/tt]: provided that the type-level value is
-[tt]Known[/tt], the type itself tells us what the output should be.
+in case we find our [tt]Nothing[/tt]-like constructor: provided that the
+type-level value is [tt]Known[/tt], the type itself tells us what the output
+should be.
 [/p]
 
 [p=code]collapseDefault :: forall k a. Known k a => WithDefault k a -> k
@@ -150,7 +151,7 @@ instance Known Bool 'False where
 [/p]
 
 [p]Using these instances, we can already write some examples. Evaluating
-the following example returns the expected list
+the following expression yields the expected list
 [span=inline-code][False,True,True][/span][/p]
 
 [p=code]bool :: [Bool]
@@ -164,10 +165,11 @@ bool = collapseDefault <$>
 [h3]Polymorphic Instances[/h]
 
 [p]
-Becaue the data family [tt]Sing[/tt] applies to all types, we are not
-limited to ground types: we can give instances for polymorphic container
-types by assuming we have instances for the elements they store. We can
-for instance define the following singleton datatype for [tt]Maybe[/tt]:
+We are not limited to ground types: we can give instances for polymorphic
+container types by assuming we have instances for the elements they store.
+This is where the fact that [tt]Sing[/tt] is a data family of singletons
+shines: we have a unique name for all of these constructs. Let us define
+the following singleton datatype for [tt]Maybe[/tt]:
 [/p]
 
 [p=code]data instance Sing (Maybe a) m where
@@ -190,7 +192,7 @@ singleton is [tt]SNothing[/tt] and it erases to the term level value
 We can only say that [tt]'Just v[/tt] is known if [tt]v[/tt] itself
 already is. We obtain the right singleton by using the assumption
 that [tt]v[/tt] is known to obtain a singleton for it and wrap it
-in a [tt]SJust[/tt] constructor. Erasure is defined in a similar
+in an [tt]SJust[/tt] constructor. Erasure is defined in a similar
 manner: we output [tt]Just[/tt] and use [tt]erase[/tt] to compute
 its content.
 [/p]
@@ -210,7 +212,7 @@ We have similar instances for lists and pairs.
 Unfortunately the current setup means we cannot state that we expect to
 be given a string but will happily default to "Hello" if we are not given
 anything. GHC does provide us with [tt]Symbol[/tt], the kind of type-level
-strings. So we ought to be able to also support default values for the
+strings. So we ought to be able to also support default values for various
 string types such as [tt]Text[/tt].
 [/p]
 
