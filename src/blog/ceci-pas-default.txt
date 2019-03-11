@@ -1,5 +1,10 @@
 [div=bdocs][ul]
-[li][url=https://github.com/gallais/potpourri/blob/0bc7d7e6069976292423134f05548990437abfc3/haskell/defaulting/Default.hs]Default.hs[/url][/li]
+[li]
+    [url=https://github.com/gallais/potpourri/blob/a20fed3c4b7e46c0683eba55788d07f09bbaf776/haskell/defaulting/Default.hs]Default.hs[/url]
+[/li]
+[li]
+    [url=https://github.com/agda/agda/blob/6f3046e081ebfa40793c3a064e53bdbd83c82dcf/src/full/Agda/Utils/WithDefault.hs]In Agda's codebase[/url]
+[/li]
 [/ul][/div]
 [pid=chapo]Being the default value is not the same as being actively set
 to a value which happens to match the default. [tt]Maybe[/tt] as a type
@@ -219,22 +224,20 @@ string types such as [tt]Text[/tt].
 [p]
 The trick here is to decorrelate the kind of the type-level value and the
 type it represents. Instead of the [tt]WithDefault[/tt] type we defined
-earlier, we use the following [tt]WithDefault'[/tt] as our core representation
-and define [tt]WithDefault[/tt] as an alias for the special case where kind
-and type do match up.
+earlier, we use the following more general one as our core representation.
+The original [tt]WithDefault[/tt] is the special case where kind and type
+do match up.
 [/p]
 
-[p=code]data WithDefault' k l (a :: l) where
-  Default :: WithDefault' k l a
-  Value   :: k -> WithDefault' k l a
-
-type WithDefault (k :: Type) (a :: k) = WithDefault' k k a
+[p=code]data WithDefault k (a :: l) where
+  Default :: WithDefault k a
+  Value   :: k -> WithDefault k a
 [/p]
 
 [p]
 This change needs to be propagated through all the families, classes,
 instance declarations, and functions. The interested reader can check
-the [url=https://github.com/gallais/potpourri/blob/0bc7d7e6069976292423134f05548990437abfc3/haskell/defaulting/Default.hs]Haskell file[/url]. We choose
+the [url=https://github.com/gallais/potpourri/blob/a20fed3c4b7e46c0683eba55788d07f09bbaf776/haskell/defaulting/Default.hs]Haskell file[/url]. We choose
 to focus here on the [tt]Text[/tt] instance.
 [/p]
 
@@ -242,14 +245,14 @@ to focus here on the [tt]Text[/tt] instance.
 We can't quite define an enumerated type providing a constructor for each
 string in existence. However the kind people at GHC's HQ are already doing
 this for us:
- [url=https://hackage.haskell.org/package/base-4.12.0.0/docs/GHC-TypeLits.html][tt]GHC.TypeLits[/tt][/url]
+[url=https://hackage.haskell.org/package/base-4.12.0.0/docs/GHC-TypeLits.html][tt]GHC.TypeLits[/tt][/url]
 gives us access to [tt]KnownSymbol[/tt]. Our data instance for [tt]Text[/tt]
 is capturing a constraint of the form [tt]KnownSymbol s[/tt] as the notion
 of singleton for [tt]s[/tt].
 [/p]
 
-[p=code]data instance Sing Text Symbol s where
-  SText :: KnownSymbol s => Sing Text Symbol s
+[p=code]data instance Sing Text (s :: Symbol) where
+  SText :: KnownSymbol s => Sing Text s
 [/p]
 
 [p]
@@ -259,14 +262,24 @@ consequence, if [tt]s[/tt] is a known symbol, we can trivially build
 a proof that it is a [tt]Known Text[/tt] too.
 [/p]
 
-[p=code]instance KnownSymbol s => Known Text Symbol s where
+[p=code]instance KnownSymbol s => Known Text (s :: Symbol) where
   sing  = SText
   erase = pack . symbolVal
 [/p]
 
 [p]
 Although the instance declarations are now a bit more verbose, the user
-experience is virtually the same.
+experience is virtually the same. And we now support string literals.
+The following test showcasing all of the instances mentioned in this post
+evaluates to the list
+[span=inline-code][[(True,Just "Hello World")],[(False,Nothing)]][/span]:
+[/p]
+[p=code]test :: [[(Bool, Maybe Text)]]
+test = collapseDefault <$>
+     [ Default :: WithDefault [(Bool, Maybe Text)]
+                  '[ '( 'True , 'Just "Hello World") ]
+     , Value [(False, Nothing)]
+     ]
 [/p]
 
 [h2]Wrap up[/h]
@@ -275,5 +288,8 @@ experience is virtually the same.
 We have seen that we can define an optional type indexed by the value
 it should default to. Using standard type-level trickery we can write
 the function collapsing the [tt]Default[/tt] constructor to the value
-specified in the type.
+specified in the type. Although this most general version works well,
+it requires fairly recent [tt]LANGUAGE[/tt] extensions so
+[url=https://github.com/agda/agda/blob/6f3046e081ebfa40793c3a064e53bdbd83c82dcf/src/full/Agda/Utils/WithDefault.hs]we are not using it in the Agda codebase[/url],
+limiting ourselves to the special case of the [tt]Bool[/tt] version.
 [/p]

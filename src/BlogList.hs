@@ -28,7 +28,12 @@ mkDay d = UTCTime { utctDay = d, utctDayTime = 60 * (37 + 60 * 13) }
 blogPosts :: [BlogPost]
 blogPosts =
   [
-    BlogPost { name     = "First Cubical Experiment"
+    BlogPost { name     = "Ceci n'est pas un default"
+             , source   = "ceci-pas-default"
+             , pubDate  = mkDay $ fromGregorian 2019 03 11
+             , keywords = [haskell, functionalProgramming]
+             }
+  , BlogPost { name     = "First Cubical Experiment"
              , source   = "first-cubical-experiment"
              , pubDate  = mkDay $ fromGregorian 2019 03 06
              , keywords = [agda, functionalProgramming, cubical]
