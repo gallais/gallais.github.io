@@ -268,6 +268,15 @@ reports =
 drafts :: [Publi]
 drafts =
   [ Publi { authors   = [gallais]
+          , title     = "Generic Level Polymorphic N-ary Functions"
+          , date      = Date (Just 20) (Just 5) 2019
+          , venue     = Venue { name = "TyDe'19"
+                              , www  = Nothing
+                              }
+          , resources = [ github "https://github.com/gallais/nary"
+                        , pdf "pdf/tyde19_draft.pdf" ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "Syntaxes with Binding, Their Programs, and Proofs"
           , date      = Date (Just 15) (Just 12) 2018
           , venue     = Venue { name = "Draft PhD Thesis"
