@@ -274,7 +274,9 @@ drafts =
                               , www  = Nothing
                               }
           , resources = [ github "https://github.com/gallais/nary"
-                        , pdf "pdf/tyde19_draft.pdf" ]
+                        , pdf "pdf/tyde19_draft.pdf"
+                        , slides "pdf/spls19_slides.pdf"
+                        ]
           }
   , Publi { authors   = [gallais]
           , title     = "Syntaxes with Binding, Their Programs, and Proofs"
