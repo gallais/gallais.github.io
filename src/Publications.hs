@@ -118,8 +118,18 @@ publisToText Publis{..} = T.unlines [ h_ 3 h3 , ulWith_ "<hr />" lis ]
 
 workshops :: [Publi]
 workshops =
-  [
-    Publi { authors   = [gallais]
+  [ Publi { authors   = [gallais]
+          , title     = "Generic Level Polymorphic N-ary Functions"
+          , date      = Date (Just 20) (Just 5) 2019
+          , venue     = Venue { name = "TyDe'19"
+                              , www  = Nothing
+                              }
+          , resources = [ github "https://github.com/gallais/nary"
+                        , pdf "pdf/tyde19.pdf"
+                        , slides "pdf/spls19_slides.pdf"
+                        ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "agdarsec — Total Parser Combinators"
           , date      = Date Nothing (Just 1) 2018
           , venue     = Venue { name = "JFLA", www = Just "https://www.lri.fr/~sboldo/JFLA18/" }
@@ -268,17 +278,6 @@ reports =
 drafts :: [Publi]
 drafts =
   [ Publi { authors   = [gallais]
-          , title     = "Generic Level Polymorphic N-ary Functions"
-          , date      = Date (Just 20) (Just 5) 2019
-          , venue     = Venue { name = "TyDe'19"
-                              , www  = Nothing
-                              }
-          , resources = [ github "https://github.com/gallais/nary"
-                        , pdf "pdf/tyde19_draft.pdf"
-                        , slides "pdf/spls19_slides.pdf"
-                        ]
-          }
-  , Publi { authors   = [gallais]
           , title     = "Syntaxes with Binding, Their Programs, and Proofs"
           , date      = Date (Just 15) (Just 12) 2018
           , venue     = Venue { name = "Draft PhD Thesis"
