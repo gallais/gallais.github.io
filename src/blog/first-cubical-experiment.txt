@@ -257,7 +257,7 @@ right hand side when [tt]i[/tt] is [tt]i1[/tt].[/p]
 [p]
 The key idea in cubical Agda which will help us here is the fact that
 [url=https://agda.readthedocs.io/en/latest/language/cubical.html#the-interval-and-path-types]
-elements of the interval for a De Morgan algebra[/url]. We can use the interval
+elements of the interval form a De Morgan algebra[/url]. We can use the interval
 value [span=inline-code]i ∨ j[/span]: when [tt]i[/tt] is [tt]i0[/tt], we get [tt]j[/tt]
 back and when [tt]i[/tt] is [tt]i1[/tt], [span=inline-code]i ∨ j[/span] collapses to [tt]i1[/tt].
 [/p]
