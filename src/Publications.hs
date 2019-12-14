@@ -189,7 +189,15 @@ conferences =
 
 journals :: [Publi]
 journals =
-  [ Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
+  [ Publi { authors   = [aabel, gallais, ahameer, bpientka, amomigliano, sschafer, kstark]
+          , title     = "POPLMark Reloaded: Mechanizing Proofs by Logical Relations"
+          , date      = Date Nothing (Just 12) 2019
+          , venue     = Venue { name = "JFP"
+                              , www  = Just "https://doi.org/10.1017/S0956796819000170"
+                              }
+          , resources = [ pdf "pdf/poplmark-reloaded-jfp19.pdf" ]
+          }
+  , Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
           , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
           , date      = Date Nothing (Just 9) 2018
           , venue     = Venue { name = "PACMPL issue ICFP 2018", www = Just "https://icfp18.sigplan.org/" }
@@ -285,14 +293,6 @@ drafts =
                               }
           , resources = [ github "https://github.com/gallais/thesis"
                         , pdf "pdf/thesis18_draft.pdf" ]
-          }
-  , Publi { authors   = [aabel, gallais, ahameer, bpientka, amomigliano, sschafer, kstark]
-          , title     = "POPLMark Reloaded: Mechanizing Proofs by Logical Relations"
-          , date      = Date Nothing (Just 12) 2018
-          , venue     = Venue { name = "Submitted to JFP"
-                              , www  = Just "https://www.cambridge.org/core/journals/journal-of-functional-programming"
-                              }
-          , resources = [ pdf "pdf/jfp18_draft.pdf" ]
           }
   , Publi { authors   = [gallais, cmcbride]
           , title     = "Certified Proof Search for Intuitionistic Linear Logic"
