@@ -19,6 +19,12 @@ data Venue =
 venueToText :: Venue -> Text
 venueToText v = urlToText (name v) (www v)
 
+jfp :: Venue
+jfp = Venue
+  { name = "JFP"
+  , www = Just "https://icfp18.sigplan.org/"
+  }
+
 data Kind = Pdf | Slides | Github | Agda | Blog
 
 kindToText :: Kind -> Text
@@ -163,7 +169,16 @@ workshops =
 conferences :: [Publi]
 conferences =
   [
-    Publi { authors   = [gallais]
+    Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
+          , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
+          , date      = Date Nothing (Just 9) 2018
+          , venue     = Venue { name = "PACMPL issue ICFP 2018", www = Just "https://icfp18.sigplan.org/" }
+          , resources = [ github "https://github.com/gallais/generic-syntax"
+                        , pdf "pdf/icfp18.pdf"
+                        , slides "pdf/icfp18-slides.pdf"
+                        ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "Typing with Leftovers - A Mechanization of Intuitionistic Multiplicative Additive Linear Logic"
           , date      = Date Nothing Nothing 2018
           , venue     = Venue { name = "TYPES 2017 Post Proceeding", www = Nothing }
@@ -189,22 +204,20 @@ conferences =
 
 journals :: [Publi]
 journals =
-  [ Publi { authors   = [aabel, gallais, ahameer, bpientka, amomigliano, sschafer, kstark]
+  [
+    Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
+          , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
+          , date      = Date Nothing (Just 1) 2020
+          , venue     = jfp
+          , resources = [ github "https://github.com/gallais/generic-syntax"
+                        , pdf "pdf/generic-syntax.pdf"
+                        ]
+          }
+  , Publi { authors   = [aabel, gallais, ahameer, bpientka, amomigliano, sschafer, kstark]
           , title     = "POPLMark Reloaded: Mechanizing Proofs by Logical Relations"
           , date      = Date Nothing (Just 12) 2019
-          , venue     = Venue { name = "JFP"
-                              , www  = Just "https://doi.org/10.1017/S0956796819000170"
-                              }
+          , venue     = jfp
           , resources = [ pdf "pdf/poplmark-reloaded-jfp19.pdf" ]
-          }
-  , Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
-          , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
-          , date      = Date Nothing (Just 9) 2018
-          , venue     = Venue { name = "PACMPL issue ICFP 2018", www = Just "https://icfp18.sigplan.org/" }
-          , resources = [ github "https://github.com/gallais/generic-syntax"
-                        , pdf "pdf/icfp18.pdf"
-                        , slides "pdf/icfp18-slides.pdf"
-                        ]
           }
   , Publi { authors   = [ybertot, gallais]
           , title     = "Views of PI: Definition and computation"
