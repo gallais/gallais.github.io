@@ -300,12 +300,12 @@ drafts :: [Publi]
 drafts =
   [ Publi { authors   = [gallais]
           , title     = "Syntaxes with Binding, Their Programs, and Proofs"
-          , date      = Date (Just 15) (Just 12) 2018
+          , date      = Date (Just 3) (Just 3) 2021
           , venue     = Venue { name = "Draft PhD Thesis"
                               , www  = Nothing
                               }
           , resources = [ github "https://github.com/gallais/thesis"
-                        , pdf "pdf/thesis18_draft.pdf" ]
+                        , pdf "pdf/thesis21_draft.pdf" ]
           }
   , Publi { authors   = [gallais, cmcbride]
           , title     = "Certified Proof Search for Intuitionistic Linear Logic"
