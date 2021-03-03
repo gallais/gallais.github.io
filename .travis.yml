@@ -43,7 +43,3 @@ branches:
     - source
 notifications:
   email: false
-env:
-  global:
-    secure: "WnJsNJ3xgwuIY6MFfvHvg+fU/m5EB1W6mwAOpLgH3FEzQeKTXVpabQfqkL+kNzHdhN5+muY4/wX+7CpBQMxa4PLuyOVJ7FLxETY03PSEFlS6XwkpN3Ewhq3vOTVVasNSrI5RiLFyuJIbUu0OahJHGQMuCaAMTwARJItc2t7ZsCI="
-
