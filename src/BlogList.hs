@@ -28,7 +28,12 @@ mkDay d = UTCTime { utctDay = d, utctDayTime = 60 * (37 + 60 * 13) }
 blogPosts :: [BlogPost]
 blogPosts =
   [
-    BlogPost { name     = "Ceci n'est pas un default"
+    BlogPost { name     = "Poltergeist Types"
+             , source   = "poltergeist-types"
+             , pubDate  = mkDay $ fromGregorian 2021 04 16
+             , keywords = [idris, datatype, functionalProgramming]
+             }
+  , BlogPost { name     = "Ceci n'est pas un default"
              , source   = "ceci-pas-default"
              , pubDate  = mkDay $ fromGregorian 2019 03 11
              , keywords = [haskell, functionalProgramming]
@@ -123,6 +128,7 @@ blogPosts =
     functionalProgramming = "functional programming"
     glueing               = "glueing"
     haskell               = "haskell"
+    idris                 = "idris"
     λcalculus             = "lambda calculus"
     lazyness              = "lazyness"
     linearLogic           = "linear logic"
