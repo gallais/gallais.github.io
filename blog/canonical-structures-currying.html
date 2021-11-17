@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Currying using Canonical Structures</title>
+    <link rel="stylesheet" type="text/css" href="../css/main.css" />
+  </head>
+  <body>
+    <div id="header">
+      <div class="flat_list">
+      <ul>
+        <li><a href="../index.html">home</a></li>
+        <li>||</li>
+        <li><a href="../publis.html">publications</a></li>
+        <li>||</li>
+        <li><a href="../blog/index.html">blog</a></li>
+        <li>||</li>
+        <li><a href="../contact.html">contact</a></li>
+      </ul>
+      </div>
+    </div>
+    <div id="container">
+
+      <span style="float:right"><a href="../rss.xml"><img src="../img/rss.png" /></a></span><h1>Currying using Canonical Structures</h1><div class="bdocs"><ul><li><a href="https://hal.inria.fr/hal-00816703">Mahboubi & Tassi's paper</a></li>
+<li><a href="https://gist.github.com/gallais/d3dae1f7d5fe9e9d5ab5">Universe for Currying</a></li>
+<li><a href="https://gist.github.com/gallais/8923120a41396bb21615">Canonical Structures for Currying</a></li></ul></div>
+
+
+
+<p id="chapo">I have been meaning to have a look at Canonical Structures at
+some point since Beta Ziliani told me about 4 years ago that all the Ltac
+magic I was doing to reify expressions could be handed over to the inference
+engine. Yesterday I was finally given a simple opportunity to play with
+them. Here's the result.</p>
+
+
+
+<p>Whilst reading <a href="http://coq-blog.clarus.me/simple-unit-testing-in-coq.html">a
+completely unrelated blog post</a> about unit testing in Coq, I stumbled
+upon a series of almost identical functions named <span class="inline-code">List.map_pair</span>,
+<span class="inline-code">List.map_triple</span> and <span class="inline-code">List.map_quad</span>. I thought to myself
+that, surely, it should be possible in a language with type-level computations
+to do away with the sort of <a href="http://hackage.haskell.org/package/base-4.8.1.0/docs/Data-List.html#v:zipWith3">monstrosities</a>
+one can sometime find in Haskell libraries.
+Introducing <a href="https://gist.github.com/gallais/d3dae1f7d5fe9e9d5ab5">a
+Universe closed under products</a> can indeed allow the definition of
+generic (un)currying functions. However we are still left with the burden
+of reifying the domain of the function we want to curry. Annoying.</p>
+
+
+
+<a name="section0"></a>
+<h2><a class="sectionref" href="#section0">#</a> <center>Canonical Structures to the rescue!</center></h2>
+
+
+
+<p>That is when Canonical Structures come to the rescue: they are a way
+to give hints to the unification algorithm when it faces a problem of the
+shape <span class="inline-code">project ?x ~ term</span> where <span class="inline-code">project</span> is a projection
+out of a record, <span class="inline-code">?x</span> is a unification variable and <span class="inline-code">term</span>
+is... a term. Because this unification step can lead to new ones, we
+effectively have a way to encode a prolog-like proof search. And we are
+going to use it to generate the right sort of currying.</p>
+
+
+
+<a name="TheClassOfDomainsWhichCanBeCurried"></a>
+<h3><a class="sectionref" href="#TheClassOfDomainsWhichCanBeCurried">#</a> The Class of domains which can be curried</h3>
+
+
+
+<p>This whole development is following quite closely the really good
+introduction <a href="https://hal.inria.fr/hal-00816703">Canonical Structures
+for the working Coq user</a>. We start by defining a module which
+contains first and foremost a Record <span class="inline-code">class</span> indexed by a domain
+<span class="inline-code">Dom</span> and a type constructor <span class="inline-code">Curr</span> such that <span class="inline-code">Curr a</span>
+is a curried version of the function space <span class="inline-code">Dom -> a</span> as witnessed
+by the <span class="inline-code">Fun</span> stored in the record.</p>
+
+
+
+<p class="code">Module Currying.
+  Record class (Dom : Type) (Curr : Type -> Type) :=
+         Class { Fun : forall cod, Curr cod -> (Dom -> cod) }.
+</p>
+
+
+
+<p>We then define a structure called <span class="inline-code">type</span> packing together
+a <span class="inline-code">Dom</span>, a <span class="inline-code">Curr</span> and the <span class="inline-code">class Dom Curr</span> evidence
+that they are related.</p>
+
+
+
+<p class="code">  Structure type := Pack { dom      : Type
+                         ; curr     : Type -> Type
+                         ; class_of : class dom curr }.
+</p>
+
+
+
+<p>Now, remember that canonical structures are used to give hints to the
+unification algorithm when facing <span class="inline-code">project ?x ~ term</span> problems.
+Having this <span class="inline-code">type</span> structure will allow us to generate
+<span class="inline-code">dom ?x ~ something</span> unification problems which means that the
+unification algorithm will be able to infer from the shape of the domain
+what its curried version is. In order to trigger these unification problems,
+we are defining a special version of <span class="inline-code">map</span> on <span class="inline-code">list</span>:</p>
+
+
+
+<p class="code">  Definition flippedmap (Curry : type) :
+    forall cod, list (dom Curry) -> curr Curry cod -> list cod.
+    refine (let 'Pack _ _ (Class fc) := Curry
+            in fun cod xs f => List.map _ xs) ; apply fc, f.
+  Defined.
+</p>
+
+
+
+<p>Multiple things are going on here. First we define the function
+interactively because we have some nasty type-level dependencies and
+this post is not about dependent matching in Coq. Second we implemented
+<span class="inline-code">flippedmap</span> rather than <span class="inline-code">map</span> because taking the function
+first would create a unification problem <span class="inline-code">curr ?x ~ [some function type]</span>
+which is obviously harder to resolve than <span class="inline-code">list (dom ?x) ~ list ([some type])</span>.</p>
+
+
+
+<p>We can introduce a notation in order to recover the usual arguments
+order. We then close our <span class="inline-code">Currying</span> module and bring the notation
+into scope.</p>
+
+
+
+<p class="code">  Module theory.
+  Notation "f <$> xs" := (flippedmap xs f) (at level 70).
+  End theory.
+End Currying.
+
+Import Currying.theory.</p>
+
+
+
+<a name="section1"></a>
+<h3><a class="sectionref" href="#section1">#</a> The Canonical Structures associated to <span class="inline-code">Currying.type</span></h3>
+
+
+
+<p>Now that our interface has been defined, it is time to populate it
+with canonical instances. The first one simply states that given two
+domains we know how to curry, we can explain how to curry their product.
+The nesting <span class="inline-code">fun cod => Currying.curr c1 (Currying.curr c2 cod)</span>
+is chosen so that arguments are kept in the right order.</p>
+
+
+
+<p class="code">Definition pair_curry (c1 c2 : Currying.type) :
+           forall cod, Currying.curr c1 (Currying.curr c2 cod) ->
+                       (Currying.dom c1 * Currying.dom c2) -> cod.
+  intros cod f (a, b).
+  apply c2 ; [| exact b].
+  apply c1 ; [| exact a].
+  exact f.
+Defined.
+
+Canonical Structure CurryingPair (c1 : Currying.type) (c2 : Currying.type) : Currying.type :=
+  Currying.Pack (Currying.dom c1 * Currying.dom c2)
+                (fun cod => Currying.curr c1 (Currying.curr c2 cod))
+                (Currying.Class (pair_curry c1 c2)).
+</p>
+
+
+
+<p>That's all well and good except that we don't know yet how to deal
+with base types. Should we add an instance for each one of them? And
+what about type variables? It turns out that we can rely on the fact
+that these hints are tried in the order they are declared in and introduce
+a defaulting instance which does not do anything as witnessed by its
+<span class="inline-code">Fun</span> component which is simply the identity.</p>
+
+
+
+<p class="code">Canonical Structure failsafe (a : Type) : Currying.type :=
+  Currying.Pack a (fun cod => a -> cod) (Currying.Class (fun _ f => f)).</p>
+
+
+
+
+<a name="ConcludingExamples"></a>
+<h3><a class="sectionref" href="#ConcludingExamples">#</a> Concluding Examples</h3>
+
+
+
+<p>Thanks to the canonical structures, we can effortlessly recover the
+functions <span class="inline-code">List.map_pair</span>, <span class="inline-code">List.map_triple</span> and
+<span class="inline-code">List.map_quad</span> I mentioned earlier:</p>
+
+
+
+<p class="code">Definition map_pair {A B C} (f : A -> B -> C) (l : list (A * B)) : list C := f <$> l.
+Definition map_triple {A B C D} (f : A -> B -> C -> D) (l : list (A * B * C)) : list D := f <$> l.
+Definition map_quad {A B C D E} (f : A -> B -> C -> D -> E) (l : list (A * B * C * D)) : list E := f <$> l.</p>
+
+
+
+<p>But we can also deal with arbitrary nesting patterns:</p>
+
+
+
+<p class="code">Definition map_nestedpairs {A B C D E} (f : A -> B -> C -> D -> E) (l : list ((A * B) * (C * D))) : list E := f <$> l.
+</p>
+
+
+
+      <hr style="border:0px" />
+      <span style="float: right">Last update: 2021 04</span>
+    </div>
+    <div id="footer" class="flat_list">
+    </div>
+    <div id="constructivism"><a href="../links.html"><img src="../img/constructivism.png" alt="fun" /></a></div>
+  </body>
+</html>

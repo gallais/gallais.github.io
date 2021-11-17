@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Poltergeist Types</title>
+    <link rel="stylesheet" type="text/css" href="../css/main.css" />
+  </head>
+  <body>
+    <div id="header">
+      <div class="flat_list">
+      <ul>
+        <li><a href="../index.html">home</a></li>
+        <li>||</li>
+        <li><a href="../publis.html">publications</a></li>
+        <li>||</li>
+        <li><a href="../blog/index.html">blog</a></li>
+        <li>||</li>
+        <li><a href="../contact.html">contact</a></li>
+      </ul>
+      </div>
+    </div>
+    <div id="container">
+
+      <span style="float:right"><a href="../rss.xml"><img src="../img/rss.png" /></a></span><h1>Poltergeist Types</h1><div class="bdocs"><ul><li><a href="https://wiki.haskell.org/Phantom_type">Haskell wiki</a></li>
+<li><a href="https://github.com/idris-lang/Idris2/blob/5946442dc25aadd44d11955753c2d47c6f5027f6/libs/contrib/System/Directory/Tree.idr">System.Directory.Tree</a></li></ul></div>
+
+
+<p id="chapo">Phantom types are a well-known compile-time tool to ensure that
+illegal actions (such as attempting to write in a read-only file) are
+unrepresentable. In this blog post we introduce poltergeist types: phantom
+types whose parameters may still knock around at runtime.</p>
+
+
+
+<a name="ALightningIntroductionToPhantomTypes"></a>
+<h3><a class="sectionref" href="#ALightningIntroductionToPhantomTypes">#</a> A Lightning Introduction to Phantom Types</h3>
+
+
+
+<p>
+A phantom type is a parametrised type whose parameters do not show up in
+the types of the (usually unique) constructor's arguments.
+They can be used to document whether the arguments are respecting some
+invariants. For instance the following definition declares a type of file
+handles parametrised by two booleans corresponding to whether the file has
+been opened with the ability to read and to write from it.</p>
+
+
+
+<p>If we do not export the <span class="inline-code">MkHandle</span> constructor
+then the only way for a user to manufacture a file handle is to use
+the functions we provide. We can make sure that these functions enforce
+that the parameters are always set to reflect the file handle's status.
+</p>
+
+
+
+<p class="code">data Handle : (read, write : Bool) -> Type where
+  MkHandle : AnyPtr -> Path r w
+</p>
+
+
+
+<p>We can now make sure that we only attempt to get a line from a file we
+are allowed to read from by insisting that the <span class="inline-code">read</span>
+parameter of the handle we pass to <span class="inline-code">fGetLine</span> is
+<span class="inline-code">True</span>.
+Similarly we can restrict <span class="inline-code">fPutStr</span> to file handles
+where we statically know that we are allowed to write.
+</p>
+
+
+
+<p class="code">fGetLine : Handle True write -> IO String
+fPutStr  : Handle read True -> String -> IO ()
+</p>
+
+
+
+<p>
+Note that in both cases we only restrict the parameter of interest, leaving
+the other one as polymorphic as possible so that we may use
+<span class="inline-code">fGetLine</span> with both read-only and read-write files.
+If we need to we can enfore more constraints or no constraints whatsoever
+e.g. reversing a file will require the ability to read and write to it but
+closing a handle is completely agnostic with respect to the handle's
+capabilities.
+</p>
+
+
+
+<p>The example we just saw is set in a dependently typed language but is not
+specific to it. In OCaml for instance, we could define a largely similar
+interface with the exception that the parameters of the
+<span class="inline-code">Handle</span> phantom type would be types themselves and
+not the boolean <i>values</i> we used.
+
+Apart from this small change, the code would be largely the same and the runtime
+behaviour virtually identical. In particular all of the parameters would be
+erased at runtime
+<a id="reftop1" href="#refbot1">[1]</a>.
+</p>
+
+
+
+<p>The dependently typed setting however allows us to ask whether we would
+sometimes want the parameters' values to be available at runtime.
+</p>
+
+
+
+<a name="PoltergeistTypes"></a>
+<h3><a class="sectionref" href="#PoltergeistTypes">#</a> Poltergeist Types</h3>
+
+
+
+<p>
+For this case study we want to devise a high level representation of a directory
+tree. Up until now the only way to interact with the file system in Idris was to
+use some very low-level primitives: <span class="inline-code">openDir</span> would take
+a string and, provided that it represents a valid directory path, would return a
+pointer representing the directory.
+You could then repeatedly call <span class="inline-code">dirEntry</span> with that
+pointer to get your hands on directory entries one by one. Once you were done
+you would need to remember to call (exactly once!)
+<span class="inline-code">closeDir</span> to free the pointer.
+This leads to extremely imperative code with no separation of concerns:
+in any function the exploration of the directory tree is intimately interleaved
+with the function's own internal logic.
+</p>
+
+
+
+<p>
+Our solution is to describe a directory tree as a record containing
+a list of file names and
+a list of directory names each paired with an <span class="inline-code">IO</span>
+computation delivering the tree corresponding to the subdirectory. We can
+provide a generic function building such a tree and then users can explore
+it without having to bother with manipulating pointers.
+The final decision is to pick how to represent these file names and directory
+names.
+We could use absolute paths but that would involve a lot of information
+duplication as all the names in the tree share a common prefix.
+We could alternatively use base names but that would force users
+to reconstruct absolute paths when exploring the tree if they actually need
+them which seems like an error-prone process.
+Instead we opt for a phantom type: a <span class="inline-code">FileName</span> is
+parametrised by its root but only stores the basename as a string.
+</p>
+
+
+
+<p class="code">data FileName : Path -> Type where
+  MkFileName : String -> FileName root
+</p>
+
+
+
+<p>
+And here is where we depart from classic phantom types: a user needing
+access to the full file path can call <span class="inline-code">toFilePath</span>
+on a <span class="inline-code">FileName root</span>
+which will, provided that the <span class="inline-code">root</span> is runtime-relevant,
+compute the appropriate answer.
+</p>
+
+
+
+<p class="code">toFilePath : {root : Path} -> FileName root -> String
+toFilePath file = show (root /> file)
+</p>
+
+
+
+<p>
+We can finally give the definition of a <span class="inline-code">Tree</span> we only
+sketched earlier. A tree is a record anchored at a <span class="inline-code">root</span>
+and it comprises a list of file names as well as a list of subtrees both of
+which are anchored at that same root.
+</p>
+
+
+
+<p class="code">record Tree (root : Path) where
+  constructor MkTree
+  files    : List (FileName root)
+  subTrees : List (SubTree root)
+</p>
+
+
+
+<p>
+The key definition is that of the notion of subtrees. It is a dependent pair
+storing a file name (the name of the directory) and an IO computation returning
+a tree anchored at the parent's root extended with the name of the subdirectory.
+This definition gives us the best of both worlds: the file names are only
+storing the base names, but the user never has to explicitly reconstruct the
+path when they explore a given tree. Indeed our definition guarantees
+that the path is automatically extended when entering a subdirectory, and that
+this extended path is used when calling <span class="inline-code">toFilePath</span>.
+<p>
+
+<p class="code">SubTree : Path -> Type
+SubTree root = (dir : FileName root ** IO (Tree (root /> dir)))
+</p>
+
+</p>
+When writing a function consuming a <span class="inline-code">Tree</span> we can leave
+the parameter implicit (marking it erased or not depending on whether we
+actually need this information at runtime)
+and let Idris reconstruct the appropriate value by unification when performing
+a recursive call.
+We show below the type of two different traversals provided by the
+<span class="inline-code">System.Directory.Tree</span> library:
+<span class="inline-code">print</span> only uses base names to display the tree in the
+console and as such its <span class="inline-code">root</span> argument is guaranteed to
+be erased. The <span class="inline-code">findFile</span> function however looks for a
+file whose basename matches a given string and returns a full path. As such it
+needs to have access to the value of <span class="inline-code">root</span> and that is
+why it is explicitly introduced with an unrestricted modality.
+</p>
+
+
+
+<p class="code">print    : Tree root -> IO ()
+findFile : {root : Path} -> String -> Tree root -> IO (Maybe Path)
+</p>
+
+
+
+<a name="Conclusion"></a>
+<h3><a class="sectionref" href="#Conclusion">#</a> Conclusion</h3>
+
+
+
+<p>
+We have seens that instead of storing potentially useless information in a data
+structure, or forcing users to carefully reconstruct it on the fly were they to
+need it, we can instead parametrise our data structure over this information in
+such a way that if it is needed then it will be automatically reconstructed by
+the type system for us.
+
+This gives us a new kind of types that are phantom in the sense that their
+payloads are not influenced by their parameters but whose parameters may yet
+manifest themselves physically at runtime. We call them poltergeists.
+</p>
+
+<a name="Footnotes"></a>
+<h3><a class="sectionref" href="#Footnotes">#</a> Footnotes</h3><div class="footnotes"><p class="footnote"><div class="footnote-number"><a id="refbot1" href="#reftop1">[1]</a></div><div class="footnote-body">
+In Idris the variables in a type that are not explicitly bound are implicitly
+universally quantified in a prenex position with quantity 0 i.e. they are
+runtime-irrelevant.
+In the type of <span class="inline-code">fGetLine</span> for instance, the boolean
+variable <span class="inline-code">write</span> is therefore universally quantified,
+and marked as erased.
+The same thing applies to the variable <span class="inline-code">read</span> in the
+type of <span class="inline-code">fPutStr</span>.
+</div></p></div>
+
+      <hr style="border:0px" />
+      <span style="float: right">Last update: 2021 04</span>
+    </div>
+    <div id="footer" class="flat_list">
+    </div>
+    <div id="constructivism"><a href="../links.html"><img src="../img/constructivism.png" alt="fun" /></a></div>
+  </body>
+</html>

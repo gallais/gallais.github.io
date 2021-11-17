@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Resource Aware Contexts and Proof Search for ILL</title>
+    <link rel="stylesheet" type="text/css" href="../css/main.css" />
+  </head>
+  <body>
+    <div id="header">
+      <div class="flat_list">
+      <ul>
+        <li><a href="../index.html">home</a></li>
+        <li>||</li>
+        <li><a href="../publis.html">publications</a></li>
+        <li>||</li>
+        <li><a href="../blog/index.html">blog</a></li>
+        <li>||</li>
+        <li><a href="../contact.html">contact</a></li>
+      </ul>
+      </div>
+    </div>
+    <div id="container">
+
+      <span style="float:right"><a href="../rss.xml"><img src="../img/rss.png" /></a></span><h1>Resource Aware Contexts and Proof Search for ILL</h1><div class="bdocs"><ul><li><a href="https://github.com/gallais/proof-search-ILLWiL">Github repository</a></li>
+<li><a href="http://gallais.github.io/proof-search-ILLWiL/">Papers & coloured Agda</a></li></ul></div>
+
+
+<p id="chapo">Type theory is expressive enough that one can implement
+<i>certified</i> proof search algorithms not only telling us whether
+something is provable or not but providing us with a derivation
+which is statically known to be correct. However this comes at a
+price: the original systems are usually formulated in a hand-wavy
+way which is quite strongly incompatible with a formal treatment
+thus forcing us to find alternative presentations.</p>
+
+
+
+<p>In this blog post, I'll try to highlight the main points of
+<a href="http://gallais.github.io/proof-search-ILLWiL/">the draft</a>
+Conor and I wrote in December / January. We will see how to
+reformulate a fragment of Intuitionistic Linear Logic in order to
+make the implementation of a certified proof search algorithm
+tractable.</p>
+
+
+
+
+<p>Before starting, I would like to point out that Liam O'Connor wrote
+a <a href="http://liamoc.net/posts/2014-01-01-context-split.html">very nice
+blog post</a> showcasing the usual ℕ-index definition of untyped
+lambda terms as well as introducing an elegant syntax for "linear"
+<a id="reftop1" href="#refbot1">[1]</a> proof terms <a id="reftop2" href="#refbot2">[2]</a>. It has the same underlying idea:
+massaging the original definitions can lead to a calculus more suited
+for a mechanised approach.</p>
+
+
+
+<a name="TheILLFragmentWeAreInterestedIn."></a>
+<h3><a class="sectionref" href="#TheILLFragmentWeAreInterestedIn.">#</a> The ILL fragment we are interested in.</h3>
+
+
+
+<p>We are dealing with the fragment equipped with base types, tensor
+and par. The linearity restriction makes the right introduction rule
+for tensor awkward to use: the prover has to guess how to partition
+the context in two in a way that will let her discharge the subgoals.
+In the setting of <i>certified automated proof search</i>, the context
+is represented as a snoc list of assumptions rather than a multiset
+thus leading us to write the rule the following way:</p>
+
+
+
+<p class="code"> Γ ≡ Δ ⋈ E    Δ ⊢ σ    E ⊢ τ
+------------------------------ ⊗ʳ
+            Γ ⊢ σ `⊗ τ</p>
+
+
+
+<p>Here, <span class="inline-code">Γ ≡ Δ ⋈ E</span> means that <span class="inline-code">Γ</span> is obtained by
+interleaving <span class="inline-code">Δ</span> and <span class="inline-code">E</span> which, if we read the rule
+bottom-up, precisely correspond to the idea of finding the right
+partition when applying <span class="inline-code">⊗ʳ</span>. But we really do not want to
+have to generate <i>all</i> partitions and test them one after the
+other. This leads us to our first maxim:</p>
+
+
+
+<a name="IfIt'sTooComplicated,SolveAMoreGeneralProblem!"></a>
+<h3><a class="sectionref" href="#IfIt'sTooComplicated,SolveAMoreGeneralProblem!">#</a> If it's too complicated, solve a more general problem!</h3>
+
+
+
+<p>It turns out that we can craft a calculus more general than linear
+logic which will not force the logician to guess partitions all the
+time. I must confess that I have lied by omission up to this point:
+this whole enterprise was not started by the mere will to formalize
+proof search for linear logic. It has been spawned by Conor coming in
+the office and presenting ideas about type theories with
+<a href="https://pigworker.wordpress.com/2014/12/31/worlds/">world annotations</a>.
+One of his ideas was that typing a term might impact the context (e.g.
+by changing the world an assumption lives in) which implies automatically
+that one needs both an "input" as well as an "output" context in the
+typing relation. We end up with something like that:</p>
+
+
+
+<p class="code">Γ ⊢ t : T ⊣ Δ</p>
+
+
+
+<p>I rapidly had the feeling that a similar formulation could be very
+useful in certifying proof search for linear logic and started
+experimenting with the idea. Instead of guessing how to partition
+the context, we could think of the calculus as describing the idea
+that we start with a pool of resources available, prove a formula
+and end up with the leftovers not used in that proof. Proof search
+becomes resource consumption.</p>
+
+
+
+<p>The tensor introduction rule would simply use the whole context
+to try to prove the first subgoal, get back whatever is leftover and
+use that as an input to attempt solving the second one. After some
+investigations, this is the introduction rules I came up with for our
+new sequent calculus generalising linear logic:</p>
+
+
+
+<p class="code">  Γ ∋ k ∈ Δ              Γ ⊢ σ ⊣ Δ    Δ ⊢ τ ⊣ E               Γ ⊢ σ ⊣ Δ₁    Γ ⊢ τ ⊣ Δ₂    E ≡ Δ₁ ⊙ Δ₂
+------------ κ          ------------------------ ⊗           ----------------------------------------- &
+Γ ⊢ `κ k ⊣ Δ                 Γ ⊢ σ `⊗ τ ⊣ E                               Γ ⊢ σ `& τ ⊣ E</p>
+
+
+
+<p>The case of atomic propositions is defined in terms of an auxiliary
+relation <span class="inline-code">_∋_∈_</span> describing how variable lookup consumes a
+resource from the context. In the tensor case, we have arbitrarily
+decided that proof search will start on the first subgoal and thread
+the contexts as expected. The par one is slightly more subtle: we use
+the same input to explore both subgoals in parallel but have to make
+sure that the outputs are synchronized i.e. that the assumptions used
+by both subproofs are the same.</p>
+
+
+
+<p>The intuition describing contexts as multisets of resources,
+and specifically the output one as leftovers, begets the following
+soudness theorem showing the connection with good ol' IMLL: if we
+remove whatever was a leftover from the input context then we can
+recover a derivation in ILL.</p>
+
+
+
+<p class="code">soundness : Γ ⊢ σ ⊣ Δ → Γ ─ Δ ⊢ σ</p>
+
+
+
+<p>Defining this difference operator is however quite hard: we have
+nothing (apart from the derivation <span class="inline-code">Γ ⊢ σ ⊣ Δ</span> itself) telling
+us that <span class="inline-code">Δ</span> is indeed a sub-multiset of <span class="inline-code">Γ</span>! This new
+obstacle teaches us our second principle:</p>
+
+
+
+<a name="NeverDitchTheStructureYouMightWantToUseLaterOn!"></a>
+<h3><a class="sectionref" href="#NeverDitchTheStructureYouMightWantToUseLaterOn!">#</a> Never ditch the structure you might want to use later on!</h3>
+
+
+
+<p>It is hard for us to define <span class="inline-code">Γ ─ Δ</span> because we don't know
+how <span class="inline-code">Γ</span> relates to <span class="inline-code">Δ</span>. But this can be dealt with by
+introducing the notion of consumption annotation: instead of defining
+the sequent calculus over contexts of assumptions, we can define it
+over <span class="inline-code">Usage</span>s of <i>a given context</i>. Consumption via the
+axiom rule turns available resources into consumed ones but, most
+importantly, it preserves the structure of it all!</p>
+
+
+
+<p>A <span class="inline-code">Usage</span> of a context <span class="inline-code">γ</span> is defined in a pointwise
+manner saying whether each assumption is an available resource or an
+already used one. A variable lookup will merely turn a previously
+available assumption into a used one. And checking that two outputs
+are synchronized now amounts to making sure that the <span class="inline-code">Usage</span>s
+agree in a pointwise manner! The relation corresponding to <span class="inline-code">Usage</span>
+differences is also defined in a pointwise manner and we can prove that
+<span class="inline-code">Γ ⊢ σ ⊣ Δ</span> being derivable implies that there is a difference
+<span class="inline-code">E</span> such that <span class="inline-code">E ⊢ σ</span>.</p>
+
+
+
+<p>The last unresolved problem is the way we are going to deal with
+left rules. The left rule for par is a direct loss of information:
+we move from having <span class="inline-code">A & B</span> as an assumption to either one
+of the subformula. If the goal we are trying to prove is
+<span class="inline-code">B & A</span> then applying a left rule too early will lead us to
+a dead end. The one for tensor is typically needed before using a
+right introduction rule for tensor itself: the two subformulas of
+the assumptions may be used in different subproofs e.g. when proving
+<span class="inline-code">A ⊗ B</span> with <span class="inline-code">A ⊗ B</span> in the context. But it could
+also be applied earlier on without any dramatic consequences.
+Hence our last slogan:</p>
+
+
+
+<a name="NeverDoMoreThanYouNeedTo!"></a>
+<h3><a class="sectionref" href="#NeverDoMoreThanYouNeedTo!">#</a> Never do more than you need to!</h3>
+
+
+
+<p>In an approach reminiscent of focusing <a id="reftop3" href="#refbot3">[3]</a>, we realize that we do not need to have left rules. Indeed,
+it is possible to formulate the notion of usage in a way that completely
+frees us from having to deal with them: rather than having a binary
+notion of usage for assumptions, we can have a more subtle one describing
+how an assumption may have been partially used so far. For example,
+we may write <span class="inline-code">[ A ]⊗ B</span> to mean that <span class="inline-code">A</span> is entirely
+available whilst <span class="inline-code">B</span> is partially used. A careful analysis
+of a derivation in the more general calculus will allow us to
+insert left rules wherever needed.</p>
+
+
+
+<a name="Conclusion"></a>
+<h3><a class="sectionref" href="#Conclusion">#</a> Conclusion</h3>
+
+
+
+<p>I hope I have managed to sum up quite clearly the 3 main take home
+messages of our paper. They are not really specific to linear logic
+itself but rather good practices when working in a formal system. If
+you'd like more details about the ILL setup itself, don't hesitate to
+<a href="http://gallais.github.io/proof-search-ILLWiL/">have a read</a>.
+We show there that our generalised calculus enjoys a notion of weakening
+(you can always throw in more resources in the input context, they'll
+just be returned to you untouched in the output one!) and that it is
+sound and complete with respect to derivability in ILL. We conclude
+that the fragment is decidable and derive solvers for equations on a
+commutative monoid as well as a more specialised one using Nisse's
+<a href="http://www.cse.chalmers.se/~nad/publications/danielsson-bag-equivalence.html">
+Bag Equivalence via a Proof-Relevant Membership Relation</a>.</p>
+
+<a name="Footnotes"></a>
+<h3><a class="sectionref" href="#Footnotes">#</a> Footnotes</h3><div class="footnotes"><p class="footnote"><div class="footnote-number"><a id="refbot1" href="#reftop1">[1]</a></div><div class="footnote-body">Liam's system is inspired by linear logic extended with
+explicit contraction and weakening.</div></p><p class="footnote"><div class="footnote-number"><a id="refbot2" href="#reftop2">[2]</a></div><div class="footnote-body">I
+was not aware of his work at the time I wrote the procedure presented
+here and did not pay much attention to the way I formulated ILL because
+the interesting part is elsewhere. A system closer to his would provide
+a nicer interface though.</div></p><p class="footnote"><div class="footnote-number"><a id="refbot3" href="#reftop3">[3]</a></div><div class="footnote-body">See: Logic Programming
+with Focusing Proofs in Linear Logic, by Jean-Marc Andreoli
+(<a href="http://www.citeulike.org/user/gallais/article/5375157">citeulike</a>)
+</div></p></div>
+
+      <hr style="border:0px" />
+      <span style="float: right">Last update: 2021 04</span>
+    </div>
+    <div id="footer" class="flat_list">
+    </div>
+    <div id="constructivism"><a href="../links.html"><img src="../img/constructivism.png" alt="fun" /></a></div>
+  </body>
+</html>

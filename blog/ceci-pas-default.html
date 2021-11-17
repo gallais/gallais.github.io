@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Ceci n'est pas un default</title>
+    <link rel="stylesheet" type="text/css" href="../css/main.css" />
+  </head>
+  <body>
+    <div id="header">
+      <div class="flat_list">
+      <ul>
+        <li><a href="../index.html">home</a></li>
+        <li>||</li>
+        <li><a href="../publis.html">publications</a></li>
+        <li>||</li>
+        <li><a href="../blog/index.html">blog</a></li>
+        <li>||</li>
+        <li><a href="../contact.html">contact</a></li>
+      </ul>
+      </div>
+    </div>
+    <div id="container">
+
+      <span style="float:right"><a href="../rss.xml"><img src="../img/rss.png" /></a></span><h1>Ceci n'est pas un default</h1><div class="bdocs"><ul><li>
+    <a href="https://github.com/gallais/potpourri/blob/a20fed3c4b7e46c0683eba55788d07f09bbaf776/haskell/defaulting/Default.hs">Default.hs</a>
+</li>
+<li>
+    <a href="https://github.com/agda/agda/blob/6f3046e081ebfa40793c3a064e53bdbd83c82dcf/src/full/Agda/Utils/WithDefault.hs">In Agda's codebase</a>
+</li></ul></div>
+
+
+<p id="chapo">Being the default value is not the same as being actively set
+to a value which happens to match the default. <tt>Maybe</tt> as a type
+constructor enriching an existing type with a default value is not
+satisfactory: what this default value means is not documented in the
+type.
+</p>
+
+
+
+<p>
+When designing a command line interface, it is quite often necessary to
+provide default values for some of the flags.</p>
+
+
+
+<p>
+Sometimes there is only one sensible choice and it is simply picked when
+initialising the record of options. In Agda for instance we set the default
+verbosity to 1 (the bigger the number, the more detailed the debugging
+information) and ask for the empty context (the more specific the context,
+the more irrelevant information is filtered out).
+</p>
+
+
+
+<p>
+Other times, there are multiple sensible choices and they may be incompatible.
+In Agda, both guardedness checking and sized types can be used to program with
+codata. But combining the two makes the system unsound. By default we want
+users to be able to use both so both are turned on. However if they use the
+<tt>--safe</tt> flag, they should only be allowed to use at most one. We want
+to shout at the user if they actively turn both on and declare the module 
+should be safe. So we need to distinguish between the flags being set to
+the default and them being actively set to a value which happens to match the
+default.
+</p>
+
+
+
+<a name="KeyIdea:AFancyMaybe"></a>
+<h2><a class="sectionref" href="#KeyIdea:AFancyMaybe">#</a> Key Idea: A Fancy Maybe</h2>
+
+
+
+<p>
+We could be using <tt>Maybe</tt> as the type constructor extending a type
+with a default value. However the design choices are now scattered in a
+lot of different places:
+<ul><li> sensible defaults are set in the initial record value,
+</li>
+<li> the choice to use <tt>Maybe</tt> to add a neutral default value is
+     made explicit in the type,
+</li>
+<li> but this default value is declared somewhere else e.g. in a cleanup
+     function computing the final set of options,
+</li>
+<li> if we collapse <tt>Maybe a</tt> to <tt>a</tt> in multiple locations,
+     we need to be consistent and make sure that we use the same default
+     everywhere.
+</li></ul>
+This situation is not very satisfactory. And it turns out that we can do
+better with a little bit of type-level programming. We start with a fancy
+version of <tt>Maybe</tt> which is parametrised not only by a type but also
+by a type-level value of that type.</p>
+
+
+
+<p class="code">data WithDefault k (a :: k) where
+  Default :: WithDefault k a
+  Value   :: k -> WithDefault k a
+</p>
+
+
+
+<p>
+When we write <span class="inline-code">WithDefault Bool 'True</span> we explicitly
+tell the reader that our <tt>Maybe</tt>-looking optional type will default
+to <tt>True</tt> unless the value has been set. We can start by writing
+the function which let us set a value. In case it's been set already we
+simply ignore the new value.
+</p>
+
+
+
+<p class="code">setDefault :: k -> WithDefault k a -> WithDefault k a
+setDefault k v = case v of
+  Default -> Value k
+  _ -> v
+</p>
+
+
+
+<a name="section0"></a>
+<h3><a class="sectionref" href="#section0">#</a> Turning <tt>Default</tt> into the default.</h3>
+
+
+
+<p>
+Now that we can set the value, it's only natural to want to also get it.
+In case it still is the <tt>Default</tt>, we need to be able to produce the
+term-level value which corresponds to the type level one. To do that we need
+some extra machinery.
+</p>
+
+
+
+<p>
+The <a href="https://dl.acm.org/citation.cfm?id=2503786">hasochistic</a> device
+that allows us to connect term and type levels is naturally the notion of
+<a href="https://dl.acm.org/citation.cfm?id=2364522">singletons</a>. We postulate
+the existence of a data family of singletons, that is to say that to each
+type-level constructor should correspond a term-level one indexed by it.
+</p>
+
+
+
+<p class="code">data family Sing k (a :: k)
+</p>
+
+
+
+<p>
+We say that a type-level value is <tt>Known</tt> if we can obtain a singleton
+for it. We also assume that if a value is known then we are able to erase a
+singleton for it down to its mere term level value.
+</p>
+
+
+
+<p class="code">class Known k (a :: k) | a -> k where
+  sing  :: Sing k a
+  erase :: Sing k a -> k
+</p>
+
+
+
+<p>
+Now that we have the ability to turn a type-level value into a term level one,
+we can write a function out of <tt>WithDefault</tt>. It is essentially the
+function <tt>fromMaybe</tt> except that we do not need to specify what to do
+in case we find our <tt>Nothing</tt>-like constructor: provided that the
+type-level value is <tt>Known</tt>, the type itself tells us what the output
+should be.
+</p>
+
+
+
+<p class="code">collapseDefault :: forall k a. Known k a => WithDefault k a -> k
+collapseDefault x = case x of
+  Default -> erase (sing :: Sing k a)
+  Value v -> v
+</p>
+
+
+
+<p>
+So what do instances of these data and class definitions look like?
+</p>
+
+
+
+<a name="FirstInstance:BooleanLiterals"></a>
+<h3><a class="sectionref" href="#FirstInstance:BooleanLiterals">#</a> First instance: Boolean literals</h3>
+
+
+
+<p>
+Using a Generalized Algebraic DataType (GADT), we define the singleton
+for booleans like so: <tt>STrue</tt> is the term-level constructor
+reflecting the type-level <tt>'True</tt> whilst <tt>SFalse</tt> corresponds
+to <tt>'False</tt>. This makes both <tt>'True</tt> and <tt>'False</tt>
+known booleans: we have singletons for them and can easily produce the
+underlying <tt>Bool</tt>.
+</p>
+
+
+
+<p class="code">data instance Sing Bool b where
+  STrue  :: Sing Bool 'True
+  SFalse :: Sing Bool 'False
+
+instance Known Bool 'True where
+  sing = STrue
+  erase _ = True
+
+instance Known Bool 'False where
+  sing = SFalse
+  erase _ = False
+</p>
+
+
+
+<p>Using these instances, we can already write some examples. Evaluating
+the following expression yields the expected list
+<span class="inline-code">[False,True,True]</span></p>
+
+
+
+<p class="code">bool :: [Bool]
+bool = collapseDefault <$>
+     [ Value False
+     , Value True
+     , Default :: WithDefault Bool 'True
+     ]
+</p>
+
+
+
+<a name="PolymorphicInstances"></a>
+<h3><a class="sectionref" href="#PolymorphicInstances">#</a> Polymorphic Instances</h3>
+
+
+
+<p>
+We are not limited to ground types: we can give instances for polymorphic
+container types by assuming we have instances for the elements they store.
+This is where the fact that <tt>Sing</tt> is a data family of singletons
+shines: we have a unique name for all of these constructs. Let us define
+the following singleton datatype for <tt>Maybe</tt>:
+</p>
+
+
+
+<p class="code">data instance Sing (Maybe a) m where
+  SNothing :: Sing (Maybe a) 'Nothing
+  SJust    :: Sing a v -> Sing (Maybe a) ('Just v)
+</p>
+
+
+
+<p>
+The type-level constructor <tt>'Nothing</tt> is evidently known: its
+singleton is <tt>SNothing</tt> and it erases to the term level value
+<tt>Nothing</tt>.
+</p>
+
+
+
+<p class="code">instance Known (Maybe a) 'Nothing where
+  sing = SNothing
+  erase _ = Nothing
+</p>
+
+
+
+<p>
+We can only say that <tt>'Just v</tt> is known if <tt>v</tt> itself
+already is. We obtain the right singleton by using the assumption
+that <tt>v</tt> is known to obtain a singleton for it and wrap it
+in an <tt>SJust</tt> constructor. Erasure is defined in a similar
+manner: we output <tt>Just</tt> and use <tt>erase</tt> to compute
+its content.
+</p>
+
+
+
+<p class="code">instance Known a v => Known (Maybe a) ('Just v) where
+  sing            = SJust sing
+  erase (SJust v) = Just (erase v)
+</p>
+
+
+
+<p>
+We have similar instances for lists and pairs.
+</p>
+
+
+
+<a name="DealingWithText"></a>
+<h2><a class="sectionref" href="#DealingWithText">#</a> Dealing with Text</h2>
+
+
+
+<p>
+Unfortunately the current setup means we cannot state that we expect to
+be given a string but will happily default to "Hello" if we are not given
+anything. GHC does provide us with <tt>Symbol</tt>, the kind of type-level
+strings. So we ought to be able to also support default values for various
+string types such as <tt>Text</tt>.
+</p>
+
+
+
+<p>
+The trick here is to decorrelate the kind of the type-level value and the
+type it represents. Instead of the <tt>WithDefault</tt> type we defined
+earlier, we use the following more general one as our core representation.
+The original <tt>WithDefault</tt> is the special case where kind and type
+do match up.
+</p>
+
+
+
+<p class="code">data WithDefault k (a :: l) where
+  Default :: WithDefault k a
+  Value   :: k -> WithDefault k a
+</p>
+
+
+
+<p>
+This change needs to be propagated through all the families, classes,
+instance declarations, and functions. The interested reader can check
+the <a href="https://github.com/gallais/potpourri/blob/a20fed3c4b7e46c0683eba55788d07f09bbaf776/haskell/defaulting/Default.hs">Haskell file</a>. We choose
+to focus here on the <tt>Text</tt> instance.
+</p>
+
+
+
+<p>
+We can't quite define an enumerated type providing a constructor for each
+string in existence. However the kind people at GHC's HQ are already doing
+this for us:
+<a href="https://hackage.haskell.org/package/base-4.12.0.0/docs/GHC-TypeLits.html"><tt>GHC.TypeLits</tt></a>
+gives us access to <tt>KnownSymbol</tt>. Our data instance for <tt>Text</tt>
+is capturing a constraint of the form <tt>KnownSymbol s</tt> as the notion
+of singleton for <tt>s</tt>.
+</p>
+
+
+
+<p class="code">data instance Sing Text (s :: Symbol) where
+  SText :: KnownSymbol s => Sing Text s
+</p>
+
+
+
+<p>
+Using the GHC-provided function <tt>symbolVal</tt>, we can obtain a
+<tt>String</tt> corresponding to a given <tt>KnownSymbol</tt>. As a
+consequence, if <tt>s</tt> is a known symbol, we can trivially build
+a proof that it is a <tt>Known Text</tt> too.
+</p>
+
+
+
+<p class="code">instance KnownSymbol s => Known Text (s :: Symbol) where
+  sing  = SText
+  erase = pack . symbolVal
+</p>
+
+
+
+<p>
+Although the instance declarations are now a bit more verbose, the user
+experience is virtually the same. And we now support string literals.
+The following test showcasing all of the instances mentioned in this post
+evaluates to the list
+<span class="inline-code">[[(True,Just "Hello World")],[(False,Nothing)]]</span>:
+</p>
+
+
+<p class="code">test :: [[(Bool, Maybe Text)]]
+test = collapseDefault <$>
+     [ Default :: WithDefault [(Bool, Maybe Text)]
+                  '[ '( 'True , 'Just "Hello World") ]
+     , Value [(False, Nothing)]
+     ]
+</p>
+
+
+
+<a name="WrapUp"></a>
+<h2><a class="sectionref" href="#WrapUp">#</a> Wrap up</h2>
+
+
+
+<p>
+We have seen that we can define an optional type indexed by the value
+it should default to. Using standard type-level trickery we can write
+the function collapsing the <tt>Default</tt> constructor to the value
+specified in the type. Although this most general version works well,
+it requires fairly recent <tt>LANGUAGE</tt> extensions so
+<a href="https://github.com/agda/agda/blob/6f3046e081ebfa40793c3a064e53bdbd83c82dcf/src/full/Agda/Utils/WithDefault.hs">we are not using it in the Agda codebase</a>,
+limiting ourselves to the special case of the <tt>Bool</tt> version.
+</p>
+
+
+
+      <hr style="border:0px" />
+      <span style="float: right">Last update: 2021 04</span>
+    </div>
+    <div id="footer" class="flat_list">
+    </div>
+    <div id="constructivism"><a href="../links.html"><img src="../img/constructivism.png" alt="fun" /></a></div>
+  </body>
+</html>

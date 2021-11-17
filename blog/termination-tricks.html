@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Three Tricks to make Termination Obvious</title>
+    <link rel="stylesheet" type="text/css" href="../css/main.css" />
+  </head>
+  <body>
+    <div id="header">
+      <div class="flat_list">
+      <ul>
+        <li><a href="../index.html">home</a></li>
+        <li>||</li>
+        <li><a href="../publis.html">publications</a></li>
+        <li>||</li>
+        <li><a href="../blog/index.html">blog</a></li>
+        <li>||</li>
+        <li><a href="../contact.html">contact</a></li>
+      </ul>
+      </div>
+    </div>
+    <div id="container">
+
+      <span style="float:right"><a href="../rss.xml"><img src="../img/rss.png" /></a></span><h1>Three Tricks to make Termination Obvious</h1><div class="bdocs"><ul><li><a href="http://homepages.inf.ed.ac.uk/wadler/topics/language-design.html#prettier">Wadler's Prettier Printer</a></li>
+<li><a href="https://github.com/gallais/potpourri/tree/master/agda/prettier">Prettier Printer in Agda</a></li></ul></div>
+
+
+
+<p id="chapo">Two weeks ago I spent some time implementing Wadler's
+"Prettier Printer". The implementation is fairly straightforward
+except for three functions that are not seen as terminating. Here
+are the three tricks that made them go through.</p>
+
+
+
+<p>Wadler's paper introduces a <span class="inline-code">Doc</span> datatype
+abstractly representing documents in terms of raw strings, indentation,
+newlines, concatenation but also alternatives of subdocuments. Semantically,
+alternatives are used to offer two different layouts of the same underlying
+content. Various functions manipulate these documents; they may introduce
+alternatives when it's too early to make a decision or get rid of them e.g.
+once the maximum width of the final document is known.</p>
+
+
+
+<a name="UsingVecRatherThanList"></a>
+<h3><a class="sectionref" href="#UsingVecRatherThanList">#</a> Using Vec rather than List</h3>
+
+
+
+<p>The first problem shows up with the <span class="inline-code">fill</span>
+function which turns a list of documents into a document by trying to
+fill the lines as much as possible. If the list is less than one
+element long, the strategy to adopt is evident. In case it's longer,
+the algorithm calls <span class="inline-code">flatten</span> to collapse
+documents onto one line and offers two alternatives: the one where
+they have been made to fit and another one where a newline has
+been inserted.</p>
+
+
+
+<p class="code">fill :: [Doc] -> Doc
+...
+fill (x:y:zs) = (flatten x <+> fill (flatten y : zs))
+                :<|>
+                (x &lt;/&gt; fill (y : zs))
+</p>
+
+
+
+<p>The issue here is that <span class="inline-code">flatten y : zs</span> is
+not a subterm of <span class="inline-code">x:y:zs</span> which makes the
+recursive call to <span class="inline-code">fill</span> look illegal. The
+right notion of smaller here is not "strict subterm" but rather
+"smaller length". This can be fixed by simply changing the type of
+the function to <span class="inline-code">∀ {n} → Vec Doc n → Doc</span> thus
+making the termination obviously structural: if the length of
+<span class="inline-code">x:y:zs</span> is <span class="inline-code">suc (suc n)</span>
+then the length of <span class="inline-code">flatten y : zs</span> is
+<span class="inline-code">suc n</span>, a strict subterm!</p>
+
+
+
+<p>The code is kept the same but the type has an extra invariant
+built in (which is threaded via implicit arguments) and that makes
+the termination checker happy. We can recover a top-level function
+with <span class="inline-code">fill</span>'s type by pre-composing our
+replacement for it with <span class="inline-code">Data.Vec.fromList</span>.</p>
+
+
+
+<a name="CPS-transformAlgorithmsUsingQueuesToStoreFutureWork"></a>
+<h3><a class="sectionref" href="#CPS-transformAlgorithmsUsingQueuesToStoreFutureWork">#</a> CPS-transform algorithms using queues to store future work</h3>
+
+
+
+<p>In Wadler's paper, a function <span class="inline-code">best</span> is in
+charge of picking the most tightly-packed display form of a document
+a certain width can handle. It calls an auxiliary function
+<span class="inline-code">be</span> which takes as arguments the width, the
+number of characters already inserted on the current line and a LIFO
+of documents (together with their respective indentation levels) that
+still have to be displayed.</p>
+
+
+
+<p>During a typical run of the function, sub-structures get pushed
+on the stack and later on recursive calls are performed on them.
+However when that happens, we have lost the connection with the
+super-structure justifying that the call is indeed on a smaller
+argument and thus valid. Here is part of the code demonstrating
+the issue:</p>
+
+
+
+<p class="code">be :: Int -> Int -> [(Int, Doc)] -> Doc
+...
+be w k ((i,NIL):z)     = be w k z
+be w k ((i,x :<> y):z) = be w k ((i,x):(i,y):z)
+...
+</p>
+
+
+
+<p>The trick here is to perform the recursive calls when the
+evidence justifying them is available but to only use their
+results later on. In other word: replace future arguments
+with the continuation associated to them. This forces us to
+slightly change the type of the function: rather than working
+with a stack of <span class="inline-code">(Int, Doc)</span> and
+inspecting its head, we work with a focused
+<span class="inline-code">Int</span> and <span class="inline-code">Doc</span>
+and a continuation <span class="inline-code">Int -> Doc</span> which,
+provided a number of characters already inserted on the current
+line will yield the document corresponding to the rest of the
+computation. The two lines we saw earlier on have now become
+<a id="reftop1" href="#refbot1">[1]</a>:</p>
+
+
+
+<p class="code">be : ℕ → ℕ → ℕ → Doc → (ℕ → Doc) → Doc
+...
+be w k i NIL       ds = ds k
+be w k i (d :<> e) ds = be w k i d $ λ k → be w k i e ds
+...
+</p>
+
+
+
+<p>For <a href="https://github.com/gallais/potpourri/blob/master/agda/poc/CPS-Termination.agda">
+a more self-contained example</a>, I have implemented a binary
+tree traversal using the same trick to assemble a list of all its
+leaves. The resulting algorithm corresponds to using a difference
+list to collect all the leaves.</p>
+
+
+
+<a name="UseSized-typesToMakeHigher-orderFunctionsUsable"></a>
+<h3><a class="sectionref" href="#UseSized-typesToMakeHigher-orderFunctionsUsable">#</a> Use sized-types to make higher-order functions usable</h3>
+
+
+
+<p>Last but not least, one of the examples of Wadler's library
+in action is the definition of a pretty printer for a deep
+embedding of XML. The XML trees are represented by:</p>
+
+
+
+<p class="code">data XML = Elt String [Att] [XML]
+         | Txt String
+data Att = Att String String</p>
+
+
+
+<p>The function <span class="inline-code">showXMLs</span> is used to neatly
+display the tree. In one of its clauses, it perform recursive calls
+on the subtrees via a higher-order function <span class="inline-code">showFill</span>
+which Agda has issues seeing as terminating:</p>
+
+
+
+<p class="code">showFill :: (a -> [Doc]) -> [a] -> Doc
+showFill f [] = nil
+showFill f xs = bracket "" (fill (concat (map f xs))) ""
+
+showXMLs :: XML -> [Doc]
+...
+showXMLs (Elt n a c)  = [text "<" <> showTag n a <> text ">" <>
+                        showFill showXMLs c <>
+                        text "&lt;/" <> text n <> text ">"]
+...</p>
+
+
+
+<p>A common trick in this type of situation is to mutually define
+<span class="inline-code">showXMLs</span> and an inlined version of the
+partially applied function <span class="inline-code">showFill showXMLs</span>.
+However this code duplication is rather annoying.
+It turns out that we can, just like in our first example, save the day
+by slightly changing the types of the structures and functions at hand.
+This time we'll add implicit <span class="inline-code">Size</span> information
+<a id="reftop2" href="#refbot2">[2]</a> to the definition of
+<span class="inline-code">XML</span> and <span class="inline-code">showXMLs</span>.
+</p>
+
+
+
+<p class="code">data XML : {i : Size} → Set where
+  Elt : ∀ {i} → String → List Attribute → List (XML {i}) → XML {↑ i}
+  Txt : ∀ {i} → String → XML {i}
+
+showXMLs : ∀ {i} → XML {i} → List Doc
+...
+</p>
+
+
+
+<p>When we don't explicitly specify the <span class="inline-code">Size</span>,
+it gets defaulted to infinity which means that by default the indexed
+type will behave like its non-indexed counterpart. However we can get
+the full benefit of sized types whenever we do mention the index.</p>
+
+
+
+<p>By making explicit reference to the tree's size in the type of
+<span class="inline-code">showXMLs</span>, we get the termination checker
+to accept its definition as valid. Indeed, when matching on the
+constructor <span class="inline-code">Elt</span>, the implicit size argument
+is <span class="inline-code">↑ i</span> for some <span class="inline-code">i</span>
+(cf. <span class="inline-code">Elt</span>'s return type) and in the recursive
+occurence passed to <span class="inline-code">showFill</span>, it has become
+<span class="inline-code">i</span> which is strictly smaller.</p>
+
+
+
+
+<a name="Conclusion"></a>
+<h3><a class="sectionref" href="#Conclusion">#</a> Conclusion</h3>
+
+
+
+<p>What I assumed to be a simple matter of closely following
+Wadler's paper turned out to be a nice exercise in convincing
+the termination checker whilst staying true to the original
+algorithm. In each one of these three examples we have managed
+to avoid both the sledgehammer that is
+<a href="http://gallium.inria.fr/blog/bove-reloaded/">well-founded
+recursion</a> and code duplication by using either type-level
+tricks or a <a href="http://dl.acm.org/citation.cfm?id=178053">CPS
+transformation</a>.
+</p>
+
+
+<a name="Footnotes"></a>
+<h3><a class="sectionref" href="#Footnotes">#</a> Footnotes</h3><div class="footnotes"><p class="footnote"><div class="footnote-number"><a id="refbot1" href="#reftop1">[1]</a></div><div class="footnote-body">Here we are actually using <span class="inline-code">ℕ</span>
+rather than <span class="inline-code">Int</span> because these values
+are always positive anyways so we might as well say so in the
+type!</div></p><p class="footnote"><div class="footnote-number"><a id="refbot2" href="#reftop2">[2]</a></div><div class="footnote-body">For more on sized and dependent types, cf. Andreas Abel's
+<a href="http://www2.tcs.ifi.lmu.de/~abel/par10.pdf">MiniAgda: Integrating
+Sized and Dependent Types</a></div></p></div>
+
+      <hr style="border:0px" />
+      <span style="float: right">Last update: 2021 04</span>
+    </div>
+    <div id="footer" class="flat_list">
+    </div>
+    <div id="constructivism"><a href="../links.html"><img src="../img/constructivism.png" alt="fun" /></a></div>
+  </body>
+</html>
