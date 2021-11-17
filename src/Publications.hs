@@ -127,7 +127,16 @@ publisToText Publis{..} = T.unlines [ h_ 3 h3 , ulWith_ "<hr />" lis ]
 
 workshops :: [Publi]
 workshops =
-  [ Publi { authors   = [gallais]
+  [ Publi { authors   = [gallais, ebrady, okammar, jyallop]
+          , title     = "Frex: indexing modulo equations with free extensions"
+          , date      = Date (Just 3) (Just 8) 2020
+          , venue     = Venue { name = "TyDe'20"
+                              , www  = Just "https://icfp20.sigplan.org/home/tyde-2020"
+                              }
+          , resources = [ pdf "pdf/tyde20.pdf"
+                        ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "Generic Level Polymorphic N-ary Functions"
           , date      = Date (Just 20) (Just 5) 2019
           , venue     = Venue { name = "TyDe'19"
