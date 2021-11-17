@@ -6,7 +6,6 @@ module Publications where
 
 import Text.HTML.Combinators
 
-import Data.Monoid
 import Data.Text.Lazy (Text, intercalate)
 import qualified Data.Text.Lazy as T
 
@@ -25,7 +24,7 @@ jfp = Venue
   , www = Just "https://icfp18.sigplan.org/"
   }
 
-data Kind = Pdf | Slides | Github | Agda | Blog
+data Kind = Pdf | Slides | Github | Agda | Blog | Arxiv
 
 kindToText :: Kind -> Text
 kindToText Pdf    = "pdf"
@@ -33,6 +32,7 @@ kindToText Slides = "slides"
 kindToText Github = "github"
 kindToText Agda   = "agda"
 kindToText Blog   = "blog"
+kindToText Arxiv  = "arXiv"
 
 data Resource =
   Resource { kind :: Kind
@@ -52,6 +52,9 @@ agda url = Resource { kind = Agda, link = url }
 
 blog :: Text -> Resource
 blog url = Resource { kind = Blog, link = url }
+
+arxiv :: Text -> Resource
+arxiv url = Resource { kind = Arxiv, link = url }
 
 resourceToText :: Resource -> Text
 resourceToText res = urlToText (kindToText $ kind res) (Just $ link res)
@@ -133,6 +136,7 @@ workshops =
           , resources = [ github "https://github.com/gallais/nary"
                         , pdf "pdf/tyde19.pdf"
                         , slides "pdf/spls19_slides.pdf"
+                        , arxiv "https://arxiv.org/abs/2110.06107"
                         ]
           }
   , Publi { authors   = [gallais]
@@ -155,7 +159,9 @@ workshops =
           , title     = "New Equations for Neutral Terms: A Sound and Complete Decision Procedure, Formalized"
           , date      = yearOnly 2013
           , venue     = Venue { name = "DTP", www = Just "http://www.seas.upenn.edu/~sweirich/dtp13/" }
-          , resources = [ pdf "pdf/icfp13.pdf" ]
+          , resources = [ pdf "pdf/icfp13.pdf"
+                        , arxiv "https://arxiv.org/abs/1304.0809"
+                        ]
           }
   , Publi { authors   = [gallais]
           , title     = "Using Reflection to Solve some Differential Equations"
@@ -207,10 +213,11 @@ journals =
   [
     Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
           , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
-          , date      = Date Nothing (Just 1) 2020
+          , date      = Date Nothing (Just 10) 2021
           , venue     = jfp
           , resources = [ github "https://github.com/gallais/generic-syntax"
                         , pdf "pdf/generic-syntax.pdf"
+                        , arxiv "https://arxiv.org/abs/2001.11001"
                         ]
           }
   , Publi { authors   = [aabel, gallais, ahameer, bpientka, amomigliano, sschafer, kstark]
