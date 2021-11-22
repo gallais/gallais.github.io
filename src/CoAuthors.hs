@@ -22,6 +22,13 @@ personToText :: Person -> Text
 personToText Person{..} = urlToText name website
   where name = (T.head firstname `T.cons` ". " `T.append` surname)
 
+mdaggit :: Person
+mdaggit = Person
+  { firstname = "Matthew"
+  , surname = "Daggit"
+  , website = Nothing
+  }
+
 ebrady :: Person
 ebrady = Person
   { firstname = "Edwin"
