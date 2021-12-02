@@ -127,7 +127,16 @@ publisToText Publis{..} = T.unlines [ h_ 3 h3 , ulWith_ "<hr />" lis ]
 
 workshops :: [Publi]
 workshops =
-  [ Publi { authors   = [gallais, ebrady, okammar, jyallop]
+  [ Publi { authors   = [mdaggit, gallais]
+          , title     = "Using Dependent Types at Scale: Maintaining the Agda Standard Library"
+          , date      = Date Nothing (Just 11) 2021
+          , venue     = Venue { name = "WITS'22"
+                              , www  = Just "https://popl22.sigplan.org/home/wits-2022"
+                              }
+          , resources = [ pdf "pdf/wits22.pdf"
+                        ]
+          }
+  , Publi { authors   = [gallais, ebrady, okammar, jyallop]
           , title     = "Frex: indexing modulo equations with free extensions"
           , date      = Date (Just 3) (Just 8) 2020
           , venue     = Venue { name = "TyDe'20"
@@ -314,16 +323,7 @@ reports =
 
 drafts :: [Publi]
 drafts =
-  [ Publi { authors   = [mdaggit, gallais]
-          , title     = "Using Dependent Types at Scale: Maintaining the Agda Standard Library"
-          , date      = Date Nothing (Just 11) 2021
-          , venue     = Venue { name = "Submitted to WITS'22"
-                              , www  = Just "https://popl22.sigplan.org/home/wits-2022"
-                              }
-          , resources = [ pdf "pdf/wits22.pdf"
-                        ]
-          }
-  , Publi { authors   = [gallais]
+  [ Publi { authors   = [gallais]
           , title     = "Syntaxes with Binding, Their Programs, and Proofs"
           , date      = Date (Just 3) (Just 3) 2021
           , venue     = Venue { name = "Draft PhD Thesis"
