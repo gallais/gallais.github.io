@@ -12,8 +12,6 @@ maintainer:          guillaume.allais@ens-lyon.org
 -- copyright:
 category:            Web
 build-type:          Simple
--- extra-source-files:
-cabal-version:       >=1.10
 
 executable www-gallais
   main-is:             site.hs
@@ -28,7 +26,7 @@ executable www-gallais
                , feed >=0.3 && <0.4
                , hakyll >=4.7 && <5
                , mtl >=2.2 && <2.3
-               , parsec3 >=1.0 && <1.1
+               , parsec >=3.0 && <3.2
                , text >=1.2 && <1.3
                , time >= 1.6 && <1.12
                , xml >= 1.2 && < 1.4

@@ -1,0 +1,62 @@
+<h2>Syntaxes with Binding, Their Programs, and Proofs</h2>
+
+<img src="img/thesis-cover.png" style="float:right;padding:15px;width:200px" alt="thesis cover" />
+
+<h3>Abstract</h3>
+
+<p>
+  Almost every programming language's syntax includes a notion of binder and
+  corresponding bound occurrences, along with the accompanying notions of
+  α-equivalence, capture-avoiding substitution, typing contexts,
+  runtime environments, and so on.
+</p>
+<p>
+  In the past, implementing and reasoning about programming languages required
+  careful handling to maintain the correct behaviour of bound variables. Modern
+  programming languages include features that enable constraints like scope
+  safety to be expressed in types.
+
+  Nevertheless, the programmer is still forced to write the same boilerplate
+  over again for each new implementation of a scope safe operation (e.g.,
+  renaming, substitution, desugaring, printing, etc.), and then again
+  for correctness proofs.
+</p>
+<p>
+  In a case study focusing on the simply typed lambda calculus, we analyse these
+  well scoped traversals and observe that they all share the same structure.
+
+  This enables us to formulate them as instances of a more general program whose
+  properties can be established generically.
+
+  Alas, the programmer is still forced to duplicate this effort for every new
+  language they implement.
+</p>
+<p>
+  This leads us to defining an expressive universe of syntaxes with binding
+  and to demonstrate how to implement scope safe traversals once and for all by
+  generic programming and how to derive properties of these traversals by
+  generic proving.
+
+  Our universe description, generic traversals and proofs, and our examples have
+  all been formalised in
+  <a href="https://agda.readthedocs.io/en/v2.6.1.3/" alt="Agda's website">Agda</a>.
+</p>
+
+<h3>Defence</h3>
+
+<p>
+  I successfully defended my PhD thesis on November 8th 2022
+  with <a href="https://www.cl.cam.ac.uk/~nk480/" alt="Neel Krishnaswami's website">Neel Krishnaswami</a>
+  as external examiner
+  and <a href="https://julesh.com/" alt="Jules Hedges' website">Jules Hedges</a> as internal one.
+  My supervisor was <a href="http://strictlypositive.org/" alt="Conor McBride's website">Conor McBride</a>.
+</p>
+
+<h3>Documents</h3>
+
+<p>
+  You can find the thesis online
+  [PDF to appear after minor corrections]
+  and the fully formalised work directly on
+  <a href="https://github.com/gallais/thesis" alt="Thesis repository">github</a>.
+</p>
