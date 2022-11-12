@@ -32,6 +32,11 @@ li {
 	list-style-type: square;
 }
 
+#header {
+	width: 60%;
+        max-width: 750px;
+	margin: auto;
+}
 
 #container {
 	background-color: #FFF888;
@@ -40,8 +45,9 @@ li {
 	position: relative;
 	height:100%;
 	width: 60%;
+        max-width: 750px;
 	padding: 10px 20px 20px 20px;
-	margin-left: 20%;
+	margin: auto;
 	text-align: justify;
 }
 
@@ -94,7 +100,7 @@ menu horizontal
 }
 
 .flat_list ul {
-  padding-left: 25px;
+  padding-left: 0px;
   text-align: center;
   width: 100%;
   margin: auto;
@@ -314,4 +320,3 @@ Définitions des classes utilisées dans un post
 .post_spacer {
   clear: both;
 }
-
