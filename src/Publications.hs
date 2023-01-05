@@ -196,7 +196,7 @@ conferences =
     Publi { authors   = [gallais]
           , title     = "Builtin Types viewed as Inductive Families"
           , date      = Date Nothing (Just 4) 2023
-          , venue     = Venue { name = "ESOP 2018", www = Just "https://etaps.org/2023/esop" }
+          , venue     = Venue { name = "ESOP 2023", www = Just "https://etaps.org/2023/esop" }
           , resources = [ pdf "pdf/esop23-thin.pdf"
                         ]
           }
