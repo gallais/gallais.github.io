@@ -193,7 +193,14 @@ workshops =
 conferences :: [Publi]
 conferences =
   [
-    Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
+    Publi { authors   = [gallais]
+          , title     = "Builtin Types viewed as Inductive Families"
+          , date      = Date Nothing (Just 4) 2023
+          , venue     = Venue { name = "ESOP 2018", www = Just "https://etaps.org/2023/esop" }
+          , resources = [ pdf "pdf/esop23-thin.pdf"
+                        ]
+          }
+  , Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
           , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
           , date      = Date Nothing (Just 9) 2018
           , venue     = Venue { name = "PACMPL issue ICFP 2018", www = Just "https://icfp18.sigplan.org/" }
