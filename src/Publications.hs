@@ -198,6 +198,7 @@ conferences =
           , date      = Date Nothing (Just 4) 2023
           , venue     = Venue { name = "ESOP 2023", www = Just "https://etaps.org/2023/esop" }
           , resources = [ pdf "pdf/esop23-thin.pdf"
+                        , arxiv "https://arxiv.org/abs/2301.02194"
                         ]
           }
   , Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
