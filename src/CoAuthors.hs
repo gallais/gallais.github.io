@@ -111,6 +111,12 @@ gallais =
          , surname   = "Allais"
          , website   = Nothing }
 
+jfdm :: Person
+jfdm =
+  Person { firstname = "Jan"
+         , surname = "de Muijnck-Hughes"
+         , website = Just "https://jfdm.github.io/" }
+
 jmchapman :: Person
 jmchapman =
   Person { firstname = "James"

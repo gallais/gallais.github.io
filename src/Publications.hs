@@ -193,7 +193,14 @@ workshops =
 conferences :: [Publi]
 conferences =
   [
-    Publi { authors   = [gallais]
+    Publi { authors   = [jfdm,gallais,ebrady]
+          , title     = "Type Theory as a Language Workbench"
+          , date      = Date Nothing (Just 4) 2023
+          , venue     = Venue { name = "EVCS 2023", www = Just "https://symposium.eelcovisser.org" }
+          , resources = [ pdf "pdf/evcs23.pdf"
+                        ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "Builtin Types viewed as Inductive Families"
           , date      = Date Nothing (Just 4) 2023
           , venue     = Venue { name = "ESOP 2023", www = Just "https://etaps.org/2023/esop" }
