@@ -197,7 +197,8 @@ conferences =
           , title     = "Type Theory as a Language Workbench"
           , date      = Date Nothing (Just 4) 2023
           , venue     = Venue { name = "EVCS 2023", www = Just "https://symposium.eelcovisser.org" }
-          , resources = [ pdf "pdf/evcs23.pdf"
+          , resources = [ github "https://github.com/jfdm/velo-lang"
+                        , pdf "pdf/evcs23.pdf"
                         ]
           }
   , Publi { authors   = [gallais]
