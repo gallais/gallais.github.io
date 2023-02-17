@@ -199,6 +199,7 @@ conferences =
           , venue     = Venue { name = "EVCS 2023", www = Just "https://symposium.eelcovisser.org" }
           , resources = [ github "https://github.com/jfdm/velo-lang"
                         , pdf "pdf/evcs23.pdf"
+                        , arxiv "https://arxiv.org/abs/2301.12852"
                         ]
           }
   , Publi { authors   = [gallais]
