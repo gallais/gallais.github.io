@@ -272,6 +272,15 @@ journals =
 talks :: [Publi]
 talks =
   [ Publi { authors   = [gallais]
+          , title     = "Seamless, Correct, and Generic Programming over Serialised Data"
+          , date      = Date (Just 08) (Just 03) 2023
+          , venue     = Venue { name = "SPLS"
+                              , www  = Just "https://spls-series.github.io/meetings/2023/february/"
+                              }
+          , resources = [ slides "pdf/spls23_slides.pdf"
+                        ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "agdarsec - Total Parser Combinators in Agda"
           , date      = Date (Just 04) (Just 04) 2017
           , venue     = Venue { name = "Brouwer Seminar"
