@@ -24,7 +24,7 @@ executable www-gallais
 
   build-depends: base >=4.8 && <5
                , feed >=0.3 && <0.4
-               , hakyll >=4.7 && <4.8
+               , hakyll >=4.7 && <4.13
                , mtl >=2.2 && <2.3
                , parsec >=3.0 && <3.2
                , text >=1.2 && <1.3
