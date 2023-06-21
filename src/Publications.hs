@@ -332,6 +332,15 @@ talks =
 reports :: [Publi]
 reports =
   [ Publi { authors   = [gallais]
+          , title     = "Syntaxes with Binding, Their Programs, and Proofs"
+          , date      = Date Nothing (Just 6) 2021
+          , venue     = Venue { name = "PhD Thesis"
+                              , www  = Nothing
+                              }
+          , resources = [ github "https://github.com/gallais/thesis"
+                        , pdf "pdf/thesis_allais.pdf" ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "Forge Crowbars, Acquire Normal Forms"
           , date      = yearOnly 2013
           , venue     = Venue { name = "University of Strathclyde", www = Nothing }
@@ -350,16 +359,7 @@ reports =
 
 drafts :: [Publi]
 drafts =
-  [ Publi { authors   = [gallais]
-          , title     = "Syntaxes with Binding, Their Programs, and Proofs"
-          , date      = Date (Just 3) (Just 3) 2021
-          , venue     = Venue { name = "Draft PhD Thesis"
-                              , www  = Nothing
-                              }
-          , resources = [ github "https://github.com/gallais/thesis"
-                        , pdf "pdf/thesis21_draft.pdf" ]
-          }
-  , Publi { authors   = [gallais, cmcbride]
+  [ Publi { authors   = [gallais, cmcbride]
           , title     = "Certified Proof Search for Intuitionistic Linear Logic"
           , date      = Date Nothing (Just 2) 2015
           , venue     = Venue { name = "Submitted to TLCA", www = Nothing }
