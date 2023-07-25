@@ -66,7 +66,7 @@ main = hakyll $ do
           >>= loadAndApplyTemplate "templates/default.html" defaultContext
           >>= relativizeUrls
 
-    match (fromList ["index.html" , "thesis.html", "contact.html"]) $ do
+    match (fromList ["index.html", "teaching.html", "thesis.html", "contact.html"]) $ do
         route idRoute
         compile $
           getResourceBody
