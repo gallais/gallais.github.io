@@ -1,0 +1,3 @@
+package splv-lecture1
+opts = "--no-prelude"
+sourcedir = "."
