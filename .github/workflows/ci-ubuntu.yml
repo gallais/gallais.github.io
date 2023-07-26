@@ -45,7 +45,7 @@ jobs:
           cd src/
           cabal build
           cabal exec www-gallais build
-          cp -R ../css ../pdf ../img _site/
+          cp -R ../css ../pdf ../img ../splv23 _site/
 
 ########################################################################
 ## DEPLOY STEP
