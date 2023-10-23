@@ -140,6 +140,33 @@ Images
 
 /*
    ******
+Définitions des classes de publis
+   ******
+*/
+
+#publications ul {
+    padding: 0; /* Remove padding */
+    margin: 0;
+}
+
+#publications li {
+    list-style-type: none;
+}
+
+.publi {
+    padding: 2px;
+}
+
+.draft {
+    background-color: #F0F8FF;
+}
+
+.published {
+    background-color: #FFD580;
+}
+
+/*
+   ******
 Définitions des éléments d'article
    ******
 */
