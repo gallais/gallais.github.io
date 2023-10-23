@@ -89,7 +89,7 @@ kstark :: Person
 kstark = Person
   { firstname = "Kathrin"
   , surname   = "Stark"
-  , website   = Just "https://www.ps.uni-saarland.de/~kstark/"
+  , website   = Just "https://www.k-stark.de/"
   }
 
 ratkey :: Person
