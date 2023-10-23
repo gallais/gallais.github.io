@@ -99,15 +99,19 @@ data Publi =
 publiToText :: Publi -> Text
 publiToText Publi{..} =
   T.unlines
-    [ div_ " class=\"details\"" $ T.concat
-         [ span_ " class=\"papertitle\"" $ T.concat
-             [ anchor title
-             , aClass_ "anchor" ("#" <> title) title
-             ]
-         , br_
-         , bys
-         ]
-    , div_ " class=\"links\"" $ T.concat [ docs , br_ , conf , ", " , time ]
+    [ div_ " class=\"publi-top\"" $ T.unlines
+        [ div_ " class=\"details\"" $ T.concat
+          [ span_ " class=\"papertitle\"" $ T.concat
+            [ anchor title
+            , aClass_ "anchor" ("#" <> title) title
+            ]
+          ]
+        , div_ " class=\"links\"" docs
+        ]
+    , div_ " class=\"publi-bottom\"" $ T.unlines
+        [ div_ " class=\"details\"" bys
+        , div_ " class=\"links\"" $ T.concat [ conf , ", " , time ]
+        ]
     ]
   where
     docs = resourcesToText resources
@@ -154,12 +158,12 @@ type Publist = [APubli Publi]
 
 publistToText :: [Publis] -> Text
 publistToText pbs0
-  = T.concat
+  = T.unlines $ map T.concat
   $ groupBy sameYear (sortBy (flip cmp) $ foldMap sequence pbs0) <&> \case
+    [] -> [] -- this should be impossible but whatever
     pbs@(pb : _) ->
       let hyear = T.pack (show $ year $ date $ publis pb) in
       let lis = lify <$> pbs in
-      T.unlines
         [ span_ " class=\"year\"" $ T.concat
             [ anchor hyear
             , aClass_ "anchor" ("#" <> hyear) (h_ 3 hyear)
