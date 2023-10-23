@@ -57,7 +57,9 @@ arxiv :: Text -> Resource
 arxiv url = Resource { kind = Arxiv, link = url }
 
 resourceToText :: Resource -> Text
-resourceToText res = urlToText (kindToText $ kind res) (Just $ link res)
+resourceToText res = urlToText (kindToText $ kind res) $ Just $ case res of
+  Arxiv id -> "https://arxiv.org/abs/" <> id
+  _ -> link res
 
 resourcesToText :: [Resource] -> Text
 resourcesToText [] = ""
@@ -154,7 +156,7 @@ workshops =
           , resources = [ github "https://github.com/gallais/nary"
                         , pdf "pdf/tyde19.pdf"
                         , slides "pdf/spls19_slides.pdf"
-                        , arxiv "https://arxiv.org/abs/2110.06107"
+                        , arxiv "2110.06107"
                         ]
           }
   , Publi { authors   = [gallais]
@@ -178,7 +180,7 @@ workshops =
           , date      = yearOnly 2013
           , venue     = Venue { name = "DTP", www = Just "http://www.seas.upenn.edu/~sweirich/dtp13/" }
           , resources = [ pdf "pdf/icfp13.pdf"
-                        , arxiv "https://arxiv.org/abs/1304.0809"
+                        , arxiv "1304.0809"
                         ]
           }
   , Publi { authors   = [gallais]
@@ -199,7 +201,7 @@ conferences =
           , venue     = Venue { name = "EVCS 2023", www = Just "https://symposium.eelcovisser.org" }
           , resources = [ github "https://github.com/jfdm/velo-lang"
                         , pdf "pdf/evcs23.pdf"
-                        , arxiv "https://arxiv.org/abs/2301.12852"
+                        , arxiv "2301.12852"
                         ]
           }
   , Publi { authors   = [gallais]
@@ -207,7 +209,7 @@ conferences =
           , date      = Date Nothing (Just 4) 2023
           , venue     = Venue { name = "ESOP 2023", www = Just "https://etaps.org/2023/esop" }
           , resources = [ pdf "pdf/esop23-thin.pdf"
-                        , arxiv "https://arxiv.org/abs/2301.02194"
+                        , arxiv "2301.02194"
                         , slides "pdf/esop23-thin-slides.pdf"
                         ]
           }
@@ -253,7 +255,7 @@ journals =
           , venue     = jfp
           , resources = [ github "https://github.com/gallais/generic-syntax"
                         , pdf "pdf/generic-syntax.pdf"
-                        , arxiv "https://arxiv.org/abs/2001.11001"
+                        , arxiv "2001.11001"
                         ]
           }
   , Publi { authors   = [aabel, gallais, ahameer, bpientka, amomigliano, sschafer, kstark]
