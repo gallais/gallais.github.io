@@ -361,7 +361,22 @@ reports =
 
 drafts :: [Publi]
 drafts =
-  [ Publi { authors   = [gallais, cmcbride]
+  [ Publi { authors   = [gallais]
+          , title     = "Scoped and Typed Staging by Evaluation "
+          , date      = Date Nothing (Just 10) 2023
+          , venue     = Venue { name = "Submitted to PEPM", www = Nothing }
+          , resources = [ pdf "pdf/2024_PEPM_draft.pdf"
+                        , arxiv "2310.13413"
+                        ]
+          }
+  , Publi { authors   = [gallais]
+          , title     = "Seamless, Correct, and Generic Programming over Serialised Data "
+          , date      = Date Nothing (Just 7) 2023
+          , venue     = Venue { name = "Submitted to POPL", www = Nothing }
+          , resources = [ pdf "pdf/draft_popl24.pdf"
+                        , arxiv "2310.13441" ]
+          }
+  , Publi { authors   = [gallais, cmcbride]
           , title     = "Certified Proof Search for Intuitionistic Linear Logic"
           , date      = Date Nothing (Just 2) 2015
           , venue     = Venue { name = "Submitted to TLCA", www = Nothing }
