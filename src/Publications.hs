@@ -64,7 +64,7 @@ resourceToText res = urlToText (kindToText $ kind res) $ Just $ case kind res of
 
 resourcesToText :: [Resource] -> Text
 resourcesToText [] = ""
-resourcesToText rs = span_ " class=\"docs\"" $ "[ " `T.append` docs `T.append` " ]"
+resourcesToText rs = "[ " `T.append` docs `T.append` " ]"
   where docs = intercalate " | " $ fmap resourceToText rs
 
 data Date =
@@ -99,8 +99,16 @@ data Publi =
 publiToText :: Publi -> Text
 publiToText Publi{..} =
   T.unlines
-    [ b_ title , docs , br_ , bys
-    , span_ " class=\"docs\"" $ T.concat [ conf , ", " , time ] ]
+    [ div_ " class=\"details\"" $ T.concat
+         [ span_ " class=\"papertitle\"" $ T.concat
+             [ anchor title
+             , aClass_ "anchor" ("#" <> title) title
+             ]
+         , br_
+         , bys
+         ]
+    , div_ " class=\"links\"" $ T.concat [ docs , br_ , conf , ", " , time ]
+    ]
   where
     docs = resourcesToText resources
     bys  = intercalate ", " $ fmap personToText authors
@@ -149,9 +157,15 @@ publistToText pbs0
   = T.concat
   $ groupBy sameYear (sortBy (flip cmp) $ foldMap sequence pbs0) <&> \case
     pbs@(pb : _) ->
-      let h3 = T.pack (show $ year $ date $ publis pb) in
+      let hyear = T.pack (show $ year $ date $ publis pb) in
       let lis = lify <$> pbs in
-      T.unlines [ h_ 3 h3 , ulWith_ "<hr />" lis ]
+      T.unlines
+        [ span_ " class=\"year\"" $ T.concat
+            [ anchor hyear
+            , aClass_ "anchor" ("#" <> hyear) (h_ 3 hyear)
+            ]
+        , ul_ lis
+        ]
 
   where
 
@@ -210,7 +224,7 @@ workshops =
   , Publi { authors   = [gallais]
           , title     = "agdarsec — Total Parser Combinators"
           , date      = Date Nothing (Just 1) 2018
-          , venue     = Venue { name = "JFLA", www = Just "https://www.lri.fr/~sboldo/JFLA18/" }
+          , venue     = Venue { name = "JFLA'18", www = Just "https://www.lri.fr/~sboldo/JFLA18/" }
           , resources = [ github "https://github.com/gallais/agdarsec"
                         , pdf "pdf/agdarsec18.pdf"
                         ]
@@ -226,7 +240,7 @@ workshops =
   , Publi { authors   = [gallais, pboutillier, cmcbride]
           , title     = "New Equations for Neutral Terms: A Sound and Complete Decision Procedure, Formalized"
           , date      = yearOnly 2013
-          , venue     = Venue { name = "DTP", www = Just "http://www.seas.upenn.edu/~sweirich/dtp13/" }
+          , venue     = Venue { name = "DTP'13", www = Just "http://www.seas.upenn.edu/~sweirich/dtp13/" }
           , resources = [ pdf "pdf/icfp13.pdf"
                         , arxiv "1304.0809"
                         ]
@@ -246,7 +260,7 @@ conferences =
     Publi { authors   = [jfdm,gallais,ebrady]
           , title     = "Type Theory as a Language Workbench"
           , date      = Date Nothing (Just 4) 2023
-          , venue     = Venue { name = "EVCS 2023", www = Just "https://symposium.eelcovisser.org" }
+          , venue     = Venue { name = "EVCS'23", www = Just "https://symposium.eelcovisser.org" }
           , resources = [ github "https://github.com/jfdm/velo-lang"
                         , pdf "pdf/evcs23.pdf"
                         , arxiv "2301.12852"
@@ -255,7 +269,7 @@ conferences =
   , Publi { authors   = [gallais]
           , title     = "Builtin Types viewed as Inductive Families"
           , date      = Date Nothing (Just 4) 2023
-          , venue     = Venue { name = "ESOP 2023", www = Just "https://etaps.org/2023/esop" }
+          , venue     = Venue { name = "ESOP'23", www = Just "https://etaps.org/2023/esop" }
           , resources = [ pdf "pdf/esop23-thin.pdf"
                         , arxiv "2301.02194"
                         , slides "pdf/esop23-thin-slides.pdf"
@@ -264,7 +278,7 @@ conferences =
   , Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
           , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
           , date      = Date Nothing (Just 9) 2018
-          , venue     = Venue { name = "PACMPL issue ICFP 2018", www = Just "https://icfp18.sigplan.org/" }
+          , venue     = Venue { name = "ICFP'18", www = Just "https://icfp18.sigplan.org/" }
           , resources = [ github "https://github.com/gallais/generic-syntax"
                         , pdf "pdf/icfp18.pdf"
                         , slides "pdf/icfp18-slides.pdf"
@@ -273,14 +287,14 @@ conferences =
   , Publi { authors   = [gallais]
           , title     = "Typing with Leftovers - A Mechanization of Intuitionistic Multiplicative Additive Linear Logic"
           , date      = Date Nothing Nothing 2018
-          , venue     = Venue { name = "TYPES 2017 Post Proceeding", www = Nothing }
+          , venue     = Venue { name = "TYPES'17 Post Proceeding", www = Nothing }
           , resources = [ github "https://github.com/gallais/typing-with-leftovers"
                         , pdf "pdf/types17.pdf" ]
           }
   , Publi { authors   = [gallais, jmchapman, cmcbride, jmckinna]
           , title     = "Type-and-Scope Safe Programs and their Proofs"
           , date      = yearOnly 2017
-          , venue     = Venue { name = "CPP", www = Just "http://cpp2017.mpi-sws.org/" }
+          , venue     = Venue { name = "CPP'17", www = Just "http://cpp2017.mpi-sws.org/" }
           , resources = [ pdf "pdf/cpp2017.pdf"
                         , slides "pdf/cpp2017_slides.pdf"
                         , github "https://github.com/gallais/type-scope-semantics" ]
@@ -289,7 +303,7 @@ conferences =
   , Publi { authors   = [rthiemann, gallais, jnagele]
           , title     = "On the Formalization of Termination Techniques Based on Multiset Orderings"
           , date      = yearOnly 2012
-          , venue     = Venue { name = "RTA", www = Just "http://rta2012.trs.cm.is.nagoya-u.ac.jp/" }
+          , venue     = Venue { name = "RTA'12", www = Just "http://rta2012.trs.cm.is.nagoya-u.ac.jp/" }
           , resources = [ pdf "pdf/rta2012.pdf" ]
           }
   ]
@@ -410,7 +424,7 @@ reports =
 drafts :: [Publi]
 drafts =
   [ Publi { authors   = [gallais]
-          , title     = "Scoped and Typed Staging by Evaluation "
+          , title     = "Scoped and Typed Staging by Evaluation"
           , date      = Date Nothing (Just 10) 2023
           , venue     = Venue { name = "Submitted to PEPM", www = Nothing }
           , resources = [ pdf "pdf/2024_PEPM_draft.pdf"
