@@ -1,16 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Data.Monoid
 import Control.Monad
 import Publications (publications)
 import BlogList
 import Links
 import Text.BBCode.PrettyPrinter
-import Text.HTML.Combinators
+-- import Text.HTML.Combinators
 import Text.RSS.Syntax
-import Text.Feed.Constructor
-import Text.Feed.Export
-import Data.XML.Types
+-- import Text.Feed.Constructor
+-- import Text.Feed.Export
+-- import Data.XML.Types
 import Hakyll
 
 import qualified Data.Text as T

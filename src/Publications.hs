@@ -1,19 +1,20 @@
-{-# OPTIONS  -Wall             #-}
-{-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Publications where
 
 import Text.HTML.Combinators
 
+import Data.Function (on)
+import Data.Functor ((<&>))
+import Data.List (groupBy, sortBy)
 import Data.Text (Text, intercalate)
 import qualified Data.Text as T
 
 import CoAuthors
 
-data Venue =
-  Venue { name :: Text
-        , www  :: URL }
+data Venue = Venue
+  { name :: Text
+  , www  :: URL }
 
 venueToText :: Venue -> Text
 venueToText v = urlToText (name v) (www v)
@@ -70,6 +71,11 @@ data Date =
   Date { day   :: Maybe Int
        , month :: Maybe Int
        , year  :: Int }
+  deriving (Eq)
+
+instance Ord Date where
+  compare (Date a b c) (Date x y z) =
+    compare (c, b, a) (z, y, x)
 
 dateToText :: Date -> Text
 dateToText d = T.pack (show (year d)) <> go (month d) <> go (day d)
@@ -117,9 +123,9 @@ sortToText TechReport = "Technical reports"
 sortToText Talk       = "Talks"
 sortToText Draft      = "Drafts"
 
-data APubli a =
-  Publis { sort   :: Sort
-         , publis :: a }
+data APubli a = APubli
+  { sort   :: Sort
+  , publis :: a }
   deriving (Functor, Foldable, Traversable)
 
 ------------------------------------------------------------------------
@@ -128,7 +134,7 @@ data APubli a =
 type Publis = APubli [Publi]
 
 publisToText :: Publis -> Text
-publisToText Publis{..} = T.unlines [ h_ 3 h3 , ulWith_ "<hr />" lis ]
+publisToText APubli{..} = T.unlines [ h_ 3 h3 , ulWith_ "<hr />" lis ]
   where
     h3  = sortToText sort
     lis = fmap publiToText publis
@@ -138,11 +144,33 @@ publisToText Publis{..} = T.unlines [ h_ 3 h3 , ulWith_ "<hr />" lis ]
 
 type Publist = [APubli Publi]
 
-publistToText :: Publist -> Text
-publistToText = undefined
+publistToText :: [Publis] -> Text
+publistToText pbs0
+  = T.concat
+  $ groupBy sameYear (sortBy (flip cmp) $ foldMap sequence pbs0) <&> \case
+    pbs@(pb : _) ->
+      let h3 = T.pack (show $ year $ date $ publis pb) in
+      let lis = lify <$> pbs in
+      T.unlines [ h_ 3 h3 , ulWith_ "<hr />" lis ]
 
-toPublist :: Publis -> Publist
-toPublist = undefined
+  where
+
+    status :: Sort -> Text
+    status Draft = "draft"
+    status _ = "published"
+
+    cmp :: APubli Publi -> APubli Publi -> Ordering
+    cmp (APubli _ p) (APubli _ q) = compare (date p) (date q)
+
+    sameYear :: APubli Publi -> APubli Publi -> Bool
+    sameYear (APubli _ p) (APubli _ q)
+      = ((==) `on` year) (date p) (date q)
+
+    lify :: APubli Publi -> Text
+    lify pb
+      = div_ (" class =\"publi " <> status (sort pb) <> "\"")
+      $ publiToText
+      $ publis pb
 
 ------------------------------------------------------------------------
 
@@ -407,16 +435,18 @@ drafts =
 
 allPublis :: [Publis]
 allPublis =
-  [ Publis { sort = Journal   , publis = journals }
-  , Publis { sort = Conference, publis = conferences }
-  , Publis { sort = Workshop  , publis = workshops   }
-  , Publis { sort = Talk      , publis = talks       }
-  , Publis { sort = Draft     , publis = drafts      }
-  , Publis { sort = TechReport, publis = reports     }
+  [ APubli { sort = Journal   , publis = journals }
+  , APubli { sort = Conference, publis = conferences }
+  , APubli { sort = Workshop  , publis = workshops   }
+  , APubli { sort = Talk      , publis = talks       }
+  , APubli { sort = Draft     , publis = drafts      }
+  , APubli { sort = TechReport, publis = reports     }
   ]
 
 publications :: Text
-publications = T.unlines $ fmap publisToText allPublis
+publications
+  = div_ " id=\"publications\""
+  $ publistToText allPublis
 
 
 

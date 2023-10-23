@@ -17,14 +17,15 @@ cabal-version:       >= 1.10
 executable www-gallais
   main-is:             site.hs
   -- other-modules:
-  default-extensions:  OverloadedStrings
-                     , RecordWildCards
+  default-extensions:  DeriveFoldable
+                     , DeriveFunctor
+                     , DeriveTraversable
                      , FlexibleContexts
+                     , LambdaCase
+                     , OverloadedStrings
+                     , RecordWildCards
                      , TupleSections
                      , ViewPatterns
-                     , DeriveFunctor
-                     , DeriveFoldable
-                     , DeriveTraversable
 
   build-depends: base >=4.8 && <5
                , bytestring >= 0.11 && <0.12
@@ -48,3 +49,6 @@ executable www-gallais
                , Text.BBCode.PrettyPrinter
                , Text.BBCode.Tokenizer
                , Text.HTML.Combinators
+
+  ghc-options: -Wunused-imports
+               -Wall
