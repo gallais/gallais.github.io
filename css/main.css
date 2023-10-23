@@ -29,7 +29,7 @@ body {
 }
 
 li {
-	list-style-type: square;
+    list-style-type: square;
 }
 
 #header {
@@ -150,11 +150,39 @@ Définitions des classes de publis
 }
 
 #publications li {
+    padding: 2px;
     list-style-type: none;
 }
 
+.anchor {
+    text-decoration: none;
+    color: inherit;
+}
+.anchor:hover {
+    text-decoration: underline;
+}
+
 .publi {
-    padding: 2px;
+    display: flex;
+    flex-direction: row;
+    padding: 5px 10px 5px 10px;
+}
+
+.publi .links {
+    order: 1;
+    flex-grow: 3;
+    text-align: right;
+    padding-left: 10px;
+    align-self: flex-end;
+}
+
+.publi .details {
+    flex-grow: 7;
+    order: 0;
+}
+
+.publi .details .papertitle {
+    font-weight: bold;
 }
 
 .draft {
@@ -279,10 +307,6 @@ Définitions des classes utilisées dans un post
 .bad {
   background-color: #FFB8B8;
   color: #000; /* likewise the background-color comment */
-}
-
-.docs {
-	float:right;
 }
 
 .post {
