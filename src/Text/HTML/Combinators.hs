@@ -7,8 +7,8 @@ module Text.HTML.Combinators where
 import Control.Applicative
 import Control.Monad.State as CMS
 import Data.Monoid ((<>))
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy as T
+import Data.Text (Text)
+import qualified Data.Text as T
 
 data HTMLState = HTMLState
   { nbSections   :: !Int

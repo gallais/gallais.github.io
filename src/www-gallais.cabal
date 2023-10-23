@@ -12,24 +12,29 @@ maintainer:          guillaume.allais@ens-lyon.org
 -- copyright:
 category:            Web
 build-type:          Simple
+cabal-version:       >= 1.10
 
 executable www-gallais
   main-is:             site.hs
   -- other-modules:
-  other-extensions: OverloadedStrings
-                  , RecordWildCards
-                  , FlexibleContexts
-                  , TupleSections
-                  , ViewPatterns
+  default-extensions:  OverloadedStrings
+                     , RecordWildCards
+                     , FlexibleContexts
+                     , TupleSections
+                     , ViewPatterns
+                     , DeriveFunctor
+                     , DeriveFoldable
+                     , DeriveTraversable
 
   build-depends: base >=4.8 && <5
+               , bytestring >= 0.11 && <0.12
                , feed >=1.0 && <1.4
                , hakyll >=4.7 && <4.16
                , mtl >=2.2 && <2.3
                , parsec >=3.0 && <3.2
                , text >=1.2 && <1.3
                , time >= 1.6 && <1.12
-               , xml >= 1.2 && < 1.4
+               , xml-types >= 0.3 && < 0.4
                , old-locale >= 1.0 && <1.1
 
   -- hs-source-dirs:

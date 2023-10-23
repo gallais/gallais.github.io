@@ -4,6 +4,8 @@
 
 module Text.BBCode.PrettyPrinter where
 
+import qualified Data.ByteString.Lazy as B
+
 import Text.BBCode.Parser
 import Text.HTML.Combinators
 
@@ -14,9 +16,9 @@ import Hakyll.Core.Item
 import Hakyll.Core.Compiler
 
 import qualified Data.Char as C
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy          as T
-import qualified Data.Text.Lazy.Encoding as TE
+import Data.Text (Text)
+import qualified Data.Text          as T
+import qualified Data.Text.Encoding as TE
 
 
 instance PrettyBBCode Tag where
@@ -72,7 +74,7 @@ ppBBCode strs = T.intercalate "\n" <$> mapM prettyBBCode strs
 bbcodeCompiler :: Compiler (Item Text)
 bbcodeCompiler = do
   txt <- itemBody <$> getResourceLBS
-  let bbc       = parseBBCode $ TE.decodeUtf8 txt
+  let bbc       = parseBBCode $ TE.decodeUtf8 $ B.toStrict txt
   let html      = either (return . T.pack . show) ppBBCode bbc
   let (res, ft) = runState html initHTMLState
   makeItem $ T.concat $ res :

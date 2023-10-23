@@ -10,8 +10,8 @@ import Control.Applicative hiding (many, (<|>))
 import Control.Monad
 
 import Data.Char
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy    as T
+import Data.Text (Text)
+import qualified Data.Text    as T
 
 import           Text.BBCode.Tokenizer (Token)
 import qualified Text.BBCode.Tokenizer as Tok

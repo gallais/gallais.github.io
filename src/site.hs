@@ -10,10 +10,10 @@ import Text.HTML.Combinators
 import Text.RSS.Syntax
 import Text.Feed.Constructor
 import Text.Feed.Export
-import Text.XML.Light.Output
+import Data.XML.Types
 import Hakyll
 
-import qualified Data.Text.Lazy as T
+import qualified Data.Text as T
 
 blogRSS :: Compiler RSS
 blogRSS = do
@@ -30,17 +30,17 @@ blogRSS = do
 main :: IO ()
 main = hakyll $ do
 
-    let rssIcon = span_ " style=\"float:right\"" $ a_ "/rss.xml" $ img_ "/img/rss.png"
-    forM blogPosts $ \ post ->
+--    let rssIcon = span_ " style=\"float:right\"" $ a_ "/rss.xml" $ img_ "/img/rss.png"
+    forM_ blogPosts $ \ post ->
       create [ fromFilePath $ "blog/" ++ source post ++ ".txt" ] $ do
         let title = constField "title" (T.unpack (name post))
         route   $ setExtension "html"
-        compile $ fmap (fmap $ T.unpack . ((rssIcon <> h_ 1 (name post)) <>)) bbcodeCompiler
-          >>= saveSnapshot "content"
+        compile $ fmap (T.unpack <$>) bbcodeCompiler
+--          >>= saveSnapshot "content"
           >>= loadAndApplyTemplate "templates/default.html" (title <> defaultContext)
           >>= relativizeUrls
 
-    forM allTags $ \ key ->
+    forM_ allTags $ \ key ->
       create [ fromFilePath $ "blog/blog." ++ T.unpack key ++ ".html" ] $ do
         route idRoute
         compile $
@@ -55,9 +55,9 @@ main = hakyll $ do
           >>= loadAndApplyTemplate "templates/default.html" defaultContext
           >>= relativizeUrls
 
-    create ["rss.xml"] $ do
-         route idRoute
-         compile $ blogRSS >>= makeItem . showElement . xmlFeed . feedFromRSS
+    -- create ["rss.xml"] $ do
+    --      route idRoute
+    --      compile $ blogRSS >>= makeItem . showElement . xmlFeed . feedFromRSS
 
     create ["publis.html"] $ do
         route idRoute

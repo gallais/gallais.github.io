@@ -6,7 +6,7 @@ module BlogList where
 import Data.Time
 import qualified Data.List as L
 import Data.String ( IsString(..) )
-import Data.Text.Lazy as T
+import Data.Text as T
 
 -- import System.Locale
 import Text.RSS.Syntax
@@ -17,7 +17,7 @@ domain = fromString "gallais.github.io"
 
 data BlogPost =
   BlogPost { name      :: Text
-           , source :: FilePath
+           , source    :: FilePath
            , pubDate   :: UTCTime
            , keywords  :: [Text] }
 
@@ -171,7 +171,7 @@ blogIndex key = T.concat
     titleExt (Just k) = T.concat [ " with tag \"", k, "\"" ]
 
     collectPosts Nothing  = id
-    collectPosts (Just k) = L.filter (elem k . keywords)
+    collectPosts (Just k) = L.filter (Prelude.elem k . keywords)
 
     post :: BlogPost -> Text
     post bp =
@@ -180,23 +180,25 @@ blogIndex key = T.concat
           [ a_ (T.concat [ "/blog/", T.pack $ source bp, ".html" ]) $ name bp
           , span_ " class=\"date\"" $ T.pack $ date $ pubDate bp ]
 
-postRSS :: BlogPost -> String -> RSSItem
+postRSS :: BlogPost -> Text -> RSSItem
 postRSS bp txt =
-  let url = L.concat [ "http://", domain, "/blog/", source bp , ".html" ]
-      css = L.concat [ "<head>"
+  let url = T.concat [ "http://", domain, "/blog/", T.pack (source bp) , ".html" ]
+      css = T.concat [ "<head>"
                      , "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://", domain, "/css/main.css\" />"
                      , "</head>"
-                     ] in
-  RSSItem { rssItemTitle       = Just $ T.unpack $ name bp
-          , rssItemLink        = Just url
-          , rssItemDescription = Just $ css ++ txt
-          , rssItemAuthor      = Nothing
-          , rssItemCategories  = []
-          , rssItemComments    = Nothing
-          , rssItemEnclosure   = Nothing
-          , rssItemGuid        = Just $ RSSGuid (Just True) [] url
-          , rssItemPubDate     = Just $ formatTime defaultTimeLocale rfc822DateFormat $ pubDate bp
-          , rssItemSource      = Nothing
-          , rssItemAttrs       = []
-          , rssItemOther       = []
-          }
+                     ]
+      time = T.pack $ formatTime defaultTimeLocale rfc822DateFormat $ pubDate bp
+  in RSSItem
+    { rssItemTitle       = Just (name bp)
+    , rssItemLink        = Just url
+    , rssItemDescription = Just $ css <> txt
+    , rssItemAuthor      = Nothing
+    , rssItemCategories  = []
+    , rssItemComments    = Nothing
+    , rssItemEnclosure   = Nothing
+    , rssItemGuid        = Just $ RSSGuid (Just True) [] url
+    , rssItemPubDate     = Just time
+    , rssItemSource      = Nothing
+    , rssItemAttrs       = []
+    , rssItemOther       = []
+    }

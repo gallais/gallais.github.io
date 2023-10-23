@@ -7,8 +7,8 @@ module Text.BBCode.Tokenizer where
 
 import Data.Tuple
 import Data.List
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy as T
+import Data.Text (Text)
+import qualified Data.Text as T
 
 import Control.Monad
 

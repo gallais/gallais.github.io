@@ -6,8 +6,8 @@ module Publications where
 
 import Text.HTML.Combinators
 
-import Data.Text.Lazy (Text, intercalate)
-import qualified Data.Text.Lazy as T
+import Data.Text (Text, intercalate)
+import qualified Data.Text as T
 
 import CoAuthors
 
@@ -36,30 +36,30 @@ kindToText Arxiv  = "arXiv"
 
 data Resource =
   Resource { kind :: Kind
-           , link :: Text }
+           , payload :: Text }
 
 pdf :: Text -> Resource
-pdf url = Resource { kind = Pdf, link = url }
+pdf url = Resource { kind = Pdf, payload = url }
 
 slides :: Text -> Resource
-slides url = Resource { kind = Slides, link = url }
+slides url = Resource { kind = Slides, payload = url }
 
 github :: Text -> Resource
-github url = Resource { kind = Github, link = url }
+github url = Resource { kind = Github, payload = url }
 
 agda :: Text -> Resource
-agda url = Resource { kind = Agda, link = url }
+agda url = Resource { kind = Agda, payload = url }
 
 blog :: Text -> Resource
-blog url = Resource { kind = Blog, link = url }
+blog url = Resource { kind = Blog, payload = url }
 
 arxiv :: Text -> Resource
-arxiv url = Resource { kind = Arxiv, link = url }
+arxiv url = Resource { kind = Arxiv, payload = url }
 
 resourceToText :: Resource -> Text
-resourceToText res = urlToText (kindToText $ kind res) $ Just $ case res of
-  Arxiv id -> "https://arxiv.org/abs/" <> id
-  _ -> link res
+resourceToText res = urlToText (kindToText $ kind res) $ Just $ case kind res of
+  Arxiv -> "https://arxiv.org/abs/" <> payload res
+  _ -> payload res
 
 resourcesToText :: [Resource] -> Text
 resourcesToText [] = ""
@@ -117,15 +117,35 @@ sortToText TechReport = "Technical reports"
 sortToText Talk       = "Talks"
 sortToText Draft      = "Drafts"
 
-data Publis =
+data APubli a =
   Publis { sort   :: Sort
-         , publis :: [Publi] }
+         , publis :: a }
+  deriving (Functor, Foldable, Traversable)
+
+------------------------------------------------------------------------
+-- Legacy: by type
+
+type Publis = APubli [Publi]
 
 publisToText :: Publis -> Text
 publisToText Publis{..} = T.unlines [ h_ 3 h3 , ulWith_ "<hr />" lis ]
   where
     h3  = sortToText sort
     lis = fmap publiToText publis
+
+------------------------------------------------------------------------
+-- New: by year
+
+type Publist = [APubli Publi]
+
+publistToText :: Publist -> Text
+publistToText = undefined
+
+toPublist :: Publis -> Publist
+toPublist = undefined
+
+------------------------------------------------------------------------
+
 
 workshops :: [Publi]
 workshops =

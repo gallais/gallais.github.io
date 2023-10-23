@@ -5,8 +5,8 @@
 module CoAuthors where
 
 import Text.HTML.Combinators
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy as T
+import Data.Text (Text)
+import qualified Data.Text as T
 
 type URL = Maybe Text
 

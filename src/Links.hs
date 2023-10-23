@@ -4,7 +4,7 @@
 module Links where
 
 import Text.HTML.Combinators
-import Data.Text.Lazy as T
+import Data.Text as T
 
 links :: Text
 links =
