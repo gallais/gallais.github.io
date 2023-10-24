@@ -436,7 +436,7 @@ drafts =
                         ]
           }
   , Publi { authors   = [gallais]
-          , title     = "Seamless, Correct, and Generic Programming over Serialised Data "
+          , title     = "Seamless, Correct, and Generic Programming over Serialised Data"
           , date      = Date Nothing (Just 7) 2023
           , venue     = Venue { name = "Submitted to POPL", www = Nothing }
           , resources = [ pdf "pdf/draft_popl24.pdf"
