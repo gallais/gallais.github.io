@@ -433,6 +433,7 @@ drafts =
           , venue     = Venue { name = "Submitted to PEPM", www = Nothing }
           , resources = [ pdf "pdf/2024_PEPM_draft.pdf"
                         , arxiv "2310.13413"
+                        , slides "pdf/2023_PLUG_slides.pdf"
                         ]
           }
   , Publi { authors   = [gallais]
