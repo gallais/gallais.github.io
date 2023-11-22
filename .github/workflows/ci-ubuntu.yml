@@ -5,6 +5,9 @@ on:
       - source
       - build
 
+  schedule:
+    - cron: 0 4 * * 0 # rebuild every Sunday at 4am
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
