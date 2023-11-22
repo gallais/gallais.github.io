@@ -195,7 +195,16 @@ publistToText pbs0
 
 workshops :: [Publi]
 workshops =
-  [ Publi { authors   = [mdaggit, gallais]
+  [ Publi { authors   = [gallais]
+          , title     = "Scoped and Typed Staging by Evaluation"
+          , date      = Date Nothing (Just 10) 2023
+          , venue     = Venue { name = "PEPM 2024", www = Just "https://popl24.sigplan.org/home/PEPM-2024" }
+          , resources = [ pdf "pdf/2024_PEPM_draft.pdf"
+                        , arxiv "2310.13413"
+                        , slides "pdf/2023_PLUG_slides.pdf"
+                        ]
+          }
+  , Publi { authors   = [mdaggit, gallais]
           , title     = "Using Dependent Types at Scale: Maintaining the Agda Standard Library"
           , date      = Date Nothing (Just 11) 2021
           , venue     = Venue { name = "WITS'22"
@@ -428,15 +437,6 @@ reports =
 drafts :: [Publi]
 drafts =
   [ Publi { authors   = [gallais]
-          , title     = "Scoped and Typed Staging by Evaluation"
-          , date      = Date Nothing (Just 10) 2023
-          , venue     = Venue { name = "Submitted to PEPM", www = Nothing }
-          , resources = [ pdf "pdf/2024_PEPM_draft.pdf"
-                        , arxiv "2310.13413"
-                        , slides "pdf/2023_PLUG_slides.pdf"
-                        ]
-          }
-  , Publi { authors   = [gallais]
           , title     = "Seamless, Correct, and Generic Programming over Serialised Data"
           , date      = Date Nothing (Just 7) 2023
           , venue     = Venue { name = "Submitted to POPL", www = Nothing }
