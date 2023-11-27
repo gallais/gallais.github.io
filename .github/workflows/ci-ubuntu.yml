@@ -28,12 +28,13 @@ jobs:
           cabal-version: '${{ matrix.cabal }}'
 
       - name: Cache ~/.cabal/store and dist-newstyle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cabal/store
             ~/src/dist-newstyle
-          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ matrix.cabal }}
+          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ matrix.cabal }}-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-${{ matrix.ghc }}-${{ matrix.cabal }}
 
 ########################################################################
 ## BUILD STEP
