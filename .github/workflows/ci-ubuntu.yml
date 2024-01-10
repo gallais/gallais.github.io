@@ -33,8 +33,10 @@ jobs:
           path: |
             ~/.cabal/store
             ~/src/dist-newstyle
-          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ matrix.cabal }}-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-${{ matrix.ghc }}-${{ matrix.cabal }}
+          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ matrix.cabal }}-${{ github.sha }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.ghc }}-${{ matrix.cabal }}-${{ github.sha }}
+            ${{ runner.os }}-${{ matrix.ghc }}-${{ matrix.cabal }}
 
 ########################################################################
 ## BUILD STEP
