@@ -197,16 +197,25 @@ workshops :: [Publi]
 workshops =
   [ Publi { authors   = [gallais]
           , title     = "Scoped and Typed Staging by Evaluation"
-          , date      = Date Nothing (Just 10) 2023
+          , date      = Date Nothing (Just 01) 2024
           , venue     = Venue { name = "PEPM 2024", www = Just "https://popl24.sigplan.org/home/PEPM-2024" }
           , resources = [ pdf "pdf/2024_PEPM_draft.pdf"
                         , arxiv "2310.13413"
                         , slides "pdf/2023_PLUG_slides.pdf"
                         ]
           }
+  , Publi { authors   = [gallais, maltenmuller, cmcbride, fnf, croy]
+          , title     = "TypOS: An Operating System for Typechecking Actors"
+          , date      = Date Nothing (Just 01) 2022
+          , venue     = Venue { name = "TYPES'22"
+                              , www  = Just "https://types22.inria.fr/"
+                              }
+          , resources = [ pdf "pdf/types22.pdf"
+                        ]
+          }
   , Publi { authors   = [mdaggit, gallais]
           , title     = "Using Dependent Types at Scale: Maintaining the Agda Standard Library"
-          , date      = Date Nothing (Just 11) 2021
+          , date      = Date Nothing (Just 01) 2022
           , venue     = Venue { name = "WITS'22"
                               , www  = Just "https://popl22.sigplan.org/home/wits-2022"
                               }
