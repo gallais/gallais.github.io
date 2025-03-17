@@ -359,6 +359,15 @@ journals =
 talks :: [Publi]
 talks =
   [ Publi { authors   = [gallais]
+          , title     = "Correct by Constrution Concurrent Programs in Idris 2"
+          , date      = Date (Just 14) (Just 03) 2025
+          , venue     = Venue { name = "BOB2025"
+                              , www  = Just "https://bobkonf.de/2025/allais.html"
+                              }
+          , resources = [ slides "pdf/2025_BOBKONF_slides.pdf"
+                        ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "Seamless, Correct, and Generic Programming over Serialised Data"
           , date      = Date (Just 08) (Just 03) 2023
           , venue     = Venue { name = "SPLS"
