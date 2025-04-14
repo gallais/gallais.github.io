@@ -25,15 +25,16 @@ jfp = Venue
   , www = Just "https://icfp18.sigplan.org/"
   }
 
-data Kind = Pdf | Slides | Github | Agda | Blog | Arxiv
+data Kind = Pdf | Slides | Github | Agda | Blog | Arxiv | Abstract
 
 kindToText :: Kind -> Text
-kindToText Pdf    = "pdf"
-kindToText Slides = "slides"
-kindToText Github = "github"
-kindToText Agda   = "agda"
-kindToText Blog   = "blog"
-kindToText Arxiv  = "arXiv"
+kindToText Pdf      = "pdf"
+kindToText Slides   = "slides"
+kindToText Github   = "github"
+kindToText Agda     = "agda"
+kindToText Blog     = "blog"
+kindToText Arxiv    = "arXiv"
+kindToText Abstract = "abstract"
 
 data Resource =
   Resource { kind :: Kind
@@ -41,6 +42,9 @@ data Resource =
 
 pdf :: Text -> Resource
 pdf url = Resource { kind = Pdf, payload = url }
+
+abstract :: Text -> Resource
+abstract url = Resource { kind = Abstract, payload = url }
 
 slides :: Text -> Resource
 slides url = Resource { kind = Slides, payload = url }
@@ -370,9 +374,10 @@ talks =
           , title     = "Correct by Constrution Concurrent Programs in Idris 2"
           , date      = Date (Just 14) (Just 03) 2025
           , venue     = Venue { name = "BOB2025"
-                              , www  = Just "https://bobkonf.de/2025/allais.html"
+                              , www  = Just "https://bobkonf.de/2025/en/"
                               }
-          , resources = [ slides "pdf/2025_BOBKONF_slides.pdf"
+          , resources = [ abstract "https://bobkonf.de/2025/allais.html"
+                        , slides "pdf/2025_BOBKONF_slides.pdf"
                         ]
           }
   , Publi { authors   = [gallais]
