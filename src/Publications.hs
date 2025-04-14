@@ -196,6 +196,14 @@ publistToText pbs0
 workshops :: [Publi]
 workshops =
   [ Publi { authors   = [gallais]
+          , title     = "Type-safe Bidirectional Channels in Idris 2"
+          , date      = Date Nothing (Just 06) 2025
+          , venue     = Venue { name = "TYPES'25"
+                              , www  = Just "https://msp.cis.strath.ac.uk/types2025/"
+                              }
+          , resources = []
+          }
+  , Publi { authors   = [gallais]
           , title     = "Scoped and Typed Staging by Evaluation"
           , date      = Date Nothing (Just 01) 2024
           , venue     = Venue { name = "PEPM 2024", www = Just "https://popl24.sigplan.org/home/PEPM-2024" }
