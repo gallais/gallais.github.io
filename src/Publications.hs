@@ -205,7 +205,7 @@ workshops =
           , venue     = Venue { name = "TYPES'25"
                               , www  = Just "https://msp.cis.strath.ac.uk/types2025/"
                               }
-          , resources = []
+          , resources = [ pdf "pdf/2025_TYPES_abstract.pdf" ]
           }
   , Publi { authors   = [gallais]
           , title     = "Scoped and Typed Staging by Evaluation"
