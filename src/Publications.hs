@@ -25,7 +25,7 @@ jfp = Venue
   , www = Just "https://icfp18.sigplan.org/"
   }
 
-data Kind = Pdf | Slides | Github | Agda | Blog | Arxiv | Abstract
+data Kind = Pdf | Slides | Github | Agda | Blog | Arxiv | Abstract | Video
 
 kindToText :: Kind -> Text
 kindToText Pdf      = "pdf"
@@ -35,6 +35,7 @@ kindToText Agda     = "agda"
 kindToText Blog     = "blog"
 kindToText Arxiv    = "arXiv"
 kindToText Abstract = "abstract"
+kindToText Video    = "video"
 
 data Resource =
   Resource { kind :: Kind
@@ -60,6 +61,9 @@ blog url = Resource { kind = Blog, payload = url }
 
 arxiv :: Text -> Resource
 arxiv url = Resource { kind = Arxiv, payload = url }
+
+video :: Text -> Resource
+video url = Resource { kind = Video, payload = url }
 
 resourceToText :: Resource -> Text
 resourceToText res = urlToText (kindToText $ kind res) $ Just $ case kind res of
@@ -378,6 +382,7 @@ talks =
                               }
           , resources = [ abstract "https://bobkonf.de/2025/allais.html"
                         , slides "pdf/2025_BOBKONF_slides.pdf"
+                        , video "https://media.ccc.de/v/bob11-2025-correct-by-construction-concurrent-programs-in-idris-allais"
                         ]
           }
   , Publi { authors   = [gallais]
