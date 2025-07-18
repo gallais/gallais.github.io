@@ -28,7 +28,7 @@ jobs:
           cabal-version: '${{ matrix.cabal }}'
 
       - name: Cache ~/.cabal/store and dist-newstyle
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cabal/store
@@ -44,7 +44,7 @@ jobs:
 
       # By default github actions do not pull the repo
       - name: Checkout site
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Build site
         run: |
