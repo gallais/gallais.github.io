@@ -295,7 +295,17 @@ workshops =
 conferences :: [Publi]
 conferences =
   [
-    Publi { authors   = [jfdm,gallais,ebrady]
+    Publi { authors   = [gallais, ebrady, ncorbyn, okammar, jyallop]
+          , title     = "Frex: dependently-typed algebraic simplification"
+          , date      = Date Nothing (Just 10) 2025
+          , venue     = Venue { name = "ICFP'25"
+                              , www  = Just "https://icfp25.sigplan.org/"
+                              }
+          , resources = [ pdf "pdf/2025_ICFP.pdf"
+                        , arxiv "2306.15375"
+                        ]
+          }
+  , Publi { authors   = [jfdm,gallais,ebrady]
           , title     = "Type Theory as a Language Workbench"
           , date      = Date Nothing (Just 4) 2023
           , venue     = Venue { name = "EVCS'23", www = Just "https://symposium.eelcovisser.org" }
