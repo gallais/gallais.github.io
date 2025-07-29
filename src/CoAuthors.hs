@@ -22,62 +22,6 @@ personToText :: Person -> Text
 personToText Person{..} = urlToText name website
   where name = (T.head firstname `T.cons` ". " `T.append` surname)
 
-gnakov :: Person
-gnakov = Person
-  { firstname = "Georgi"
-  , surname = "Nakov"
-  , website = Nothing
-  }
-
-croy :: Person
-croy = Person
-  { firstname = "Craig"
-  , surname = "Roy"
-  , website = Nothing
-  }
-
-fnf :: Person
-fnf = Person
-  { firstname = "Fredrik"
-  , surname = "Nordvall Forsberg"
-  , website = Just "https://personal.cis.strath.ac.uk/fredrik.nordvall-forsberg/"
-  }
-
-maltenmuller :: Person
-maltenmuller = Person
-  { firstname = "Malin"
-  , surname = "Altenmüller"
-  , website = Nothing
-  }
-
-mdaggit :: Person
-mdaggit = Person
-  { firstname = "Matthew"
-  , surname = "Daggit"
-  , website = Nothing
-  }
-
-ebrady :: Person
-ebrady = Person
-  { firstname = "Edwin"
-  , surname   = "Brady"
-  , website   = Just "https://www.type-driven.org.uk/edwinb/"
-  }
-
-okammar :: Person
-okammar = Person
-  { firstname = "Ohad"
-  , surname   = "Kammar"
-  , website   = Just "http://denotational.co.uk/"
-  }
-
-jyallop :: Person
-jyallop = Person
-  { firstname = "Jeremy"
-  , surname   = "Yallop"
-  , website   = Just "https://www.cl.cam.ac.uk/~jdy22/"
-  }
-
 aabel :: Person
 aabel = Person
   { firstname = "Andreas"
@@ -92,13 +36,6 @@ ahameer = Person
   , website   = Nothing
   }
 
-bpientka :: Person
-bpientka = Person
-  { firstname = "Brigitte"
-  , surname   = "Pientka"
-  , website   = Just "https://www.cs.mcgill.ca/~bpientka/"
-  }
-
 amomigliano :: Person
 amomigliano = Person
   { firstname = "Alberto"
@@ -106,11 +43,87 @@ amomigliano = Person
   , website   = Just "http://momigliano.di.unimi.it/"
   }
 
-sschafer :: Person
-sschafer = Person
-  { firstname = "Steven"
-  , surname   = "Schäfer"
-  , website   = Just "https://www.ps.uni-saarland.de/~schaefer/"
+bpientka :: Person
+bpientka = Person
+  { firstname = "Brigitte"
+  , surname   = "Pientka"
+  , website   = Just "https://www.cs.mcgill.ca/~bpientka/"
+  }
+
+cmcbride :: Person
+cmcbride =
+  Person { firstname = "Conor"
+         , surname   = "McBride"
+         , website   = Just "http://strictlypositive.org/" }
+
+croy :: Person
+croy = Person
+  { firstname = "Craig"
+  , surname = "Roy"
+  , website = Nothing
+  }
+
+ebrady :: Person
+ebrady = Person
+  { firstname = "Edwin"
+  , surname   = "Brady"
+  , website   = Just "https://www.type-driven.org.uk/edwinb/"
+  }
+
+fnf :: Person
+fnf = Person
+  { firstname = "Fredrik"
+  , surname = "Nordvall Forsberg"
+  , website = Just "https://personal.cis.strath.ac.uk/fredrik.nordvall-forsberg/"
+  }
+
+gallais :: Person
+gallais = Person
+  { firstname = "Guillaume"
+  , surname   = "Allais"
+  , website   = Nothing
+  }
+
+gnakov :: Person
+gnakov = Person
+  { firstname = "Georgi"
+  , surname = "Nakov"
+  , website = Nothing
+  }
+
+jfdm :: Person
+jfdm = Person
+  { firstname = "Jan"
+  , surname = "de Muijnck-Hughes"
+  , website = Just "https://jfdm.github.io/"
+  }
+
+jmchapman :: Person
+jmchapman = Person
+  { firstname = "James"
+  , surname = "Chapman"
+  , website = Nothing
+  }
+
+jmckinna :: Person
+jmckinna = Person
+  { firstname = "James"
+  , surname   = "McKinna"
+  , website   = Nothing
+  }
+
+jnagele :: Person
+jnagele = Person
+  { firstname = "Julian"
+  , surname   = "Nagele"
+  , website   = Just "https://jnagele.net/"
+  }
+
+jyallop :: Person
+jyallop = Person
+  { firstname = "Jeremy"
+  , surname   = "Yallop"
+  , website   = Just "https://www.cl.cam.ac.uk/~jdy22/"
   }
 
 kstark :: Person
@@ -120,49 +133,32 @@ kstark = Person
   , website   = Just "https://www.k-stark.de/"
   }
 
-ratkey :: Person
-ratkey =
-  Person { firstname = "Robert"
-         , surname   = "Atkey"
-         , website   = Just "http://bentnib.org/"
-         }
+maltenmuller :: Person
+maltenmuller = Person
+  { firstname = "Malin"
+  , surname = "Altenmüller"
+  , website = Just "https://maltenmuller.github.io/"
+  }
 
-cmcbride :: Person
-cmcbride =
-  Person { firstname = "Conor"
-         , surname   = "McBride"
-         , website   = Just "http://strictlypositive.org/" }
+mdaggit :: Person
+mdaggit = Person
+  { firstname = "Matthew"
+  , surname = "Daggit"
+  , website = Nothing
+  }
 
-gallais :: Person
-gallais =
-  Person { firstname = "Guillaume"
-         , surname   = "Allais"
-         , website   = Nothing }
+ncorbyn :: Person
+ncorbyn = Person
+  { firstname = "Nathan"
+  , surname = "Corbyn"
+  , website = Just "https://nathancorbyn.com/"
 
-jfdm :: Person
-jfdm =
-  Person { firstname = "Jan"
-         , surname = "de Muijnck-Hughes"
-         , website = Just "https://jfdm.github.io/" }
-
-jmchapman :: Person
-jmchapman =
-  Person { firstname = "James"
-         , surname   = "Chapman"
-         , website   = Just "http://cs.ioc.ee/~james/" }
-
-jmckinna :: Person
-jmckinna =
-  Person { firstname = "James"
-         , surname   = "McKinna"
-         , website   = Nothing }
-
-jnagele :: Person
-jnagele =
-  Person { firstname = "Julian"
-         , surname   = "Nagele"
-         , website   = Just "http://cl-informatik.uibk.ac.at/users/csag8264/"
-         }
+okammar :: Person
+okammar = Person
+  { firstname = "Ohad"
+  , surname   = "Kammar"
+  , website   = Just "http://denotational.co.uk/"
+  }
 
 pboutillier :: Person
 pboutillier =
@@ -171,11 +167,25 @@ pboutillier =
          , website   = Just "https://github.com/pirbo"
          }
 
+ratkey :: Person
+ratkey =
+  Person { firstname = "Robert"
+         , surname   = "Atkey"
+         , website   = Just "http://bentnib.org/"
+         }
+
 rthiemann :: Person
 rthiemann =
   Person { firstname = "René"
          , surname   = "Thiemann"
          , website   = Just "http://cl-informatik.uibk.ac.at/users/thiemann/" }
+
+sschafer :: Person
+sschafer = Person
+  { firstname = "Steven"
+  , surname   = "Schäfer"
+  , website   = Just "https://www.ps.uni-saarland.de/~schaefer/"
+  }
 
 ybertot :: Person
 ybertot =
