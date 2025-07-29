@@ -152,6 +152,7 @@ ncorbyn = Person
   { firstname = "Nathan"
   , surname = "Corbyn"
   , website = Just "https://nathancorbyn.com/"
+  }
 
 okammar :: Person
 okammar = Person
@@ -161,24 +162,25 @@ okammar = Person
   }
 
 pboutillier :: Person
-pboutillier =
-  Person { firstname = "Pierre"
-         , surname   = "Boutillier"
-         , website   = Just "https://github.com/pirbo"
-         }
+pboutillier = Person
+  { firstname = "Pierre"
+  , surname   = "Boutillier"
+  , website   = Just "https://github.com/pirbo"
+  }
 
 ratkey :: Person
-ratkey =
-  Person { firstname = "Robert"
-         , surname   = "Atkey"
-         , website   = Just "http://bentnib.org/"
-         }
+ratkey = Person
+  { firstname = "Robert"
+  , surname   = "Atkey"
+  , website   = Just "http://bentnib.org/"
+  }
 
 rthiemann :: Person
-rthiemann =
-  Person { firstname = "René"
-         , surname   = "Thiemann"
-         , website   = Just "http://cl-informatik.uibk.ac.at/users/thiemann/" }
+rthiemann = Person
+  { firstname = "René"
+  , surname   = "Thiemann"
+  , website   = Just "http://cl-informatik.uibk.ac.at/users/thiemann/"
+  }
 
 sschafer :: Person
 sschafer = Person
@@ -188,7 +190,8 @@ sschafer = Person
   }
 
 ybertot :: Person
-ybertot =
-  Person { firstname = "Yves"
-         , surname   = "Bertot"
-         , website   = Just "http://www-sop.inria.fr/members/Yves.Bertot" }
+ybertot = Person
+  { firstname = "Yves"
+  , surname   = "Bertot"
+  , website   = Just "http://www-sop.inria.fr/members/Yves.Bertot"
+  }

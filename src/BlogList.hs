@@ -4,7 +4,9 @@
 module BlogList where
 
 import Data.Time
+import Data.Time.Format.ISO8601
 import qualified Data.List as L
+import Data.Maybe (fromMaybe)
 import Data.String ( IsString(..) )
 import Data.Text as T
 
@@ -175,7 +177,7 @@ blogIndex key = T.concat
 
     post :: BlogPost -> Text
     post bp =
-      let date = formatTime defaultTimeLocale (iso8601DateFormat Nothing) in
+      let date = fromMaybe "" . formatShowM iso8601Format in
       T.concat
           [ a_ (T.concat [ "/blog/", T.pack $ source bp, ".html" ]) $ name bp
           , span_ " class=\"date\"" $ T.pack $ date $ pubDate bp ]
@@ -195,6 +197,7 @@ postRSS bp txt =
     , rssItemAuthor      = Nothing
     , rssItemCategories  = []
     , rssItemComments    = Nothing
+    , rssItemContent     = Nothing
     , rssItemEnclosure   = Nothing
     , rssItemGuid        = Just $ RSSGuid (Just True) [] url
     , rssItemPubDate     = Just time
