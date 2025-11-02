@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - source
-      - build
 
   schedule:
     - cron: 0 4 * * 0 # rebuild every Sunday at 4am
