@@ -22,7 +22,13 @@ venueToText v = urlToText (name v) (www v)
 jfp :: Venue
 jfp = Venue
   { name = "JFP"
-  , www = Just "https://icfp18.sigplan.org/"
+  , www = Just "https://www.cambridge.org/core/journals/journal-of-functional-programming"
+  }
+
+joss :: Venue
+joss = Venue
+  { name = "JOSS"
+  , www = Just "https://joss.theoj.org/"
   }
 
 data Kind = Pdf | Slides | Github | Agda | Blog | Arxiv | Abstract | Video
@@ -229,7 +235,7 @@ workshops =
           , resources = [ pdf "pdf/types22.pdf"
                         ]
           }
-  , Publi { authors   = [mdaggit, gallais]
+  , Publi { authors   = [mdaggitt, gallais]
           , title     = "Using Dependent Types at Scale: Maintaining the Agda Standard Library"
           , date      = Date Nothing (Just 01) 2022
           , venue     = Venue { name = "WITS'22"
@@ -359,7 +365,16 @@ conferences =
 journals :: [Publi]
 journals =
   [
-    Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
+    Publi { authors   = [ mdaggitt, gallais, jmckinna, aabel, nvdoorn, jwood, unorell, dkidney, smechveliani
+                        , sstucki, jcarette, arice, jhu, lxia, syou, rmullanix, wkokke]
+          , title     = "The Agda standard library: version 2.0"
+          , date      = Date Nothing (Just 12) 2025
+          , venue     = joss
+          , resources = [ pdf "pdf/2025_JOSS_agda-stdlib.pdf"
+                        , arxiv "2001.11001"
+                        ]
+          }
+  , Publi { authors   = [gallais, ratkey, jmchapman, cmcbride, jmckinna]
           , title     = "A Scope Safe Universe of Syntaxes with Binding, Their Semantics and Proofs"
           , date      = Date Nothing (Just 10) 2021
           , venue     = jfp
