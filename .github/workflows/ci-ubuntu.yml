@@ -48,6 +48,7 @@ jobs:
       - name: Build site
         run: |
           cd src/
+          cabal install happy
           cabal build
           cabal exec www-gallais build
           cp -R ../css ../pdf ../img ../splv23 _site/
