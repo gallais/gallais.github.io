@@ -1,5 +1,5 @@
 [div=bdocs][ul]
-[li][url=pdf/barras-habilitation.pdf]Barras' habil. thesis[/url][/li]
+[li][url=/pdf/barras-habilitation.pdf]Barras' habil. thesis[/url][/li]
 [li][url=code/NonRegularParameter/NonRegular.agda]Raw Agda[/url][/li]
 [li][url=code/NonRegularParameter/NonRegular.html]Colored Agda[/url][/li]
 [li][url=code/NonRegularParameter/NonRegular.v]Coq equivalent[/url][/li]
