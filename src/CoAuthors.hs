@@ -54,7 +54,7 @@ arice :: Person
 arice = Person
   { firstname = "Alex"
   , surname = "Rice"
-  , website = Nothing
+  , website = Just "https://alexarice.github.io/"
   }
 
 bpientka :: Person
@@ -82,7 +82,7 @@ dkidney :: Person
 dkidney = Person
   { firstname = "Donnacha Oisín"
   , surname = "Kidney"
-  , website = Nothing
+  , website = Just "https://doisinkidney.com/"
   }
 
 ebrady :: Person
@@ -159,7 +159,7 @@ jwood :: Person
 jwood = Person
   { firstname = "James"
   , surname = "Wood"
-  , website = Nothing
+  , website = Just "https://lamudri.github.io/"
   }
 
 jyallop :: Person
@@ -236,7 +236,7 @@ rmullanix :: Person
 rmullanix = Person
   { firstname = "Reed"
   , surname = "Mullanix"
-  , website = Nothing
+  , website = Just "https://reedmullanix.com/"
   }
 
 rthiemann :: Person
@@ -285,7 +285,7 @@ wkokke :: Person
 wkokke = Person
   { firstname = "Wen"
   , surname = "Kokke"
-  , website = Nothing
+  , website = Just "https://wen.works/"
   }
 
 ybertot :: Person
