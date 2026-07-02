@@ -497,7 +497,13 @@ reports =
 
 drafts :: [Publi]
 drafts =
-  [ Publi { authors   = [gallais]
+  [ Publi { authors   = [alambert, gallais, cmcbride]
+          , title     = "Co-Lecturing With the DED"
+          , date      = Date Nothing (Just 5) 2026
+          , venue     = Venue { name = "Submitted to SIGCSE virtual", www = Nothing }
+          , resources = [ pdf "pdf/2026_DED_draft.pdf" ]
+          }
+  , Publi { authors   = [gallais]
           , title     = "Seamless, Correct, and Generic Programming over Serialised Data"
           , date      = Date Nothing (Just 7) 2023
           , venue     = Venue { name = "Submitted to POPL", www = Nothing }

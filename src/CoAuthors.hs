@@ -36,6 +36,13 @@ ahameer = Person
   , website   = Nothing
   }
 
+alambert :: Person
+alambert = Person
+  { firstname = "Alasdair"
+  , surname = "Lambert"
+  , website = Nothing
+  }
+
 amomigliano :: Person
 amomigliano = Person
   { firstname = "Alberto"
@@ -60,7 +67,7 @@ bpientka = Person
 cmcbride :: Person
 cmcbride = Person
   { firstname = "Conor"
-  , surname   = "McBride"
+  , surname   = "Mc Bride"
   , website   = Just "http://strictlypositive.org/"
   }
 
