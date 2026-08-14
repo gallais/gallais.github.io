@@ -501,7 +501,9 @@ drafts =
           , title     = "Co-Lecturing With the DED"
           , date      = Date Nothing (Just 5) 2026
           , venue     = Venue { name = "Submitted to SIGCSE virtual", www = Nothing }
-          , resources = [ pdf "pdf/2026_DED_draft.pdf" ]
+          , resources = [ pdf "pdf/2026_DED_draft.pdf"
+                        , arxiv "2608.09945"
+                        ]
           }
   , Publi { authors   = [gallais]
           , title     = "Seamless, Correct, and Generic Programming over Serialised Data"
